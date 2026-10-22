@@ -32,13 +32,21 @@ These switches control which built-in game voice-emote sounds Roar Forever resto
 - `/congrats` / `/congratulate` — restores a random congratulations line for other players.
 - `/followme` — restores the follow-me voice for other players.
 - `/whistle` — restores the whistle for other players.
-- `/train` — Roar Forever takes over `/train`, plays the normal choo-choo, and also sends "blows a train whistle. Choo choo!" Nearby players outside your group who use Roar Forever hear the train voice from that line. In a party or raid it is left to the game, like the other non-roar voices.
-- `/forthehorde` / `/fth` — Horde-only. Plays the race/sex “For the Horde!” voice from the Forever client and sends "cheers for the Horde! For the Horde!" so other Roar Forever users can hear it, including in a party or raid.
-- `/forthealliance` / `/fta` — Alliance-only. Same behavior with the “For the Alliance!” voices and "cheers for the Alliance! For the Alliance!" Forever does not currently wire either native faction-emote token, so the cheer animation may be missing until Blizzard adds it. Using the wrong faction’s command prints a short refusal. No Skyborne faction-cry recording was found in the client.
+- `/train` — Roar Forever takes over `/train`, plays the normal choo-choo, and can announce "blows a train whistle. Choo choo!" Other Roar Forever users hear train through addon communication when the game does not already play it. In a party or raid, group-member train stays with the native client sound (no addon double).
+- `/forthehorde` / `/fth` — Horde-only. Plays the race/sex “For the Horde!” voice and optional announce line. Other Roar Forever users primarily hear it through addon communication (including in a party or raid), with distance-aware restored emote audio when positions are available.
+- `/forthealliance` / `/fta` — Alliance-only. Same behavior with the “For the Alliance!” voices. Forever does not currently wire either native faction-emote token, so the cheer animation may be missing until Blizzard adds it. Using the wrong faction’s command prints a short refusal. No Skyborne faction-cry recording was found in the client.
 
-Roar Forever does not replay your own normal voiced emotes, because the client already plays those. `/roar` is the exception for races that have no client roar. Skyborne already have a native roar, so the addon leaves your own and group-member Skyborne roars to the game. In a party or raid, the client already plays the other voices for group members, so Roar Forever restores only `/roar` there (except Skyborne), plus announced faction cries. Nearby players who are not in your group still get the full set.
+### Distance-aware restored emote audio (0.6)
 
-Someone who is not using Roar Forever can still `/train` without sending a line, so there is nothing for the addon to hear. The same is true for faction cries if they have no way to send the distinctive chat line.
+When both players use Roar Forever, `/roar`, `/train`, `/forthehorde`, and `/forthealliance` also send a short invisible addon message with the speaker’s outdoor position. Receivers fade or silence that restored voice by distance (same world/instance). This is **not** true left/right 3D positional audio — the public addon API cannot pan per sound.
+
+Players without Roar Forever are still heard through the existing text-emote / announce detection. A brief wait prefers the addon packet when both arrive so the sound is not played twice.
+
+SoundKit-based volume scaling is ready; the mapping table starts empty until IDs are verified from Forever DB2/CASC data. Until then, in-range COMM events use the existing FileDataID playback, and out-of-range (≥50 yards) or other-instance packets stay silent.
+
+Roar Forever does not replay your own normal voiced emotes, because the client already plays those. `/roar` is the exception for races that have no client roar. Skyborne already have a native roar, so the addon leaves your own and group-member Skyborne roars to the game. In a party or raid, the client already plays most other voices for group members, so Roar Forever restores `/roar` there (except Skyborne), plus faction cries via COMM/announce. Nearby players who are not in your group still get the full set.
+
+Someone who is not using Roar Forever can still `/train` without sending a line, so there is nothing for the addon to hear unless they use a distinctive announce. The same is true for faction cries without the distinctive chat line or addon communication.
 
 ## Installation
 
@@ -60,7 +68,11 @@ Playback is local: another player does not need Roar Forever installed for you t
 | `/forthehorde` or `/fth` | Horde faction cry (Roar Forever). |
 | `/forthealliance` or `/fta` | Alliance faction cry (Roar Forever). |
 | `/rf status` | Show whether the addon is on, your character voice, and the mapped emotes. |
-| `/rf id <FileDataID>` | Test a specific sound ID. |
+| `/rf id <FileDataID>` | Test a specific FileDataID. |
+| `/rf debugcomm` | Toggle printing of received addon-emote packets (distance, volume, channel). |
+| `/rf debugpos` | Print your outdoor `UnitPosition` x, y, and instance ID. |
+| `/rf soundkit <ID> [volume]` | Play a **candidate** SoundKit ID at an optional volume (default 1.0). For validating IDs you already have — not a way to discover voice mappings from scratch. |
+| `/rf voltest <ID>` | Play a candidate SoundKit at about 100%, 70%, 40%, 20%, and 10% with short gaps. |
 
 `/roarforever` can also be used in place of `/rf`.
 

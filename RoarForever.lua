@@ -481,23 +481,90 @@ local function GetVoiceKeyForGUID(guid)
     return BuildVoiceKey(raceFile, sex)
 end
 
--- One active restored voice at a time so rapid repeats restart instead of stacking.
-local lastSoundHandle
+-- Verified SoundKitIDs for distance-aware C_Sound.PlaySound. Empty until
+-- DB2/CASC mappings are confirmed; FileDataID playback remains the fallback.
+local voiceSoundKits = {
+    roar = {},
+    train = {},
+    forthehorde = {},
+    forthealliance = {},
+}
 
-local function PlaySoundFileExclusive(fileDataID)
-    if lastSoundHandle and StopSound then
-        StopSound(lastSoundHandle)
-        lastSoundHandle = nil
+local COMM_PREFIX = "RoarForever"
+local COMM_PROTOCOL = "1"
+local COMM_EMOTES = {
+    roar = true,
+    train = true,
+    forthehorde = true,
+    forthealliance = true,
+}
+local FALLBACK_DELAY = 0.10
+local COMM_DEDUPE_TTL = 2
+local RECENT_COMM_TTL = 0.35
+local MAX_AUDIBLE_DISTANCE = 50
+
+-- Per-speaker exclusive playback: one active restored voice per player so that
+-- player's spam/restart cuts their own previous line, while other players overlap.
+local lastSoundHandleBySpeaker = {}
+local previewSoundHandle
+
+local function SpeakerKey(sender, guid)
+    return guid or NormalizeName(sender) or "unknown"
+end
+
+local function LocalSpeakerKey()
+    local guid = UnitGUID and UnitGUID("player") or nil
+    local name = UnitName and UnitName("player") or "player"
+    return SpeakerKey(name, guid)
+end
+
+local function StopSpeakerSound(speakerKey)
+    if not speakerKey then
+        return
     end
+    local handle = lastSoundHandleBySpeaker[speakerKey]
+    if handle and StopSound then
+        StopSound(handle)
+    end
+    lastSoundHandleBySpeaker[speakerKey] = nil
+end
 
+local function PlaySoundFileForSpeaker(speakerKey, fileDataID)
+    StopSpeakerSound(speakerKey)
     local willPlay, handle = PlaySoundFile(fileDataID, "Master")
     if willPlay then
-        lastSoundHandle = handle
+        lastSoundHandleBySpeaker[speakerKey] = handle
     end
     return willPlay and true or false, handle
 end
 
-local function PlayEmoteByKey(emoteName, voiceKey)
+local function PlaySoundKitForSpeaker(speakerKey, soundKitID, volume)
+    if not (C_Sound and C_Sound.PlaySound) then
+        return false
+    end
+    StopSpeakerSound(speakerKey)
+    local willPlay, handle = C_Sound.PlaySound(soundKitID, "SFX", false, false, nil, volume)
+    if willPlay then
+        lastSoundHandleBySpeaker[speakerKey] = handle
+    end
+    return willPlay and true or false, handle
+end
+
+local function VolumeForDistance(distance)
+    if not distance then
+        return 1.0
+    end
+    if distance <= 5 then
+        return 1.0
+    end
+    if distance >= MAX_AUDIBLE_DISTANCE then
+        return 0
+    end
+    local t = (distance - 5) / (MAX_AUDIBLE_DISTANCE - 5)
+    return (1 - t) ^ 1.5
+end
+
+local function PlayEmoteByKey(emoteName, voiceKey, speakerKey)
     local emoteMap = voiceSounds[emoteName]
     local sounds = emoteMap and emoteMap[voiceKey]
     if not sounds or #sounds == 0 then
@@ -505,8 +572,39 @@ local function PlayEmoteByKey(emoteName, voiceKey)
     end
 
     local fileDataID = sounds[math.random(#sounds)]
-    local willPlay = PlaySoundFileExclusive(fileDataID)
+    local willPlay = PlaySoundFileForSpeaker(speakerKey or "unknown", fileDataID)
     return willPlay, fileDataID
+end
+
+-- positionStatus: "ok" | "mismatch" | "unavailable"
+local function PlayRestoredVoice(emoteName, voiceKey, distance, positionStatus, speakerKey)
+    if positionStatus == "mismatch" then
+        return false
+    end
+
+    speakerKey = speakerKey or "unknown"
+    local kitMap = voiceSoundKits[emoteName]
+    local kit = kitMap and kitMap[voiceKey]
+
+    if positionStatus == "ok" then
+        if not distance or distance >= MAX_AUDIBLE_DISTANCE then
+            return false
+        end
+        if kit then
+            local volume = VolumeForDistance(distance)
+            if volume <= 0 then
+                return false
+            end
+            return PlaySoundKitForSpeaker(speakerKey, kit, volume)
+        end
+        return PlayEmoteByKey(emoteName, voiceKey, speakerKey)
+    end
+
+    -- Position unavailable: full-volume fallback.
+    if kit then
+        return PlaySoundKitForSpeaker(speakerKey, kit, 1.0)
+    end
+    return PlayEmoteByKey(emoteName, voiceKey, speakerKey)
 end
 
 -- Normalize chat formatting without lowercasing UTF-8 names or translated text.
@@ -710,7 +808,15 @@ function RF.Preview(emote)
         previewPools[emote] = pool
     end
     if #pool == 0 then return false end
-    return PlaySoundFileExclusive(pool[math.random(#pool)])
+    if previewSoundHandle and StopSound then
+        StopSound(previewSoundHandle)
+        previewSoundHandle = nil
+    end
+    local ok, handle = PlaySoundFile(pool[math.random(#pool)], "Master")
+    if ok then
+        previewSoundHandle = handle
+    end
+    return ok and true or false, handle
 end
 
 local function IsGroupedSender(sender, guid)
@@ -771,12 +877,391 @@ local function GetSenderVoiceKey(sender, guid)
     return nil
 end
 
-frame:SetScript("OnEvent", function(self, event, ...)
-    if event ~= "CHAT_MSG_TEXT_EMOTE" and event ~= "CHAT_MSG_EMOTE" then
+local function SenderKey(sender, guid)
+    return SpeakerKey(sender, guid)
+end
+
+local function RecentCommKey(sender, guid, emoteName)
+    return SenderKey(sender, guid) .. "|" .. emoteName
+end
+
+-- Text-emote fallback timers waiting for a matching COMM packet.
+local pendingFallbackByKey = {}
+-- COMM already handled this sender+emote recently (COMM arrived before text).
+local recentCommBySenderAndEmote = {}
+-- Deduplicate the same eventID across SAY/PARTY/RAID copies.
+local recentCommEventIDs = {}
+local eventCounter = 0
+local debugCommEnabled = false
+local prefixRegistered = false
+
+local function NextEventID()
+    eventCounter = (eventCounter + 1) % 10000
+    return tostring(eventCounter)
+end
+
+local function RegisterCommPrefix()
+    if prefixRegistered then
+        return
+    end
+    if C_ChatInfo and C_ChatInfo.RegisterAddonMessagePrefix then
+        C_ChatInfo.RegisterAddonMessagePrefix(COMM_PREFIX)
+        prefixRegistered = true
+    end
+end
+
+local function ResolveDistance(senderX, senderY, senderInstance)
+    if not UnitPosition then
+        return nil, "unavailable"
+    end
+    local px, py, _, playerInstance = UnitPosition("player")
+    if senderX == nil or senderY == nil or senderInstance == nil
+        or px == nil or py == nil or playerInstance == nil then
+        return nil, "unavailable"
+    end
+    if senderInstance ~= playerInstance then
+        return nil, "mismatch"
+    end
+    local dx = senderX - px
+    local dy = senderY - py
+    return math.sqrt(dx * dx + dy * dy), "ok"
+end
+
+local function ShouldSuppressCommPlayback(emoteName, sender, guid, voiceKey)
+    if IsLocalPlayer(sender, guid) then
+        return true
+    end
+    -- Forever already plays group-member /train natively (0.5.1 fix).
+    if emoteName == "train" and IsGroupedSender(sender, guid) then
+        return true
+    end
+    local isSelfOrGroup = IsLocalPlayer(sender, guid) or IsGroupedSender(sender, guid)
+    if emoteName == "roar" and isSelfOrGroup and IsSkyborneVoiceKey(voiceKey) then
+        return true
+    end
+    return false
+end
+
+local function CancelPendingFallback(key)
+    local pending = pendingFallbackByKey[key]
+    if pending then
+        pending.cancelled = true
+        pendingFallbackByKey[key] = nil
+    end
+end
+
+local function MarkRecentComm(sender, guid, emoteName)
+    recentCommBySenderAndEmote[RecentCommKey(sender, guid, emoteName)] = GetTime()
+end
+
+local function HasRecentComm(sender, guid, emoteName)
+    local key = RecentCommKey(sender, guid, emoteName)
+    local seen = recentCommBySenderAndEmote[key]
+    if not seen then
+        return false
+    end
+    if (GetTime() - seen) > RECENT_COMM_TTL then
+        recentCommBySenderAndEmote[key] = nil
+        return false
+    end
+    return true
+end
+
+-- One logical broadcast per DoEmote (slash must not send a second copy).
+local function BroadcastEmoteEvent(emoteName)
+    if not AddonEnabled() or not EmoteEnabled(emoteName) or not COMM_EMOTES[emoteName] then
+        return
+    end
+    if not (C_ChatInfo and C_ChatInfo.SendAddonMessage) then
         return
     end
 
+    local voiceKey = GetVoiceKeyForUnit("player")
+    if not voiceKey or not voiceSounds[emoteName] or not voiceSounds[emoteName][voiceKey] then
+        return
+    end
+
+    RegisterCommPrefix()
+
+    local x, y, _, instanceID
+    if UnitPosition then
+        x, y, _, instanceID = UnitPosition("player")
+    end
+
+    local eventID = NextEventID()
+    local function coordField(n)
+        if n == nil then
+            return ""
+        end
+        return string.format("%.2f", n)
+    end
+    local payload = table.concat({
+        COMM_PROTOCOL,
+        "E",
+        emoteName,
+        voiceKey,
+        eventID,
+        coordField(x),
+        coordField(y),
+        instanceID ~= nil and tostring(instanceID) or "",
+    }, "|")
+
+    local function send(channel)
+        pcall(C_ChatInfo.SendAddonMessage, COMM_PREFIX, payload, channel)
+    end
+
+    send("SAY")
+    if IsInGroup and IsInGroup() then
+        if IsInRaid and IsInRaid() then
+            send("RAID")
+        else
+            send("PARTY")
+        end
+        if LE_PARTY_CATEGORY_INSTANCE and IsInGroup(LE_PARTY_CATEGORY_INSTANCE) then
+            send("INSTANCE_CHAT")
+        end
+    end
+end
+
+local function SplitPipe(message)
+    local parts = {}
+    local start = 1
+    while true do
+        local pos = string.find(message, "|", start, true)
+        if not pos then
+            parts[#parts + 1] = string.sub(message, start)
+            break
+        end
+        parts[#parts + 1] = string.sub(message, start, pos - 1)
+        start = pos + 1
+    end
+    return parts
+end
+
+local function ParseCommMessage(message)
+    if type(message) ~= "string" or message == "" then
+        return nil
+    end
+    local parts = SplitPipe(message)
+    if #parts < 5 then
+        return nil
+    end
+    local protocol, msgType, emoteName, voiceKey, eventID = parts[1], parts[2], parts[3], parts[4], parts[5]
+    if protocol ~= COMM_PROTOCOL or msgType ~= "E" then
+        return nil
+    end
+    if not COMM_EMOTES[emoteName] then
+        return nil
+    end
+    if type(eventID) ~= "string" or eventID == "" or #eventID > 8 then
+        return nil
+    end
+    if not voiceSounds[emoteName] or not voiceSounds[emoteName][voiceKey] then
+        return nil
+    end
+
+    local xField, yField, instField = parts[6], parts[7], parts[8]
+    local x, y, instanceID
+    if xField and xField ~= "" and yField and yField ~= "" and instField and instField ~= "" then
+        x = tonumber(xField)
+        y = tonumber(yField)
+        instanceID = tonumber(instField)
+        if not x or not y or not instanceID then
+            return nil
+        end
+        -- Reject absurd coordinates.
+        if math.abs(x) > 100000 or math.abs(y) > 100000 then
+            return nil
+        end
+    end
+
+    return {
+        emoteName = emoteName,
+        voiceKey = voiceKey,
+        eventID = eventID,
+        x = x,
+        y = y,
+        instanceID = instanceID,
+    }
+end
+
+local function PlayFromComm(sender, guid, parsed, channel)
+    local emoteName = parsed.emoteName
+    local voiceKey = parsed.voiceKey
+    if not EmoteEnabled(emoteName) then
+        return
+    end
+    if ShouldSuppressCommPlayback(emoteName, sender, guid, voiceKey) then
+        return
+    end
+
+    local distance, positionStatus = ResolveDistance(parsed.x, parsed.y, parsed.instanceID)
+    local volume = 1.0
+    if positionStatus == "ok" then
+        volume = VolumeForDistance(distance)
+    end
+
+    if debugCommEnabled then
+        print(string.format(
+            "RoarForever COMM\nsender: %s\nemote: %s\nvoice: %s\ndistance: %s\nvolume: %.2f\nchannel: %s\nevent: %s\nposition: %s",
+            tostring(NormalizeName(sender) or sender),
+            emoteName,
+            voiceKey,
+            distance and string.format("%.1f yd", distance) or "n/a",
+            volume,
+            tostring(channel or "?"),
+            parsed.eventID,
+            positionStatus
+        ))
+    end
+
+    if not CanPlayForSender(sender, guid, emoteName) then
+        return
+    end
+
+    PlayRestoredVoice(emoteName, voiceKey, distance, positionStatus, SpeakerKey(sender, guid))
+end
+
+local function HandleAddonMessage(prefix, message, channel, sender, _, _, _, _, _, _, _, guid)
+    if prefix ~= COMM_PREFIX then
+        return
+    end
     if not AddonEnabled() then
+        return
+    end
+
+    local parsed = ParseCommMessage(message)
+    if not parsed then
+        return
+    end
+
+    if type(guid) ~= "string" or guid == "" then
+        guid = nil
+    end
+
+    local dedupeKey = SenderKey(sender, guid) .. ":" .. parsed.eventID
+    local now = GetTime()
+    local last = recentCommEventIDs[dedupeKey]
+    if last and (now - last) < COMM_DEDUPE_TTL then
+        return
+    end
+    recentCommEventIDs[dedupeKey] = now
+
+    local fallbackKey = RecentCommKey(sender, guid, parsed.emoteName)
+    CancelPendingFallback(fallbackKey)
+    MarkRecentComm(sender, guid, parsed.emoteName)
+    PlayFromComm(sender, guid, parsed, channel)
+end
+
+-- Returns true if the text-emote path should restore this sender/emote (legacy rules).
+local function ShouldRestoreFromText(emoteName, sender, guid)
+    local isSelf = IsLocalPlayer(sender, guid)
+    local isSelfOrGroup = isSelf or IsGroupedSender(sender, guid)
+    local isFactionCry = factionEmotes[emoteName] ~= nil
+
+    if isFactionCry then
+        if isSelf then
+            return false
+        end
+    elseif emoteName ~= "roar" and isSelfOrGroup then
+        return false
+    end
+
+    if emoteName == "roar" and isSelfOrGroup then
+        local voiceKey = GetSenderVoiceKey(sender, guid)
+        if IsSkyborneVoiceKey(voiceKey) then
+            return false
+        end
+    end
+
+    return true
+end
+
+local function PlayTextFallback(emoteName, sender, guid)
+    if not AddonEnabled() or not EmoteEnabled(emoteName) then
+        return
+    end
+    if not ShouldRestoreFromText(emoteName, sender, guid) then
+        return
+    end
+    if not CanPlayForSender(sender, guid, emoteName) then
+        return
+    end
+    local voiceKey = GetSenderVoiceKey(sender, guid)
+    if voiceKey then
+        PlayEmoteByKey(emoteName, voiceKey, SpeakerKey(sender, guid))
+    end
+end
+
+local function ScheduleTextFallback(emoteName, sender, guid)
+    local key = RecentCommKey(sender, guid, emoteName)
+    if HasRecentComm(sender, guid, emoteName) then
+        return
+    end
+    CancelPendingFallback(key)
+    local pending = { cancelled = false }
+    pendingFallbackByKey[key] = pending
+    C_Timer.After(FALLBACK_DELAY, function()
+        if pending.cancelled or pendingFallbackByKey[key] ~= pending then
+            return
+        end
+        pendingFallbackByKey[key] = nil
+        if HasRecentComm(sender, guid, emoteName) then
+            return
+        end
+        PlayTextFallback(emoteName, sender, guid)
+    end)
+end
+
+local function HandleChatEmote(event, text, sender, guid)
+    if not AddonEnabled() then
+        return
+    end
+
+    local emoteName = DetectEmote(text, event, sender)
+    if not emoteName or not EmoteEnabled(emoteName) then
+        return
+    end
+
+    -- Self roar: play immediately and let the DoEmote hook broadcast COMM.
+    if emoteName == "roar" and IsLocalPlayer(sender, guid) then
+        if not ShouldRestoreFromText(emoteName, sender, guid) then
+            return
+        end
+        if not CanPlayForSender(sender, guid, emoteName) then
+            return
+        end
+        local voiceKey = GetSenderVoiceKey(sender, guid)
+        if voiceKey then
+            PlayEmoteByKey(emoteName, voiceKey, SpeakerKey(sender, guid))
+        end
+        return
+    end
+
+    if COMM_EMOTES[emoteName] then
+        if not ShouldRestoreFromText(emoteName, sender, guid) then
+            return
+        end
+        ScheduleTextFallback(emoteName, sender, guid)
+        return
+    end
+
+    -- Non-COMM emotes keep the immediate restore path.
+    PlayTextFallback(emoteName, sender, guid)
+end
+
+frame:SetScript("OnEvent", function(self, event, ...)
+    if event == "PLAYER_LOGIN" then
+        RegisterCommPrefix()
+        return
+    end
+
+    if event == "CHAT_MSG_ADDON" then
+        HandleAddonMessage(...)
+        return
+    end
+
+    if event ~= "CHAT_MSG_TEXT_EMOTE" and event ~= "CHAT_MSG_EMOTE" then
         return
     end
 
@@ -785,77 +1270,97 @@ frame:SetScript("OnEvent", function(self, event, ...)
     if type(guid) ~= "string" or guid == "" then
         guid = nil
     end
-
-    local emoteName = DetectEmote(text, event, sender)
-
-    if not emoteName or not EmoteEnabled(emoteName) then
-        return
-    end
-
-    -- The client already plays normal voiced emotes for you, and for party
-    -- and raid members, including /train. Most races still lack /roar there,
-    -- so only /roar is restored for yourself and for group members. Skyborne
-    -- already have a client roar, so leave that to the game too. Faction cries
-    -- are addon-restored for everyone except yourself (you already played from
-    -- the slash command), including party and raid, because Forever does not
-    -- wire those voices. Custom chat lines carry /train and faction cries.
-    local isSelf = IsLocalPlayer(sender, guid)
-    local isSelfOrGroup = isSelf or IsGroupedSender(sender, guid)
-    local isFactionCry = factionEmotes[emoteName] ~= nil
-
-    if isFactionCry then
-        if isSelf then
-            return
-        end
-    elseif emoteName ~= "roar" and isSelfOrGroup then
-        return
-    end
-
-    local voiceKey = nil
-    if emoteName == "roar" and isSelfOrGroup then
-        voiceKey = GetSenderVoiceKey(sender, guid)
-        if IsSkyborneVoiceKey(voiceKey) then
-            return
-        end
-    end
-
-    if not CanPlayForSender(sender, guid, emoteName) then
-        return
-    end
-
-    voiceKey = voiceKey or GetSenderVoiceKey(sender, guid)
-    if voiceKey then
-        PlayEmoteByKey(emoteName, voiceKey)
-    end
+    HandleChatEmote(event, text, sender, guid)
 end)
 
+frame:RegisterEvent("PLAYER_LOGIN")
+frame:RegisterEvent("CHAT_MSG_ADDON")
 frame:RegisterEvent("CHAT_MSG_TEXT_EMOTE")
 frame:RegisterEvent("CHAT_MSG_EMOTE")
+RegisterCommPrefix()
 
 SLASH_ROARFOREVER1 = "/roarforever"
 SLASH_ROARFOREVER2 = "/rf"
 
 SlashCmdList.ROARFOREVER = function(msg)
-    msg = string.lower((msg or ""):match("^%s*(.-)%s*$"))
+    local raw = (msg or ""):match("^%s*(.-)%s*$") or ""
+    local lower = string.lower(raw)
 
-    if msg == "" or msg == "config" or msg == "ui" then
+    if lower == "" or lower == "config" or lower == "ui" then
         RF.OpenOptions()
         return
     end
 
-    if msg == "off" or msg == "disable" then
+    if lower == "off" or lower == "disable" then
         SetAddonEnabled(false)
         print("Roar Forever is off. /rf on turns it back on.")
         return
     end
 
-    if msg == "on" or msg == "enable" then
+    if lower == "on" or lower == "enable" then
         SetAddonEnabled(true)
         print("Roar Forever is on.")
         return
     end
 
-    local testEmote = msg:match("^test%s*(%a*)$")
+    if lower == "debugcomm" then
+        debugCommEnabled = not debugCommEnabled
+        print("Roar Forever: debugcomm " .. (debugCommEnabled and "on" or "off"))
+        return
+    end
+
+    if lower == "debugpos" then
+        if not UnitPosition then
+            print("Roar Forever: UnitPosition is unavailable.")
+            return
+        end
+        local x, y, _, instanceID = UnitPosition("player")
+        print(string.format(
+            "Roar Forever position: x=%s y=%s instanceID=%s",
+            x and string.format("%.2f", x) or "n/a",
+            y and string.format("%.2f", y) or "n/a",
+            instanceID ~= nil and tostring(instanceID) or "n/a"
+        ))
+        return
+    end
+
+    local kitID, kitVol = raw:match("^soundkit%s+(%d+)%s*([%d%.]*)$")
+    if kitID then
+        local id = tonumber(kitID)
+        local volume = tonumber(kitVol)
+        if not volume then
+            volume = 1.0
+        end
+        if not (C_Sound and C_Sound.PlaySound) then
+            print("Roar Forever: C_Sound.PlaySound is unavailable.")
+            return
+        end
+        local ok, handle = PlaySoundKitForSpeaker(LocalSpeakerKey(), id, volume)
+        print(string.format("Roar Forever: SoundKit %d @ %.2f -> %s %s", id, volume, tostring(ok), tostring(handle)))
+        return
+    end
+
+    local voltestID = raw:match("^voltest%s+(%d+)$")
+    if voltestID then
+        local id = tonumber(voltestID)
+        if not (C_Sound and C_Sound.PlaySound) then
+            print("Roar Forever: C_Sound.PlaySound is unavailable.")
+            return
+        end
+        local volumes = { 1.0, 0.7, 0.4, 0.2, 0.1 }
+        local delay = 0
+        for _, volume in ipairs(volumes) do
+            local v = volume
+            C_Timer.After(delay, function()
+                PlaySoundKitForSpeaker(LocalSpeakerKey(), id, v)
+                print(string.format("Roar Forever voltest: SoundKit %d @ %.0f%%", id, v * 100))
+            end)
+            delay = delay + 0.8
+        end
+        return
+    end
+
+    local testEmote = lower:match("^test%s*(%a*)$")
     if testEmote then
         if testEmote == "" then
             testEmote = "roar"
@@ -879,12 +1384,12 @@ SlashCmdList.ROARFOREVER = function(msg)
             return
         end
 
-        local ok, fileDataID = PlayEmoteByKey(testEmote, voiceKey)
+        local ok, fileDataID = PlayEmoteByKey(testEmote, voiceKey, LocalSpeakerKey())
         print("Roar Forever: " .. testEmote .. " / " .. voiceKey .. " -> " .. fileDataID .. (ok and " (played)" or " (playback failed)"))
         return
     end
 
-    if msg == "status" then
+    if lower == "status" then
         local voiceKey = GetVoiceKeyForUnit("player") or "unknown"
         local mapped = {}
 
@@ -900,7 +1405,7 @@ SlashCmdList.ROARFOREVER = function(msg)
         return
     end
 
-    local rawID = msg:match("^id%s+(%d+)$")
+    local rawID = lower:match("^id%s+(%d+)$")
     if rawID then
         local fileDataID = tonumber(rawID)
         local ok, handle = PlaySoundFile(fileDataID, "Master")
@@ -908,12 +1413,12 @@ SlashCmdList.ROARFOREVER = function(msg)
         return
     end
 
-    print("Roar Forever: /rf on | /rf off | /rf test [emote] | /rf status | /rf id <FileDataID>")
+    print("Roar Forever: /rf on | /rf off | /rf test [emote] | /rf status | /rf id <FileDataID> | /rf debugcomm | /rf debugpos | /rf soundkit <ID> [volume] | /rf voltest <ID>")
 end
 
 -- Forever never announces /train, and does not wire faction cries at all.
 -- Take over those slash commands, play what the client can, then send a custom
--- /e line other Roar Forever clients can hear.
+-- /e line. COMM is the multiplayer signal for other Roar Forever users.
 local lastCustomAnnounce = {}
 
 local function SendEmoteLine(text)
@@ -956,6 +1461,10 @@ local function IsTrainToken(emote)
     return type(emote) == "string" and string.upper(emote) == "TRAIN"
 end
 
+local function IsRoarToken(emote)
+    return type(emote) == "string" and string.upper(emote) == "ROAR"
+end
+
 local function IsPlayerFaction(faction)
     return UnitFactionGroup and UnitFactionGroup("player") == faction
 end
@@ -974,7 +1483,7 @@ local function PlayLocalFactionCry(emoteName)
     if not CanPlayForSender(sender, guid, emoteName) then
         return false
     end
-    return PlayEmoteByKey(emoteName, voiceKey)
+    return PlayEmoteByKey(emoteName, voiceKey, SpeakerKey(sender, guid))
 end
 
 local function HandleFactionCry(emoteName, fromDoEmote)
@@ -994,8 +1503,8 @@ local function HandleFactionCry(emoteName, fromDoEmote)
     -- retail token so a future build can supply the native cheer animation
     -- without an addon change. Do not fall back to CHEER: that would send the
     -- wrong emote text and play the cheer voice on top of the faction cry.
-    -- Voice + custom /e are required regardless of whether DoEmote no-ops or
-    -- errors; the custom line is the only multiplayer signal Forever provides.
+    -- Voice + announce stay on the slash/hook path; COMM is sent only from the
+    -- DoEmote hook so slash + hook never double-broadcast.
     if not fromDoEmote and DoEmote then
         pcall(DoEmote, info.token)
     end
@@ -1034,10 +1543,17 @@ SlashCmdList.ROARFOREVERFTA = function()
 end
 
 if hooksecurefunc and DoEmote then
-    -- Bindings and other addons call DoEmote without going through our slashes.
+    -- Sole COMM transmitter for roar / train / faction cries. Slash handlers
+    -- call DoEmote and must not BroadcastEmoteEvent themselves.
     hooksecurefunc("DoEmote", function(emote)
         if IsTrainToken(emote) then
             AnnounceCustomLineSoon("train", TRAIN_LINE)
+            BroadcastEmoteEvent("train")
+            return
+        end
+
+        if IsRoarToken(emote) then
+            BroadcastEmoteEvent("roar")
             return
         end
 
@@ -1048,6 +1564,7 @@ if hooksecurefunc and DoEmote then
         local emoteName = factionEmoteByToken[string.upper(emote)]
         if emoteName then
             HandleFactionCry(emoteName, true)
+            BroadcastEmoteEvent(emoteName)
         end
     end)
 end

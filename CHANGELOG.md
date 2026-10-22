@@ -2,6 +2,15 @@
 
 Release notes for the standalone player voice-emote sound addon.
 
+## 0.6.0-beta — 2026-10-22
+
+- Added addon-to-addon communication for `/roar`, `/train`, `/forthehorde`, and `/forthealliance` so two Roar Forever users can share restored emotes without relying on visible chat alone.
+- Emote packets include the sender’s outdoor position when available. Receivers apply distance-aware restored emote audio: same-world distance ≥50 yards is silent (even before SoundKit mappings exist); within range an empty SoundKit table still falls back to FileDataID; missing position uses normal full-volume fallback; a different instance ID stays silent.
+- Text-emote detection remains for players without the addon. A short 0.10s fallback waits for a matching COMM packet so the two paths do not double-play either order.
+- Group `/train` still leaves native party/raid train audio to the game (no COMM double). Faction cries may use COMM in groups because Forever has no native playback.
+- Debug helpers: `/rf debugcomm`, `/rf debugpos`, `/rf soundkit <ID> [volume]`, `/rf voltest <ID>` (candidate SoundKit testers, not a mapping discovery tool). Verified SoundKitIDs can be dropped into `voiceSoundKits` later for true attenuation.
+- Per-speaker voice restart: the same player spamming or switching restored emotes stops only their own previous line and starts the new one. Different players’ restored voices play in parallel. Options preview still stops the previous preview sample when you click another.
+
 ## 0.5.7-beta — 2026-10-12
 
 - Clarified the options note: Roar Forever restores built-in World of Warcraft voice-emote sounds; it does not add or bundle audio.
