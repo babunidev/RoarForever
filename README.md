@@ -103,3 +103,9 @@ Run `python tests/test_addon.py` with the `lupa` package installed (Lua 5.1 runt
 - [AI collaborator rules](AGENTS.md)
 
 The journal distinguishes source-based reconstruction, author direction, AI assistance, and independently verified behavior.
+
+## Documentation audit #33 — 27 October 2026
+
+The current source declares **0.6.0-beta** (Interface 16001). Its historical documentation records the evolution from local missing-voice restoration to configured emote categories, multiplayer COMM, text fallback and distance-based suppression. These are separate from *verified volume attenuation*, which depends on verified SoundKitID mappings. The existing client audio is not authored by the addon.
+
+Expanded portfolio documentation: [interaction design](docs/DESIGN.md), [content/audio provenance](docs/CONTENT.md), [architecture](docs/ARCHITECTURE.md), [decisions](docs/DECISIONS.md), [development history](docs/DEVLOG.md) and [human–AI collaboration](docs/AI_COLLABORATION.md). This audit is documentation-only; no client tests were run.
