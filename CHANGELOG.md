@@ -114,3 +114,9 @@ Validation: Lua 5.1 checks cover 593 localized template cases and options, previ
 - Requires no saved settings, directory links, or account-specific configuration.
 
 Earlier combined-addon development is outside the scope of this standalone changelog and remains available in repository history.
+
+## Documentation-only audit #33 — 2026-10-27
+
+- Added separate interaction-design, audio/content provenance and AI-collaboration documents; expanded project concept, architecture, decisions, roadmap and historical journal.
+- Distinguished 0.6.0-beta distance-based silence and fallback sound playback from future SoundKitID volume attenuation.
+- Preserved addon Lua, TOC, tests and audio references; no live-client test or sound mapping verification performed.
