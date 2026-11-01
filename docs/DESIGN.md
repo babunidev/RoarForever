@@ -9,3 +9,7 @@ The movable `/rf` options panel contains an overall enable control, a toggle for
 The 0.6.0-beta distance design prefers a nearby player's COMM message when available, retaining chat-text detection for people without the addon. A 0.10-second text fallback prevents duplicate playback from both paths. Distances of 50 yards or more in a matching instance are silent; mismatched instance IDs are silent, while missing position permits full-volume fallback. FileDataID fallback remains audible in range until genuine SoundKitIDs support attenuation.
 
 The design emphasizes ordinary character emotes, optional faction cries and train sounds without requiring each player to install replacement sound files. Multiplayer listening, actual volume attenuation, window interactions and the five language templates remain in-game verification subjects. See [development history](../CHANGELOG.md) and [architecture](ARCHITECTURE.md).
+
+## Related development history
+
+Roar Forever is the **WoW Forever voice-restoration project**, creatively related to Roar Sound Effects. It restores client-native voice playback for a growing set of recognized emotes and explores addon communication and distance-sensitive audio. It does **not** implement an action-slot or successful-spellcast emote generator; that latter behavior belongs to Flourish Forever. Its own mapping and voice-preview choices must not be confused with the Roar Guild editable emote registry. See [the source-backed comparison](EMOTE_FAMILY_HISTORY.md) for the distinct mechanisms and shared creative direction.

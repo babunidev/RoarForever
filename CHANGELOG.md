@@ -120,3 +120,8 @@ Earlier combined-addon development is outside the scope of this standalone chang
 - Added separate interaction-design, audio/content provenance and AI-collaboration documents; expanded project concept, architecture, decisions, roadmap and historical journal.
 - Distinguished 0.6.0-beta distance-based silence and fallback sound playback from future SoundKitID volume attenuation.
 - Preserved addon Lua, TOC, tests and audio references; no live-client test or sound mapping verification performed.
+
+## 2026-11-01 — expressive-addon family history
+
+- Documented Roar Forever as a client-voice restoration branch, separate from the trigger-based Flourish Forever addon.
+- Linked [the verified family timeline](docs/EMOTE_FAMILY_HISTORY.md); no runtime changes or in-game tests.

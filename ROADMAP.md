@@ -23,3 +23,7 @@ No new feature specification was approved here.
 - [ ] Run the repository's simulated Lua tests and preserve exact output; test real audio and UI separately.
 
 No gameplay modifications or new design approvals were made in this audit.
+
+## Related development history
+
+Roar Forever is the **WoW Forever voice-restoration project**, creatively related to Roar Sound Effects. It restores client-native voice playback for a growing set of recognized emotes and explores addon communication and distance-sensitive audio. It does **not** implement an action-slot or successful-spellcast emote generator; that latter behavior belongs to Flourish Forever. Its own mapping and voice-preview choices must not be confused with the Roar Guild editable emote registry. See [the source-backed comparison](docs/EMOTE_FAMILY_HISTORY.md) for the distinct mechanisms and shared creative direction.

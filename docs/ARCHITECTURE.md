@@ -13,3 +13,7 @@ The TOC loads `Locales.lua`, `RoarForever.lua` and `Options.lua` and declares sa
 The 0.6.0-beta COMM payload records emote, voice key, event and optional position/instance. The receiver favors peer packets where available, with a **0.10s** text fallback and deduplication in both arrival orders. A same-instance distance of **50 yards or greater** produces silence; mismatched instance IDs also suppress audio. Missing position permits full fallback. In-range FileDataID playback remains available while verified SoundKitIDs are missing, so *smooth volume attenuation is not yet confirmed*. Group train COMM is suppressed where the game already handles group train sounds.
 
 Treat full two-part Forever player names as identity, avoiding invented realm-suffix concerns. `test_addon.py` tests a simulated environment; real sound playback, audio channel/mix, positioning and client compatibility require live game verification.
+
+## Related development history
+
+Roar Forever is the **WoW Forever voice-restoration project**, creatively related to Roar Sound Effects. It restores client-native voice playback for a growing set of recognized emotes and explores addon communication and distance-sensitive audio. It does **not** implement an action-slot or successful-spellcast emote generator; that latter behavior belongs to Flourish Forever. Its own mapping and voice-preview choices must not be confused with the Roar Guild editable emote registry. See [the source-backed comparison](EMOTE_FAMILY_HISTORY.md) for the distinct mechanisms and shared creative direction.

@@ -15,3 +15,7 @@ The 0.6.0-beta record describes addon messages with an emote key, voice identity
 ## Portfolio publication
 
 Use screenshots, debug output, diagrams and code excerpts with clear source versions. Distinguish Babuni.dev's creative/social objective, AI assistance, existing Blizzard game audio and community-derived metadata. Do not package or republish game-client audio as project-owned samples.
+
+## Related development history
+
+Roar Forever is the **WoW Forever voice-restoration project**, creatively related to Roar Sound Effects. It restores client-native voice playback for a growing set of recognized emotes and explores addon communication and distance-sensitive audio. It does **not** implement an action-slot or successful-spellcast emote generator; that latter behavior belongs to Flourish Forever. Its own mapping and voice-preview choices must not be confused with the Roar Guild editable emote registry. See [the source-backed comparison](EMOTE_FAMILY_HISTORY.md) for the distinct mechanisms and shared creative direction.

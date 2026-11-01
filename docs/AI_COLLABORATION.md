@@ -15,3 +15,7 @@ The two-part first-name/surname identity model in Forever should be preserved in
 ## Audit #33 — 27 October 2026
 
 **User direction:** Continue the numbered GitHub documentation consolidation with RoarForever, without changing addon code. **AI contribution:** Review the 0.6.0-beta TOC, runtime, options, localization and release notes; fill missing design/content/collaboration documents and make implementation boundaries explicit. **Historical iteration:** COMM-first/text-first deduplication, group train suppression, unavailable verified SoundKitIDs and fallback sound behavior. **Verification:** Repository source review and documentation commits only; no live group test, client playback or sound-distance trial.
+
+## Related development history
+
+Roar Forever is the **WoW Forever voice-restoration project**, creatively related to Roar Sound Effects. It restores client-native voice playback for a growing set of recognized emotes and explores addon communication and distance-sensitive audio. It does **not** implement an action-slot or successful-spellcast emote generator; that latter behavior belongs to Flourish Forever. Its own mapping and voice-preview choices must not be confused with the Roar Guild editable emote registry. See [the source-backed comparison](EMOTE_FAMILY_HISTORY.md) for the distinct mechanisms and shared creative direction.
