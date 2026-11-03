@@ -10,7 +10,7 @@ def boot(locale='enUS', saved=None):
     lua.globals().testLocale = locale
     lua.execute('''
         frames={}; sounds={}; soundKits={}; sent={}; stopped={}; timers={}; addonSent={}; SlashCmdList={}; UISpecialFrames={}
-        now=100; grouped=false; playerPos={x=0,y=0,instanceID=0}
+        now=100; grouped=false; playerPos={x=0,y=0,instanceID=0}; addonSendResult=0
         units={player={name='Tester',realm='Home',guid='Player-self'},
             target={name='Other',realm='Away',guid='Player-other'}}
         function GetLocale() return testLocale end
@@ -80,6 +80,7 @@ def boot(locale='enUS', saved=None):
             RegisterAddonMessagePrefix=function(prefix) registeredPrefix=prefix end,
             SendAddonMessage=function(prefix, payload, channel)
                 addonSent[#addonSent+1]={prefix=prefix, payload=payload, channel=channel}
+                return addonSendResult
             end,
         }
         doEmoteCallsHook=true
@@ -311,6 +312,14 @@ now=206; beforeSounds=#sounds
 guidRace['Player-friend']='Orc'
 addon('RoarForever','1|E|forthehorde|OrcMale|49|8.00|0.00|0','PARTY','Friend','Player-friend')
 assert(#sounds==beforeSounds+1 and sounds[#sounds]==1387394)
+-- SendAddonMessage result codes must not break broadcasting; debugcomm can expose them in-game.
+addonSendResult=3
+now=207; beforeAddon=#addonSent
+SlashCmdList.ROARFOREVER('debugcomm')
+DoEmote('ROAR')
+assert(#addonSent>beforeAddon)
+addonSendResult=0
+SlashCmdList.ROARFOREVER('debugcomm')
 -- Volume curve samples.
 local vol=VolumeForDistance
 assert(vol(0)==1 and vol(5)==1 and vol(50)==0 and vol(60)==0)
