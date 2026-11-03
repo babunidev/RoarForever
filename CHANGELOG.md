@@ -2,6 +2,13 @@
 
 Release notes for the standalone player voice-emote sound addon.
 
+## 0.6.1-beta — 2026-11-04
+
+- Updated installation and compatibility guidance for the live World of Warcraft: Forever 1.60.1 client (`_forever_`, Interface 16001) instead of the former beta folder.
+- `/rf debugcomm` now reports outgoing `SendAddonMessage` result codes as well as received packets, making throttling, invalid channels, communication lockdown, and other send failures visible during launch testing.
+- Documented Forever's restriction on outgoing addon messages for trial/veteran accounts and kept the existing text-emote fallback where the client supplies one.
+- Kept all verified FileDataID mappings, COMM protocol behavior, 50-yard distance gating, and empty SoundKit table unchanged; no unverified launch sound mappings were added.
+
 ## 0.6.0-beta — 2026-10-22
 
 - Added addon-to-addon communication for `/roar`, `/train`, `/forthehorde`, and `/forthealliance` so two Roar Forever users can share restored emotes without relying on visible chat alone.
