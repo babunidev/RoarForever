@@ -19,3 +19,10 @@ The 0.6.0-beta record introduced a second social layer: when nearby players also
 ## 1 November 2026 — keeping the two Forever addons distinct
 
 Looking across the older ROAR and Buxbrew projects, I wanted this audio-restoration work to retain its own place in the history. **Roar Forever** aims to make voiced emotes audible, while **Flourish Forever** decides when a selected ability may create an emote; the names are similar, but their triggers and responsibilities differ. My AI assistant compared the present sources and added this context to [the full history](EMOTE_FAMILY_HISTORY.md), while preserving the separate origin in Roar Sound Effects. No new playback verification or code changes were made in this documentation pass.
+
+## 4 November 2026 — preparing Roar Forever for the live client
+
+With Forever leaving beta, the release-facing setup needed to match the live game without changing sound data that had not been reverified. The installation path now points to the live `_forever_` client, compatibility wording targets Forever 1.60.1 / Interface 16001, and `/rf debugcomm` reports outgoing addon-message result codes so throttling or communication lockdown can be diagnosed during multiplayer tests.
+
+As part of this pass, my AI assistant compared the current repository against the latest Forever addon/API notes and implemented the diagnostics and documentation changes I accepted. Existing FileDataID mappings, COMM protocol behavior, distance gating and the empty SoundKit mapping layer were deliberately left unchanged; launch-client multiplayer and audio behavior still require in-game verification.
+
