@@ -2,7 +2,7 @@
 
 **Human creative:** Babuni
 
-Maintain current README and existing CHANGELOG. Preserve the intended artistic and technical behavior, client constraints, and third-party credits. Original direction is Babuni.dev's; record AI proposals and implementations separately. Never turn proposed or untested behavior into confirmed results.
+Maintain current README and existing CHANGELOG. Preserve the intended artistic and technical behavior, client constraints, and third-party credits. Original direction is Babuni's; record AI proposals and implementations separately. Never turn proposed or untested behavior into confirmed results.
 
 ## Audit #33 documentation constraints
 
