@@ -502,6 +502,21 @@ local FALLBACK_DELAY = 0.10
 local COMM_DEDUPE_TTL = 2
 local RECENT_COMM_TTL = 0.35
 local MAX_AUDIBLE_DISTANCE = 50
+local SEND_ADDON_RESULT_NAMES = {
+    [0] = "Success",
+    [1] = "InvalidPrefix",
+    [2] = "InvalidMessage",
+    [3] = "AddonMessageThrottle",
+    [4] = "InvalidChatType",
+    [5] = "NotInGroup",
+    [6] = "TargetRequired",
+    [7] = "InvalidChannel",
+    [8] = "ChannelThrottle",
+    [9] = "GeneralError",
+    [10] = "NotInGuild",
+    [11] = "AddOnMessageLockdown",
+    [12] = "TargetOffline",
+}
 
 -- Per-speaker exclusive playback: one active restored voice per player so that
 -- player's spam/restart cuts their own previous line, while other players overlap.
@@ -1007,7 +1022,33 @@ local function BroadcastEmoteEvent(emoteName)
     }, "|")
 
     local function send(channel)
-        pcall(C_ChatInfo.SendAddonMessage, COMM_PREFIX, payload, channel)
+        -- The modern/Forever API returns Enum.SendAddonMessageResult. select(-1)
+        -- also handles the older compatibility wrapper where the result code may
+        -- be shifted to a later return value.
+        local ok, result = pcall(function()
+            return select(-1, C_ChatInfo.SendAddonMessage(COMM_PREFIX, payload, channel))
+        end)
+        local code = ok and tonumber(result) or nil
+        if debugCommEnabled then
+            local label
+            if not ok then
+                label = "LuaError: " .. tostring(result)
+            elseif code ~= nil then
+                label = (SEND_ADDON_RESULT_NAMES[code] or "UnknownResult") .. " (" .. tostring(code) .. ")"
+            elseif result == nil or result == true then
+                label = "Success/legacy"
+            else
+                label = tostring(result)
+            end
+            print(string.format(
+                "RoarForever COMM send: emote=%s channel=%s event=%s result=%s",
+                emoteName,
+                tostring(channel),
+                eventID,
+                label
+            ))
+        end
+        return ok and (code == nil or code == 0)
     end
 
     send("SAY")
