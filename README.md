@@ -52,7 +52,7 @@ Someone who is not using Roar Forever can still `/train` without sending a line,
 
 ## Installation
 
-1. Extract `RoarForever.zip` into `World of Warcraft\_classic_beta_\Interface\AddOns`.
+1. Extract `RoarForever.zip` into `World of Warcraft\_forever_\Interface\AddOns`.
 2. Check that the `RoarForever` folder contains `RoarForever.toc`, `Locales.lua`, `RoarForever.lua`, and `Options.lua`. Install all four files together.
 3. Restart WoW and enable **Roar Forever** in the addon list.
 
@@ -71,7 +71,7 @@ Playback is local: another player does not need Roar Forever installed for you t
 | `/forthealliance` or `/fta` | Alliance faction cry (Roar Forever). |
 | `/rf status` | Show whether the addon is on, your character voice, and the mapped emotes. |
 | `/rf id <FileDataID>` | Test a specific FileDataID. |
-| `/rf debugcomm` | Toggle printing of received addon-emote packets (distance, volume, channel). |
+| `/rf debugcomm` | Toggle COMM diagnostics: received packets plus outgoing send result codes (success, throttled, blocked, invalid channel, etc.). |
 | `/rf debugpos` | Print your outdoor `UnitPosition` x, y, and instance ID. |
 | `/rf soundkit <ID> [volume]` | Play a **candidate** SoundKit ID at an optional volume (default 1.0). For validating IDs you already have — not a way to discover voice mappings from scratch. |
 | `/rf voltest <ID>` | Play a candidate SoundKit at about 100%, 70%, 40%, 20%, and 10% with short gaps. |
@@ -80,11 +80,12 @@ Playback is local: another player does not need Roar Forever installed for you t
 
 ## Compatibility
 
-- Targets the Forever beta, Interface `16001`.
+- Targets World of Warcraft: Forever 1.60.1, Interface `16001`.
 - Includes male and female voice mappings for Dwarf, Gnome, Human, Night Elf, Orc, Tauren, Troll, Undead, and Skyborne characters.
 - Bundled languages: English, German, French, Spanish, and Russian. The menu and standard emote detection follow your client language. `enGB` uses English and `esMX` uses the Spanish pack; unsupported client languages fall back to English labels/templates.
-- Translated full-message templates come from [Forever 1.60.1.70009 EmotesTextData](https://wago.tools/db2/EmotesTextData?build=1.60.1.70009). No separate CurseForge language downloads are needed. French grammatical prefixes and Russian declined names are accounted for; newer client wording may need updates.
+- Translated full-message templates were sourced from [Forever 1.60.1.70009 EmotesTextData](https://wago.tools/db2/EmotesTextData?build=1.60.1.70009). No separate CurseForge language downloads are needed. French grammatical prefixes and Russian declined names are accounted for; client updates can change wording, so release builds should be spot-checked in game.
 - Custom `/train` and faction-cry announcements remain the same English lines in every locale so different-language addon users can recognize them.
+- Forever restricts outgoing addon messages for trial/veteran accounts. `/rf debugcomm` reports outgoing result codes so throttling or communication lockdown is visible during testing.
 - Sound mappings use Blizzard FileDataIDs from the current wowdev community listfile.
 - Gnome female `/roar` playback has been confirmed in-game. The new restored emotes should be treated as beta until they have been checked in the Forever client.
 
@@ -106,7 +107,7 @@ The journal distinguishes source-based reconstruction, author direction, AI assi
 
 ## Documentation audit #33 — 27 October 2026
 
-The current source declares **0.6.0-beta** (Interface 16001). Its historical documentation records the evolution from local missing-voice restoration to configured emote categories, multiplayer COMM, text fallback and distance-based suppression. These are separate from *verified volume attenuation*, which depends on verified SoundKitID mappings. The existing client audio is not authored by the addon.
+The current source declares **0.6.1-beta** (Interface 16001). Its historical documentation records the evolution from local missing-voice restoration to configured emote categories, multiplayer COMM, text fallback and distance-based suppression. These are separate from *verified volume attenuation*, which depends on verified SoundKitID mappings. The existing client audio is not authored by the addon.
 
 Expanded portfolio documentation: [interaction design](docs/DESIGN.md), [content/audio provenance](docs/CONTENT.md), [architecture](docs/ARCHITECTURE.md), [decisions](docs/DECISIONS.md), [development history](docs/DEVLOG.md) and [human–AI collaboration](docs/AI_COLLABORATION.md). This audit is documentation-only; no client tests were run.
 
