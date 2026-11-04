@@ -20,7 +20,7 @@ No new feature specification was approved here.
 - [ ] Verify 50-yard distance behavior, mismatched instance IDs, absent position fallbacks and FileDataID in-range playback.
 - [ ] Determine actual SoundKitIDs through client verification before documenting smooth attenuation as implemented.
 - [ ] Test group `/train`, faction cries, previews, settings persistence, language templates, Skyborne voice mappings and chat silence toggles.
-- [ ] Run the repository's simulated Lua tests and preserve exact output; test real audio and UI separately.
+- [x] Run the repository's simulated Lua tests and preserve exact output; 593 translated template cases, 7 locale variants, menu/settings/preview/train/faction/Skyborne/COMM-distance/identity/detection regressions passed on 2026-11-04. Real audio, networking and UI remain live-client tests.
 
 No gameplay modifications or new design approvals were made in this audit.
 
