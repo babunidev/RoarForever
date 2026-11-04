@@ -14,7 +14,7 @@ The 0.6.0-beta record describes addon messages with an emote key, voice identity
 
 ## Portfolio publication
 
-Use screenshots, debug output, diagrams and code excerpts with clear source versions. Distinguish Babuni.dev's creative/social objective, AI assistance, existing Blizzard game audio and community-derived metadata. Do not package or republish game-client audio as project-owned samples.
+Use screenshots, debug output, diagrams and code excerpts with clear source versions. Distinguish Babuni's creative/social objective, AI assistance, existing Blizzard game audio and community-derived metadata. Do not package or republish game-client audio as project-owned samples.
 
 ## Related development history
 
