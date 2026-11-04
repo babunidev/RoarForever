@@ -42,3 +42,5 @@ Roar Forever is the **WoW Forever voice-restoration project**, creatively relate
 
 **Reasoning:** README, roadmap, project instructions, development history and portfolio-oriented documentation are useful in the repository but add no value inside a player's AddOns folder. Version 0.6.2-beta is therefore a packaging-only follow-up to 0.6.1-beta; no Lua behavior was changed for this correction.
 
+**Release verification:** `v0.6.2-beta` was explicitly approved and published as an annotated tag on commit `028af0ce4980ef232bb9af8177e5ca1444c19f40`. The three Lua runtime files match `v0.6.1-beta` byte-for-byte. Final CurseForge package visibility and archive-content inspection remain separate pending checks.
+
