@@ -6,6 +6,8 @@ Release notes for the standalone player voice-emote sound addon.
 
 > **Beta status:** Automated Lua regression tests pass, but this build has not yet been tested in the live Forever release client because the game was not available for that test before publication. If 0.6.1-beta causes launch-day problems, use `v0.5.7-beta` from the CurseForge Files page while the live-client issue is investigated.
 
+> **Publication status:** Babuni explicitly approved the public beta. Annotated tag `v0.6.1-beta` was pushed on commit `4064b9ffc43d14e27f6c74a07705139156e999f3`. CurseForge detected it as a **Beta** for Forever **1.60.1** and entered **Processing**. This records publication state only; it does not count as live-client verification or final CurseForge approval.
+
 - Updated installation and compatibility guidance for the live World of Warcraft: Forever 1.60.1 client (`_forever_`, Interface 16001) instead of the former beta folder.
 - `/rf debugcomm` now reports outgoing `SendAddonMessage` result codes as well as received packets, making throttling, invalid channels, communication lockdown, and other send failures visible during launch testing.
 - Documented Forever's restriction on outgoing addon messages for trial/veteran accounts and kept the existing text-emote fallback where the client supplies one.
