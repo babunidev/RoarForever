@@ -10,7 +10,7 @@
 
 ## Communications and testing
 
-The 0.6.0-beta record describes addon messages with an emote key, voice identity, unique event identifier and optional world position/instance, with a fallback path for text emotes. `test_addon.py` supplies simulated Lua/WoW API regression coverage; historical test claims must not be mistaken for verification on a live Forever client.
+The 0.6.x record describes addon messages with an emote key, voice identity, unique event identifier and optional world position/instance, with a fallback path for text emotes. `test_addon.py` supplies simulated Lua/WoW API regression coverage. The 0.6.1-beta suite passed on 4 November 2026, but automated results must not be mistaken for verification on the live Forever release client.
 
 ## Portfolio publication
 
