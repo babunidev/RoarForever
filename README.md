@@ -6,7 +6,7 @@ A lightweight player voice-emote sound fix for World of Warcraft: Forever.
 
 Roar Forever restores character voice sounds that Forever does not reliably play when nearby players use voiced emotes. It uses audio already included in the game client, so there are no bundled sound files. It works with default settings; `/rf` opens its options.
 
-> **0.6.1-beta:** this is the current tagged beta. Automated regression tests pass, but the build has not yet been verified in the live Forever release client. If launch-day problems occur, `v0.5.7-beta` remains available from CurseForge's Files page as a pre-0.6 fallback.
+> **0.6.2-beta:** this packaging-only beta contains the same addon runtime behavior as 0.6.1-beta, but the install archive now contains only the files WoW needs. Automated regression tests for the 0.6.x runtime pass, but live Forever release-client verification is still pending. If launch-day problems occur, `v0.5.7-beta` remains available from CurseForge's Files page as a pre-0.6 fallback.
 
 ## Options and previews
 
@@ -109,7 +109,7 @@ The journal distinguishes source-based reconstruction, author direction, AI assi
 
 ## Documentation audit #33 — 27 October 2026
 
-The current source declares **0.6.1-beta** (Interface 16001). Its historical documentation records the evolution from local missing-voice restoration to configured emote categories, multiplayer COMM, text fallback and distance-based suppression. These are separate from *verified volume attenuation*, which depends on verified SoundKitID mappings. The existing client audio is not authored by the addon.
+The current source declares **0.6.2-beta** (Interface 16001). Its historical documentation records the evolution from local missing-voice restoration to configured emote categories, multiplayer COMM, text fallback and distance-based suppression. These are separate from *verified volume attenuation*, which depends on verified SoundKitID mappings. The existing client audio is not authored by the addon.
 
 Expanded portfolio documentation: [interaction design](docs/DESIGN.md), [content/audio provenance](docs/CONTENT.md), [architecture](docs/ARCHITECTURE.md), [decisions](docs/DECISIONS.md), [development history](docs/DEVLOG.md) and [human–AI collaboration](docs/AI_COLLABORATION.md). This audit is documentation-only; no client tests were run.
 
