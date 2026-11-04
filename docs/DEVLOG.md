@@ -34,3 +34,9 @@ Release documentation and diagnostics were prepared with my AI assistant, while 
 
 The release notes explicitly preserve `v0.5.7-beta` as the pre-0.6 fallback if launch-day problems appear. Live multiplayer COMM, actual audio behavior, UI behavior and SoundKit-based attenuation remain unverified until the release client can be tested.
 
+## 4 November 2026 — trimming the install package
+
+After publishing 0.6.1-beta, I noticed the CurseForge archive was carrying repository documentation that players do not need to run the addon. The packaging rules had only excluded tests, so README, roadmap, project instructions and the documentation folder could travel with the install even though WoW ignores them.
+
+The correction approved for 0.6.2-beta is deliberately narrow: keep the repository documentation intact for development and the babuni.dev portfolio, but exclude it from the CurseForge archive. The package now targets only `RoarForever.toc`, `Locales.lua`, `RoarForever.lua` and `Options.lua`. Runtime Lua behavior is unchanged from 0.6.1-beta, and live release-client verification remains pending.
+
