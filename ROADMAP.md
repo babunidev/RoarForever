@@ -4,7 +4,7 @@
 
 ## Current state
 
-The current development line is **0.6.1-beta** for World of Warcraft: Forever 1.60.1 / Interface 16001. Automated Lua regression tests pass. The annotated `v0.6.1-beta` tag has been pushed and CurseForge detected it as a Beta for Forever 1.60.1; live-client gameplay/audio verification is still pending.
+The current development line is **0.6.2-beta** for World of Warcraft: Forever 1.60.1 / Interface 16001. It is a packaging-only follow-up to 0.6.1-beta: runtime Lua behavior is unchanged, while the CurseForge archive is restricted to the four required runtime files. Automated Lua regression tests for the 0.6.x runtime pass; live-client gameplay/audio verification is still pending.
 
 ## Unverified points
 
@@ -23,6 +23,8 @@ Validate peer emote detection, duplicated text/COMM cases, distance cutoff, UI b
 - [x] Confirm CurseForge detected `v0.6.1-beta` as a **Beta** for Forever **1.60.1**.
 - [ ] Confirm CurseForge changes from **Processing** to **Approved** and verify the downloadable package contents.
 - [ ] Run launch-client multiplayer/audio/UI verification and record results separately from automated tests.
+- [x] Restrict future CurseForge packages to runtime files only.
+- [ ] Publish and verify `v0.6.2-beta` as the packaging-correction release.
 
 ## Related development history
 
