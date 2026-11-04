@@ -2,6 +2,10 @@
 
 Release notes for the standalone player voice-emote sound addon.
 
+## Unreleased
+
+- Slimmed CurseForge packages to runtime files only. Development documentation, project instructions, repository README/roadmap/concept files, changelog file, docs, and tests are now excluded from the install archive; CurseForge can still use `CHANGELOG.md` as the manual release changelog.
+
 ## 0.6.1-beta — 2026-11-04
 
 > **Beta status:** Automated Lua regression tests pass, but this build has not yet been tested in the live Forever release client because the game was not available for that test before publication. If 0.6.1-beta causes launch-day problems, use `v0.5.7-beta` from the CurseForge Files page while the live-client issue is investigated.
