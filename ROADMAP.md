@@ -24,7 +24,8 @@ Validate peer emote detection, duplicated text/COMM cases, distance cutoff, UI b
 - [ ] Confirm CurseForge changes from **Processing** to **Approved** and verify the downloadable package contents.
 - [ ] Run launch-client multiplayer/audio/UI verification and record results separately from automated tests.
 - [x] Restrict future CurseForge packages to runtime files only.
-- [ ] Publish and verify `v0.6.2-beta` as the packaging-correction release.
+- [x] Publish annotated tag `v0.6.2-beta` on commit `028af0ce4980ef232bb9af8177e5ca1444c19f40` as the packaging-correction release.
+- [ ] Confirm CurseForge processes `v0.6.2-beta` as Beta / Forever 1.60.1 and verify the downloadable archive contains only the four runtime files.
 
 ## Related development history
 
