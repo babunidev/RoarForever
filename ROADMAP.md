@@ -2,15 +2,13 @@
 
 **Author:** Babuni.dev
 
-## Repository snapshot
+## Current state
 
-Implementation files and an existing versioned changelog exist. This documentation audit did not run the addon.
+The current development line is **0.6.1-beta** for World of Warcraft: Forever 1.60.1 / Interface 16001. Automated Lua regression tests pass. The annotated `v0.6.1-beta` tag has been pushed and CurseForge detected it as a Beta for Forever 1.60.1; live-client gameplay/audio verification is still pending.
 
 ## Unverified points
 
-Validate peer emote detection, duplicated text/COMM cases, distance cutoff and SoundKitIDs inside the actual Forever client.
-
-No new feature specification was approved here.
+Validate peer emote detection, duplicated text/COMM cases, distance cutoff, UI behavior and SoundKitIDs inside the actual Forever release client.
 
 ## Acceptance and provenance ledger — 2026-10-27
 
@@ -21,8 +19,10 @@ No new feature specification was approved here.
 - [ ] Determine actual SoundKitIDs through client verification before documenting smooth attenuation as implemented.
 - [ ] Test group `/train`, faction cries, previews, settings persistence, language templates, Skyborne voice mappings and chat silence toggles.
 - [x] Run the repository's simulated Lua tests and preserve exact output; 593 translated template cases, 7 locale variants, menu/settings/preview/train/faction/Skyborne/COMM-distance/identity/detection regressions passed on 2026-11-04. Real audio, networking and UI remain live-client tests.
-
-No gameplay modifications or new design approvals were made in this audit.
+- [x] Publish the approved annotated `v0.6.1-beta` tag from commit `4064b9ffc43d14e27f6c74a07705139156e999f3`.
+- [x] Confirm CurseForge detected `v0.6.1-beta` as a **Beta** for Forever **1.60.1**.
+- [ ] Confirm CurseForge changes from **Processing** to **Approved** and verify the downloadable package contents.
+- [ ] Run launch-client multiplayer/audio/UI verification and record results separately from automated tests.
 
 ## Related development history
 
