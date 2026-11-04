@@ -36,3 +36,9 @@ Roar Forever is the **WoW Forever voice-restoration project**, creatively relate
 
 **Still unverified:** live multiplayer COMM, real audio playback, UI behavior, 50-yard behavior in the release client and SoundKit-based attenuation.
 
+## 4 November 2026 — keep public packages runtime-only
+
+**Decision:** CurseForge install archives should contain only the files required by WoW at runtime. Development documentation remains in GitHub but is excluded through `.pkgmeta`.
+
+**Reasoning:** README, roadmap, project instructions, development history and portfolio-oriented documentation are useful in the repository but add no value inside a player's AddOns folder. Version 0.6.2-beta is therefore a packaging-only follow-up to 0.6.1-beta; no Lua behavior was changed for this correction.
+
