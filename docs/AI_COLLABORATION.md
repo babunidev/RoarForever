@@ -28,3 +28,11 @@ Roar Forever is the **WoW Forever voice-restoration project**, creatively relate
 
 **Verification boundary:** the automated Lua suite passed. The annotated tag was pushed on the approved commit and CurseForge detected it as a Beta for Forever 1.60.1, but live-client gameplay/audio testing remained unavailable and CurseForge approval was not yet confirmed at the time of this record.
 
+## 0.6.2-beta packaging release — 4 November 2026
+
+**Babuni:** identified that player installs should not carry repository/portfolio documentation, approved the runtime-only packaging policy, approved version `0.6.2-beta`, and created/pushed the annotated public tag from the local repository.
+
+**AI contribution:** audited the existing `.pkgmeta`, identified that only `tests/` was excluded, changed package exclusions so only the four runtime files remain in the install archive, updated release documentation, and compared the three Lua runtime files against `v0.6.1-beta` to confirm they were unchanged.
+
+**Verification boundary:** GitHub confirms `v0.6.2-beta` points to commit `028af0ce4980ef232bb9af8177e5ca1444c19f40`. Runtime Lua equality was verified from repository blobs. CurseForge processing/public availability and the actual generated ZIP contents require separate confirmation; no new live-client gameplay test was performed for this packaging-only release.
+
