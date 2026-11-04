@@ -6,6 +6,8 @@ Release notes for the standalone player voice-emote sound addon.
 
 > **Packaging-only beta:** no addon runtime behavior changed from 0.6.1-beta. This release replaces the oversized install archive with a runtime-only package.
 
+> **Publication status:** Babuni approved the public beta and annotated tag `v0.6.2-beta` was pushed on commit `028af0ce4980ef232bb9af8177e5ca1444c19f40`. CurseForge publication and final archive contents are not recorded as confirmed until the new file is publicly visible and inspected.
+
 - Slimmed CurseForge packages to the four files WoW needs at runtime: `RoarForever.toc`, `Locales.lua`, `RoarForever.lua`, and `Options.lua`.
 - Excluded project instructions, README/roadmap/concept files, changelog file, `docs/`, and `tests/` from the install archive. CurseForge still reads `CHANGELOG.md` as the manual release changelog.
 - Live Forever release-client gameplay/audio verification remains pending; this packaging correction does not change the verification status of the 0.6.x runtime.
