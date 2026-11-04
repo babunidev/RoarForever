@@ -40,3 +40,9 @@ After publishing 0.6.1-beta, I noticed the CurseForge archive was carrying repos
 
 The correction approved for 0.6.2-beta is deliberately narrow: keep the repository documentation intact for development and the babuni.dev portfolio, but exclude it from the CurseForge archive. The package now targets only `RoarForever.toc`, `Locales.lua`, `RoarForever.lua` and `Options.lua`. Runtime Lua behavior is unchanged from 0.6.1-beta, and live release-client verification remains pending.
 
+## 4 November 2026 — publishing 0.6.2-beta
+
+The packaging cleanup was released as `v0.6.2-beta` after confirming that `RoarForever.lua`, `Locales.lua` and `Options.lua` were byte-for-byte identical to `v0.6.1-beta`. Only package rules, version metadata and repository documentation changed, so this release does not introduce new addon runtime behavior.
+
+Publication was explicitly approved by me. The annotated `v0.6.2-beta` tag points to commit `028af0ce4980ef232bb9af8177e5ca1444c19f40`. My AI assistant prepared and audited the packaging rules, version documentation and release comparison; the final tag was created and pushed from my local repository. CurseForge publication and the final downloadable archive remain separate verification steps until the new file is publicly visible and its contents can be inspected.
+
