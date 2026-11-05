@@ -6,9 +6,9 @@ A lightweight player voice-emote sound fix for World of Warcraft: Forever.
 
 Roar Forever restores character voice sounds that Forever does not reliably play when nearby players use voiced emotes. It uses audio already included in the game client, so there are no bundled sound files. It works with default settings; `/rf` opens its options.
 
-> **0.6.2-beta:** this packaging-only beta contains the same addon runtime behavior as 0.6.1-beta, but the install archive now contains only the files WoW needs. Automated regression tests for the 0.6.x runtime pass, but live Forever release-client verification is still pending. If launch-day problems occur, `v0.5.7-beta` remains available from CurseForge's Files page as a pre-0.6 fallback.
+> **0.6.3-beta:** approved release candidate for Forever 1.60.1. It fixes restricted-map secret unit-identity handling and duplicate COMM/text `/roar` restoration. The public tag is gated on the updated regression suite passing on the exact release commit; live dungeon/group verification remains separate.
 
-> **Development main:** contains unreleased fixes for Forever secret unit-identity values and for duplicate COMM/text `/roar` restoration when the same emote arrives through events with different identity fields. The secret-identity regression suite has passed; the updated COMM/text correlation suite and live party/dungeon retests remain pending.
+> **Verification:** the secret-identity regression cases already passed before release preparation. The final 0.6.3-beta commit still requires the complete updated suite, including COMM/text sender correlation, before tagging.
 
 ## Options and previews
 
@@ -112,7 +112,7 @@ The journal distinguishes source-based reconstruction, author direction, AI assi
 
 ## Documentation audit #33 — 27 October 2026
 
-The current source declares **0.6.2-beta** (Interface 16001). Its historical documentation records the evolution from local missing-voice restoration to configured emote categories, multiplayer COMM, text fallback and distance-based suppression. These are separate from *verified volume attenuation*, which depends on verified SoundKitID mappings. The existing client audio is not authored by the addon.
+The current source declares **0.6.3-beta** (Interface 16001). Its historical documentation records the evolution from local missing-voice restoration to configured emote categories, multiplayer COMM, text fallback and distance-based suppression. These are separate from *verified volume attenuation*, which depends on verified SoundKitID mappings. The existing client audio is not authored by the addon.
 
 Expanded portfolio documentation: [interaction design](docs/DESIGN.md), [content/audio provenance](docs/CONTENT.md), [architecture](docs/ARCHITECTURE.md), [decisions](docs/DECISIONS.md), [development history](docs/DEVLOG.md) and [human–AI collaboration](docs/AI_COLLABORATION.md). This audit is documentation-only; no client tests were run.
 
