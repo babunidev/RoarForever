@@ -32,3 +32,7 @@ A direct live test with RoarForever disabled confirmed that Forever does not pro
 
 COMM and text-emote events expose different identity shapes, so both short-window correlation and playback cooldown identity use the normalized sender name when available. Development 0.6.4 also exposes `/rf debugplay`, which reports each actual FileDataID playback and whether it came from COMM, text fallback, or self-text handling. This lets live testing distinguish duplicate addon calls from a single sound call whose asset or client playback sounds layered.
 
+### Group multi-channel timing
+
+A single logical COMM emote is broadcast on SAY and, while grouped, also on PARTY or RAID and sometimes INSTANCE_CHAT. All copies share one event ID and only the first copy may play restored audio. Later channel copies are still meaningful timing evidence: before event-ID deduplication returns, they refresh the short-lived COMM/text correlation and cancel any pending text fallback. This prevents a text-emote event arriving after the first packet's 0.35-second window from replaying the same group roar.
+
