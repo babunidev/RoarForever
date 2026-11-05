@@ -920,12 +920,12 @@ local function IsGroupedSender(sender, guid)
 end
 
 local function IsLocalPlayer(sender, guid)
+    local wanted = PlainString(sender)
     guid = SafeGUID(guid)
-    if guid then
-        local playerGUID = SafeUnitGUID("player")
-        return playerGUID ~= nil and playerGUID == guid
+    if not wanted and not guid then
+        return false
     end
-    return FindUnitBySender(sender) == "player"
+    return UnitMatchesSender("player", wanted, guid)
 end
 
 local function IsSkyborneVoiceKey(voiceKey)
