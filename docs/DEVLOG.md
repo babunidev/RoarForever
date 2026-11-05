@@ -54,3 +54,11 @@ The fix I accepted follows Forever's restriction rather than trying to work arou
 
 Technical tracing and implementation support from my AI assistant covered the stack analysis, current Forever secret-value predicates, the guarded identity layer and simulated regression cases. On 5 November 2026, `python tests/test_addon.py` passed with 593 translated template cases, seven locale variants, and the full regression suite including the new secret-identity guards. Those automated checks still cannot manufacture Blizzard's real secret-value tag, so the original dungeon case remains a required live retest before this fix is called in-game verified.
 
+## 5 November 2026 — tracing the doubled group roar
+
+While testing in a group, the roar sounded as though two copies were landing almost together. The existing COMM event-ID dedupe looked correct, so the next step was to compare the two event streams that represent the same emote. That exposed a mismatch the simulator had hidden: Forever's `CHAT_MSG_ADDON` supplies the sender name but no sender GUID, while `CHAT_MSG_TEXT_EMOTE` supplies a GUID.
+
+RoarForever had preferred GUIDs when building the short-lived COMM/text fallback key. One logical roar could therefore be stored as a name-keyed COMM event and then fail to match the GUID-keyed text event, allowing the delayed text fallback to play a second copy roughly a tenth of a second later. The fix I accepted keeps identity-sensitive classification intact but correlates these two event streams by normalized sender name, which both provide.
+
+The simulator was also corrected so addon messages no longer receive an invented GUID. Automated execution of that updated regression is still pending. If a live group retest still produces two simultaneous roars after this fix, the remaining candidate is native Forever group-roar audio overlapping one intentional addon restoration; that behavior must be verified separately before changing the established group-roar design.
+
