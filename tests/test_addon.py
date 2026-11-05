@@ -11,6 +11,15 @@ def boot(locale='enUS', saved=None):
     lua.execute('''
         frames={}; sounds={}; soundKits={}; sent={}; stopped={}; timers={}; addonSent={}; SlashCmdList={}; UISpecialFrames={}
         now=100; grouped=false; playerPos={x=0,y=0,instanceID=0}; addonSendResult=0
+        secretValues={}; secretChecks={}
+        function issecretvalue(v)
+            if v==nil then return false end
+            if secretValues[v] then
+                secretChecks[v]=(secretChecks[v] or 0)+1
+                return true
+            end
+            return false
+        end
         units={player={name='Tester',realm='Home',guid='Player-self'},
             target={name='Other',realm='Away',guid='Player-other'}}
         function GetLocale() return testLocale end
@@ -116,6 +125,7 @@ def boot(locale='enUS', saved=None):
                 HandleAddonMessage=upvalue(handler,'HandleAddonMessage')
                 DetectEmote=upvalue(HandleChatEmote,'DetectEmote')
                 IsLocalPlayer=upvalue(HandleChatEmote,'IsLocalPlayer')
+                FindUnitBySender=upvalue(IsLocalPlayer,'FindUnitBySender')
                 ParseCommMessage=upvalue(HandleAddonMessage,'ParseCommMessage')
                 VolumeForDistance=upvalue(upvalue(HandleAddonMessage,'PlayFromComm'),'VolumeForDistance')
             end
@@ -159,6 +169,26 @@ assert(not isSelf('Tester-Away','Player-other'))
 assert(not isSelf('Tester-Away',nil))
 assert(isSelf('Tester-Home',nil))
 assert(isSelf('Different display name','Player-self'))
+
+-- Forever restricted maps can return secret unit identity values for target/focus/mouseover.
+-- The simulator cannot create Blizzard-tagged secret Lua values, so mark ordinary sentinels
+-- and assert the production guard detects and skips them before identity matching.
+local originalTarget=units.target
+units.target={name='DungeonMob',realm='Away',guid='Creature-secret'}
+secretValues.DungeonMob=true
+secretValues['Creature-secret']=true
+assert(FindUnitBySender('Nobody',nil)==nil)
+assert((secretChecks.DungeonMob or 0)>0)
+assert(FindUnitBySender('Nobody','Player-missing')==nil)
+assert((secretChecks['Creature-secret'] or 0)>0)
+secretValues.HiddenSender=true
+assert(not isSelf('HiddenSender',nil))
+assert((secretChecks.HiddenSender or 0)>0)
+secretValues['Secret-event-guid']=true
+assert(not isSelf('Other','Secret-event-guid'))
+assert((secretChecks['Secret-event-guid'] or 0)>0)
+units.target=originalTarget
+
 event('CHAT_MSG_TEXT_EMOTE','Other cheers!','Other','Player-other'); assert(#sounds==1)
 event('CHAT_MSG_TEXT_EMOTE','Other cheers!','Other','Player-other'); assert(#sounds==1)
 now=101; RF.SettingsDB().emotes.cheer=false
@@ -345,4 +375,4 @@ assert(#sounds==before+22 and #sent==0)
 RoarForeverDB=true
 assert(RF.AddonEnabled() and RF.EmoteEnabled('joke'))
 ''')
-print(f'PASS: {count} translated template cases, 7 locale variants, menu callbacks, saved options, preview pool, train controls, faction cries, Skyborne roar exception, COMM distance, identity and detection regressions.')
+print(f'PASS: {count} translated template cases, 7 locale variants, menu callbacks, saved options, preview pool, train controls, faction cries, Skyborne roar exception, COMM distance, secret-identity guards, identity and detection regressions.')
