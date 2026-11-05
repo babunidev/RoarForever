@@ -4,7 +4,7 @@
 
 ## Current state
 
-The current development line is **0.6.2-beta** for World of Warcraft: Forever 1.60.1 / Interface 16001. It is a packaging-only follow-up to 0.6.1-beta: runtime Lua behavior is unchanged, while the CurseForge archive is restricted to the four required runtime files. Automated Lua regression tests for the 0.6.x runtime pass; live-client gameplay/audio verification is still pending.
+The current release candidate is **0.6.3-beta** for World of Warcraft: Forever 1.60.1 / Interface 16001. It adds the live dungeon secret-identity fix and COMM/text `/roar` deduplication on top of the runtime-only packaging from 0.6.2-beta. The public tag is approved but remains gated on the updated regression suite passing on the exact release commit.
 
 ## Unverified points
 
@@ -30,6 +30,9 @@ Validate peer emote detection, duplicated text/COMM cases, distance cutoff, UI b
 - [x] Audit suspected group `/roar` double playback and identify COMM/text correlation mismatch caused by `CHAT_MSG_ADDON` lacking a sender GUID.
 - [x] Correlate COMM and text fallback by normalized sender name and make the simulator model the real Forever addon-message payload.
 - [ ] Run `python tests/test_addon.py` with the COMM/text sender-correlation regression.
+- [x] Approve `0.6.3-beta` for public release after the exact release commit passes the updated automated suite.
+- [ ] Create and push annotated tag `v0.6.3-beta` on the tested release commit.
+- [ ] Confirm CurseForge publishes `v0.6.3-beta` as Beta / Forever 1.60.1 and verify the runtime-only ZIP contents.
 - [ ] Retest `/roar` in a party/instance. If one addon playback still overlaps a native roar, verify the native group behavior separately before changing the established group-roar design.
 - [x] Restrict future CurseForge packages to runtime files only.
 - [x] Publish annotated tag `v0.6.2-beta` on commit `028af0ce4980ef232bb9af8177e5ca1444c19f40` as the packaging-correction release.
