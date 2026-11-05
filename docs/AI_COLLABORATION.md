@@ -44,3 +44,11 @@ Roar Forever is the **WoW Forever voice-restoration project**, creatively relate
 
 **Verification boundary:** the reported error itself is live-client evidence. The fix is implemented in development main, and `python tests/test_addon.py` passed on 5 November 2026 with the new secret-identity guard coverage. A live dungeon retest remains pending because the simulator cannot reproduce Blizzard-tagged secret values; no public follow-up version has been authorized or tagged.
 
+## Group roar deduplication investigation — 5 November 2026
+
+**Babuni:** reported that `/roar` sounded doubled while grouped and asked for the cause to be checked rather than assuming the existing dedupe was sufficient.
+
+**AI contribution:** audited the COMM, text fallback and native-group suppression paths; verified the documented event payload difference between `CHAT_MSG_ADDON` and `CHAT_MSG_TEXT_EMOTE`; identified the name-versus-GUID correlation mismatch; implemented name-based short-window correlation; corrected the simulator to remove the invented addon-message GUID; and updated repository documentation.
+
+**Verification boundary:** the source-level duplicate path is confirmed and fixed in development main. The updated automated regression suite and a live grouped-roar retest remain pending. Native group-roar overlap remains a separate unverified possibility and was not silently changed.
+
