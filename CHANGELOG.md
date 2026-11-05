@@ -4,7 +4,11 @@ Release notes for the standalone player voice-emote sound addon.
 
 ## Unreleased
 
-- Development version: `0.6.4-beta`.
+No unreleased runtime changes after `v0.6.4-beta`.
+
+## 0.6.4-beta — 2026-11-05
+
+> **Publication:** annotated tag `v0.6.4-beta` was pushed on tested commit `8c98e630f09bbe68cf6abeaebd7f2118a44f6274`. The full local regression suite passed before tagging, including self-echo suppression. CurseForge publication is not yet confirmed.
 - Reverted the proposed group-roar suppression after a direct live check with RoarForever disabled confirmed that Forever itself does **not** play the missing group `/roar` sound. Group roar restoration remains core addon behavior.
 - Stabilized the playback duplicate key so COMM events (sender name only) and text-emote events (sender name + GUID) identify the same logical speaker.
 - Fixed a group-only delayed duplicate path: later SAY/PARTY/RAID/INSTANCE copies of the same COMM event now refresh COMM/text fallback suppression before event-ID dedupe discards their audio playback. This prevents a late text-emote event from replaying a roar after the original 0.35-second COMM window expires.
