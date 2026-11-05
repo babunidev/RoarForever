@@ -76,3 +76,11 @@ Current Forever behavior and player reports point the other way now. Grouped voi
 
 Technical review and implementation support from my AI assistant covered the second-pass playback audit, regression updates and release-history correction. During that review, the `v0.6.3-beta` tag was found to have already been published on the earlier release-preparation commit, so the native group-roar correction could not truthfully be folded into that immutable tag. Development therefore advanced to 0.6.4-beta, with the complete updated test suite and grouped-roar live retest still pending.
 
+## 5 November 2026 — testing the native-roar hypothesis
+
+The native-overlap explanation did not survive a direct test. With RoarForever disabled, a grouped `/roar` produced no roar sound at all. That puts the central premise back where it belongs: group roar is missing from Forever and is precisely one of the sounds this addon must restore.
+
+The temporary group-suppression implementation was therefore reverted before release. The failing automated test had independently caught the same design mistake by expecting a grouped friend's roar to add one restored sound. Rather than lengthening the intentionally short spam cooldown, the corrected 0.6.4 development code now uses the normalized sender identity consistently for both COMM/text correlation and the playback cooldown.
+
+A new `/rf debugplay` trace records each actual FileDataID playback with its source path. Technical implementation and documentation corrections were handled with my AI assistant; the next evidence needed is the corrected regression pass and a live grouped roar trace showing whether the addon calls playback once or more than once.
+
