@@ -64,13 +64,12 @@ Roar Forever is the **WoW Forever voice-restoration project**, creatively relate
 
 **Packaging:** retain the 0.6.2 runtime-only `.pkgmeta` policy; no development documentation or tests belong in the player ZIP.
 
-## 5 November 2026 — leave all group roar playback to Forever
+## 5 November 2026 — rejected hypothesis: leave group roar playback to Forever
 
-**Problem:** after fixing COMM/text deduplication, grouped `/roar` still sounded doubled in the live client.
+**Initial hypothesis:** after fixing COMM/text deduplication, grouped `/roar` still sounded doubled, so native Forever group-roar playback was considered as the possible second sound.
 
-**Decision:** stop RoarForever from restoring `/roar` for party/raid members on both COMM and text paths. Grouped voice playback belongs to Forever; RoarForever continues restoring nearby non-grouped players and keeps the existing self-roar behavior.
+**Live falsification:** Babuni disabled RoarForever and repeated the group test. Forever produced no `/roar` sound. The native-overlap explanation was therefore rejected.
 
-**Reasoning:** the older group-roar exception came from earlier Forever behavior where roar was treated differently from other grouped voices. Current live observation plus contemporary player reports indicate grouped voiced emotes are audible natively. Keeping the exception therefore risks one native sound plus one addon sound.
+**Corrected decision:** preserve RoarForever group `/roar` restoration. Strengthen identity consistency between COMM and text paths and add direct playback tracing instead of suppressing the feature the addon exists to restore.
 
-**Version boundary:** `v0.6.3-beta` had already been published on commit `6efb00416469e0a99a4122099d39da744d7a6470` before this final native group-roar correction. The tag is immutable, so this change belongs to 0.6.4-beta development. Automated and live grouped-roar retesting remain pending.
-
+**Verification boundary:** 0.6.4 development now needs the corrected automated suite plus a live `/rf debugplay` trace to establish whether one logical group roar causes one or multiple addon sound calls.
