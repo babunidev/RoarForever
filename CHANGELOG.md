@@ -9,7 +9,7 @@ Release notes for the standalone player voice-emote sound addon.
 - Stabilized the playback duplicate key so COMM events (sender name only) and text-emote events (sender name + GUID) identify the same logical speaker.
 - Added `/rf debugplay`, which reports every actual RoarForever FileDataID playback with its source path (`COMM`, `TEXT`, or `SELF_TEXT`) for live duplicate diagnosis.
 - Restored grouped-roar regression expectations and added coverage that name-only COMM and name+GUID text events share the same playback cooldown identity.
-- The complete updated automated suite and a live grouped-roar debug trace remain pending.
+- `python tests/test_addon.py` passed on 2026-11-05 with 593 translated template cases, 7 locale variants, and the full regression suite including group roar restoration, COMM/text sender correlation, logical-sender playback dedupe, and secret-identity guards. A live grouped-roar `/rf debugplay` trace remains pending.
 
 ## 0.6.3-beta — 2026-11-05
 
