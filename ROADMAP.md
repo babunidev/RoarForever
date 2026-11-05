@@ -25,7 +25,7 @@ Validate peer emote detection, duplicated text/COMM cases, distance cutoff, UI b
 - [ ] Run launch-client multiplayer/audio/UI verification and record results separately from automated tests.
 - [x] Diagnose the first live dungeon secret-value failure from `UnitName`/`UnitFullName` identity matching.
 - [x] Guard unit name/GUID/race/sex identity values and remove arbitrary-unit queries from self/group classification.
-- [ ] Run `python tests/test_addon.py` with the new secret-identity regression cases.
+- [x] Run `python tests/test_addon.py` with the new secret-identity regression cases; 593 translated template cases, 7 locale variants, and all existing regressions including secret-identity guards passed on 2026-11-05.
 - [ ] Reproduce the original dungeon scenario with an identity-restricted target and confirm no Lua error.
 - [x] Restrict future CurseForge packages to runtime files only.
 - [x] Publish annotated tag `v0.6.2-beta` on commit `028af0ce4980ef232bb9af8177e5ca1444c19f40` as the packaging-correction release.
