@@ -421,8 +421,67 @@ for _, race in ipairs({ "Dwarf", "Gnome", "Human", "NightElf", "Orc", "Tauren", 
     voiceSounds.whistle[race .. "Male"] = whistleSounds
 end
 
-local function NormalizeName(name)
+local function IsSecretValue(value)
+    return issecretvalue and issecretvalue(value) or false
+end
+
+local function PlainString(value)
+    if IsSecretValue(value) or type(value) ~= "string" then
+        return nil
+    end
+    return value
+end
+
+local function SafeGUID(value)
+    value = PlainString(value)
+    if not value or value == "" then
+        return nil
+    end
+    return value
+end
+
+local function SafeUnitGUID(unit)
+    if not UnitGUID then
+        return nil
+    end
+    return SafeGUID(UnitGUID(unit))
+end
+
+local function SafeUnitName(unit)
+    local name, realm
+
+    if UnitFullName then
+        name, realm = UnitFullName(unit)
+        if IsSecretValue(name) or IsSecretValue(realm) then
+            return nil, nil
+        end
+    end
+
+    if name == nil and UnitName then
+        name, realm = UnitName(unit)
+        if IsSecretValue(name) or IsSecretValue(realm) then
+            return nil, nil
+        end
+    end
+
+    name = PlainString(name)
     if not name then
+        return nil, nil
+    end
+
+    if realm ~= nil then
+        realm = PlainString(realm)
+        if not realm then
+            return nil, nil
+        end
+    end
+
+    return name, realm
+end
+
+local function NormalizeName(name)
+    name = PlainString(name)
+    if not name or name == "" then
         return nil
     end
 
@@ -443,11 +502,16 @@ local function NormalizeRace(raceFile)
 end
 
 local function BuildVoiceKey(raceFile, sex)
-    raceFile = NormalizeRace(raceFile)
-
-    if not raceFile then
+    if IsSecretValue(raceFile) or IsSecretValue(sex) then
         return nil
     end
+
+    raceFile = PlainString(raceFile)
+    if not raceFile or type(sex) ~= "number" then
+        return nil
+    end
+
+    raceFile = NormalizeRace(raceFile)
 
     if sex == 2 then
         return raceFile .. "Male"
@@ -469,7 +533,8 @@ local function GetVoiceKeyForUnit(unit)
 end
 
 local function GetVoiceKeyForGUID(guid)
-    if type(guid) ~= "string" or guid == "" or not GetPlayerInfoByGUID then
+    guid = SafeGUID(guid)
+    if not guid or not GetPlayerInfoByGUID then
         return nil
     end
 
@@ -524,12 +589,12 @@ local lastSoundHandleBySpeaker = {}
 local previewSoundHandle
 
 local function SpeakerKey(sender, guid)
-    return guid or NormalizeName(sender) or "unknown"
+    return SafeGUID(guid) or NormalizeName(sender) or "unknown"
 end
 
 local function LocalSpeakerKey()
-    local guid = UnitGUID and UnitGUID("player") or nil
-    local name = UnitName and UnitName("player") or "player"
+    local guid = SafeUnitGUID("player")
+    local name = SafeUnitName("player")
     return SpeakerKey(name, guid)
 end
 
@@ -680,13 +745,17 @@ for emoteName, info in pairs(factionEmotes) do
 end
 
 local function MatchesCustomEmoteLine(text, sender, line)
+    local plainSender = PlainString(sender)
+    local normalizedSender = NormalizeName(plainSender)
+
     return text == line
-        or text == (sender or "") .. " " .. line
-        or text == (NormalizeName(sender) or "") .. " " .. line
+        or (plainSender and text == plainSender .. " " .. line)
+        or (normalizedSender and text == normalizedSender .. " " .. line)
 end
 
 local function DetectEmote(text, event, sender)
-    if type(text) ~= "string" then return nil end
+    text = PlainString(text)
+    if not text then return nil end
     text = NormalizeText(text)
     if event == "CHAT_MSG_EMOTE" then
         -- Custom emotes are arbitrary prose. Accept only exact addon messages.
@@ -711,55 +780,42 @@ local function DetectEmote(text, event, sender)
     end
 end
 
-local function FindUnitBySender(sender, guid)
-    local wanted = sender
+local function UnitMatchesSender(unit, wanted, guid)
+    if not UnitExists(unit) then
+        return false
+    end
+
+    if guid then
+        local unitGUID = SafeUnitGUID(unit)
+        return unitGUID ~= nil and unitGUID == guid
+    end
+
     if not wanted then
-        return nil
+        return false
     end
 
-    local function Matches(unit)
-        if not UnitExists(unit) then return false end
-        if guid then return UnitGUID(unit) == guid end
-        local name, realm
-        if UnitFullName then name, realm = UnitFullName(unit) end
-        if not name then name, realm = UnitName(unit) end
-        if sender:find("-", 1, true) then
-            if not realm or realm == "" then
-                realm = GetNormalizedRealmName and GetNormalizedRealmName()
-            end
-            return realm and name .. "-" .. realm == wanted
-        end
-        return name == wanted
-    end
-    local units = { "player", "target", "mouseover", "focus" }
-
-    for _, unit in ipairs(units) do
-        if Matches(unit) then
-            return unit
-        end
+    local name, realm = SafeUnitName(unit)
+    if not name then
+        return false
     end
 
-    if IsInRaid and IsInRaid() then
-        for i = 1, 40 do
-            local unit = "raid" .. i
-            if Matches(unit) then
-                return unit
+    if string.find(wanted, "-", 1, true) then
+        if not realm or realm == "" then
+            realm = GetNormalizedRealmName and GetNormalizedRealmName()
+            if IsSecretValue(realm) then
+                realm = nil
             end
         end
-    elseif IsInGroup and IsInGroup() then
-        for i = 1, 4 do
-            local unit = "party" .. i
-            if Matches(unit) then
-                return unit
-            end
-        end
+        return realm ~= nil and name .. "-" .. realm == wanted
     end
 
-    return nil
+    return name == wanted
 end
 
-local function FindGroupedUnitByGUID(guid)
-    if type(guid) ~= "string" or guid == "" then
+local function FindGroupedUnitBySender(sender, guid)
+    local wanted = PlainString(sender)
+    guid = SafeGUID(guid)
+    if not wanted and not guid then
         return nil
     end
 
@@ -770,16 +826,41 @@ local function FindGroupedUnitByGUID(guid)
     if IsInRaid and IsInRaid() then
         for i = 1, 40 do
             local unit = "raid" .. i
-            if UnitExists(unit) and UnitGUID(unit) == guid then
+            if UnitMatchesSender(unit, wanted, guid) then
                 return unit
             end
         end
     else
         for i = 1, 4 do
             local unit = "party" .. i
-            if UnitExists(unit) and UnitGUID(unit) == guid then
+            if UnitMatchesSender(unit, wanted, guid) then
                 return unit
             end
+        end
+    end
+
+    return nil
+end
+
+local function FindUnitBySender(sender, guid)
+    local wanted = PlainString(sender)
+    guid = SafeGUID(guid)
+    if not wanted and not guid then
+        return nil
+    end
+
+    if UnitMatchesSender("player", wanted, guid) then
+        return "player"
+    end
+
+    local groupedUnit = FindGroupedUnitBySender(wanted, guid)
+    if groupedUnit then
+        return groupedUnit
+    end
+
+    for _, unit in ipairs({ "target", "mouseover", "focus" }) do
+        if UnitMatchesSender(unit, wanted, guid) then
+            return unit
         end
     end
 
@@ -835,28 +916,15 @@ function RF.Preview(emote)
 end
 
 local function IsGroupedSender(sender, guid)
-    if not IsInGroup or not IsInGroup() then
-        return false
-    end
-
-    if FindGroupedUnitByGUID(guid) then
-        return true
-    end
-
-    local unit = FindUnitBySender(sender, guid)
-    if not unit or unit == "player" then
-        return false
-    end
-
-    if IsInRaid and IsInRaid() then
-        return UnitInRaid(unit) ~= nil
-    end
-
-    return UnitInParty(unit) and true or false
+    return FindGroupedUnitBySender(sender, guid) ~= nil
 end
 
 local function IsLocalPlayer(sender, guid)
-    if guid then return guid == UnitGUID("player") end
+    guid = SafeGUID(guid)
+    if guid then
+        local playerGUID = SafeUnitGUID("player")
+        return playerGUID ~= nil and playerGUID == guid
+    end
     return FindUnitBySender(sender) == "player"
 end
 
@@ -865,7 +933,7 @@ local function IsSkyborneVoiceKey(voiceKey)
 end
 
 local function CanPlayForSender(sender, guid, emoteName)
-    local senderKey = guid or NormalizeName(sender) or "unknown"
+    local senderKey = SpeakerKey(sender, guid)
     local key = emoteName .. ":" .. senderKey
     local now = GetTime()
     local last = lastPlayTimeBySenderAndEmote[key]
@@ -884,7 +952,7 @@ local function GetSenderVoiceKey(sender, guid)
         return voiceKey
     end
 
-    local unit = FindGroupedUnitByGUID(guid) or FindUnitBySender(sender, guid)
+    local unit = FindGroupedUnitBySender(sender, guid) or FindUnitBySender(sender, guid)
     if unit then
         return GetVoiceKeyForUnit(unit)
     end
@@ -1164,7 +1232,15 @@ local function PlayFromComm(sender, guid, parsed, channel)
 end
 
 local function HandleAddonMessage(prefix, message, channel, sender, _, _, _, _, _, _, _, guid)
-    if prefix ~= COMM_PREFIX then
+    prefix = PlainString(prefix)
+    message = PlainString(message)
+    sender = PlainString(sender)
+    guid = SafeGUID(guid)
+
+    if prefix ~= COMM_PREFIX or not message then
+        return
+    end
+    if not sender and not guid then
         return
     end
     if not AddonEnabled() then
@@ -1174,10 +1250,6 @@ local function HandleAddonMessage(prefix, message, channel, sender, _, _, _, _, 
     local parsed = ParseCommMessage(message)
     if not parsed then
         return
-    end
-
-    if type(guid) ~= "string" or guid == "" then
-        guid = nil
     end
 
     local dedupeKey = SenderKey(sender, guid) .. ":" .. parsed.eventID
@@ -1255,6 +1327,13 @@ local function ScheduleTextFallback(emoteName, sender, guid)
 end
 
 local function HandleChatEmote(event, text, sender, guid)
+    text = PlainString(text)
+    sender = PlainString(sender)
+    guid = SafeGUID(guid)
+
+    if not text or (not sender and not guid) then
+        return
+    end
     if not AddonEnabled() then
         return
     end
@@ -1308,9 +1387,6 @@ frame:SetScript("OnEvent", function(self, event, ...)
 
     local text, sender = ...
     local guid = select(12, ...)
-    if type(guid) ~= "string" or guid == "" then
-        guid = nil
-    end
     HandleChatEmote(event, text, sender, guid)
 end)
 
@@ -1519,8 +1595,8 @@ local function PlayLocalFactionCry(emoteName)
     if not sounds or #sounds == 0 then
         return false
     end
-    local sender = UnitName and UnitName("player") or "player"
-    local guid = UnitGUID and UnitGUID("player") or nil
+    local sender = SafeUnitName("player") or "player"
+    local guid = SafeUnitGUID("player")
     if not CanPlayForSender(sender, guid, emoteName) then
         return false
     end
