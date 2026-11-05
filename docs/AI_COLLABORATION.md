@@ -60,11 +60,10 @@ Roar Forever is the **WoW Forever voice-restoration project**, creatively relate
 
 **Verification boundary:** the secret-identity regression suite passed before release preparation. The final updated suite including COMM/text sender correlation still has to pass on the exact release commit before the tag is pushed. Live dungeon/group behavior remains separate beta verification.
 
-## Native group-roar overlap fix — 5 November 2026
+## Group-roar second-pass investigation — 5 November 2026
 
-**Babuni:** reported that grouped `/roar` still sounded doubled after the COMM/text correlation fix and asked for the behavior to be checked again before release.
+**Babuni:** directly falsified the native-group-roar hypothesis by disabling RoarForever and confirming that Forever produced no group roar sound. Group roar restoration was reaffirmed as core addon behavior.
 
-**AI contribution:** re-audited all grouped roar playback paths, separated addon deduplication from native-client overlap, checked current community evidence for native grouped voiced emotes, removed the legacy group-roar restoration exception, updated regression expectations, and corrected the release history after discovering that `v0.6.3-beta` had already been published.
+**AI contribution:** reverted the mistaken group suppression, traced the failing automated assertion to the expected group-restoration behavior, unified the playback cooldown identity with COMM/text correlation, added `/rf debugplay` for source-labelled sound-call tracing, restored the corresponding regression expectations, and corrected the repository history.
 
-**Verification boundary:** the remaining source-level native/addon overlap is removed in 0.6.4-beta development. The updated automated suite and a live party/instance retest remain pending. Published tag `v0.6.3-beta` points to commit `6efb00416469e0a99a4122099d39da744d7a6470` and does not contain this later group-roar suppression change.
-
+**Verification boundary:** the native-overlap explanation is rejected by live evidence. The corrected 0.6.4 development code still requires the complete automated suite and a live debugplay trace before the remaining audible double can be attributed to a specific addon path or audio behavior.
