@@ -106,9 +106,10 @@ def boot(locale='enUS', saved=None):
                 f.scripts.OnEvent(f,kind,text,sender,nil,nil,nil,nil,nil,nil,nil,nil,nil,guid)
             end end
         end
-        function addon(prefix,payload,channel,sender,guid)
+        function addon(prefix,payload,channel,sender)
             for _,f in ipairs(frames) do if f.events.CHAT_MSG_ADDON then
-                f.scripts.OnEvent(f,'CHAT_MSG_ADDON',prefix,payload,channel,sender,nil,nil,nil,nil,nil,nil,nil,guid)
+                -- Forever CHAT_MSG_ADDON has no sender GUID; model the real payload.
+                f.scripts.OnEvent(f,'CHAT_MSG_ADDON',prefix,payload,channel,sender,nil,nil,nil,nil,nil)
             end end
         end
     ''')
@@ -310,42 +311,42 @@ units.target={name='Other',realm='Away',guid='Player-other'}
 -- Nearby COMM roar with empty SoundKit -> FileDataID once; text afterwards must not double.
 beforeSounds=#sounds; beforeAddon=#addonSent
 now=200
-addon('RoarForever','1|E|roar|GnomeFemale|42|10.00|0.00|0','SAY','Other','Player-other')
+addon('RoarForever','1|E|roar|GnomeFemale|42|10.00|0.00|0','SAY','Other')
 assert(#sounds==beforeSounds+1)
 event('CHAT_MSG_TEXT_EMOTE','Other roars with bestial vigor. So fierce!','Other','Player-other'); flush()
 assert(#sounds==beforeSounds+1)
 -- Same eventID on another channel is deduped.
-addon('RoarForever','1|E|roar|GnomeFemale|42|10.00|0.00|0','PARTY','Other','Player-other')
+addon('RoarForever','1|E|roar|GnomeFemale|42|10.00|0.00|0','PARTY','Other')
 assert(#sounds==beforeSounds+1)
 -- Text-first: COMM cancels the 0.10s fallback.
 now=201; beforeSounds=#sounds
 event('CHAT_MSG_TEXT_EMOTE','Other roars with bestial vigor. So fierce!','Other','Player-other')
 assert(#sounds==beforeSounds)
-addon('RoarForever','1|E|roar|GnomeFemale|43|5.00|0.00|0','SAY','Other','Player-other')
+addon('RoarForever','1|E|roar|GnomeFemale|43|5.00|0.00|0','SAY','Other')
 flush()
 assert(#sounds==beforeSounds+1)
 -- Distance >= 50 with empty kits: silent (FileDataID suppressed).
 now=202; beforeSounds=#sounds
-addon('RoarForever','1|E|roar|GnomeFemale|44|60.00|0.00|0','SAY','Other','Player-other')
+addon('RoarForever','1|E|roar|GnomeFemale|44|60.00|0.00|0','SAY','Other')
 assert(#sounds==beforeSounds)
 -- Different instance: silent, not full volume.
 now=203; beforeSounds=#sounds
-addon('RoarForever','1|E|roar|GnomeFemale|45|5.00|0.00|99','SAY','Other','Player-other')
+addon('RoarForever','1|E|roar|GnomeFemale|45|5.00|0.00|99','SAY','Other')
 assert(#sounds==beforeSounds)
 -- Position unavailable: normal FileDataID fallback.
 now=204; beforeSounds=#sounds
-addon('RoarForever','1|E|roar|GnomeFemale|46','SAY','Other','Player-other')
+addon('RoarForever','1|E|roar|GnomeFemale|46','SAY','Other')
 assert(#sounds==beforeSounds+1)
 -- Group train COMM suppressed; stranger train COMM plays.
 now=205; beforeSounds=#sounds
-addon('RoarForever','1|E|train|GnomeFemale|47|5.00|0.00|0','PARTY','Friend','Player-friend')
+addon('RoarForever','1|E|train|GnomeFemale|47|5.00|0.00|0','PARTY','Friend')
 assert(#sounds==beforeSounds)
-addon('RoarForever','1|E|train|GnomeFemale|48|5.00|0.00|0','SAY','Other','Player-other')
+addon('RoarForever','1|E|train|GnomeFemale|48|5.00|0.00|0','SAY','Other')
 assert(#sounds==beforeSounds+1)
 -- Group faction cry COMM still plays within range.
 now=206; beforeSounds=#sounds
 guidRace['Player-friend']='Orc'
-addon('RoarForever','1|E|forthehorde|OrcMale|49|8.00|0.00|0','PARTY','Friend','Player-friend')
+addon('RoarForever','1|E|forthehorde|OrcMale|49|8.00|0.00|0','PARTY','Friend')
 assert(#sounds==beforeSounds+1 and sounds[#sounds]==1387394)
 -- SendAddonMessage result codes must not break broadcasting; debugcomm can expose them in-game.
 addonSendResult=3
@@ -380,4 +381,4 @@ assert(#sounds==before+22 and #sent==0)
 RoarForeverDB=true
 assert(RF.AddonEnabled() and RF.EmoteEnabled('joke'))
 ''')
-print(f'PASS: {count} translated template cases, 7 locale variants, menu callbacks, saved options, preview pool, train controls, faction cries, Skyborne roar exception, COMM distance, secret-identity guards, identity and detection regressions.')
+print(f'PASS: {count} translated template cases, 7 locale variants, menu callbacks, saved options, preview pool, train controls, faction cries, Skyborne roar exception, COMM distance, COMM/text sender correlation, secret-identity guards, identity and detection regressions.')
