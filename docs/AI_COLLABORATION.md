@@ -74,5 +74,5 @@ Roar Forever is the **WoW Forever voice-restoration project**, creatively relate
 
 **AI contribution:** audited the group-only transport difference, identified that one logical roar is broadcast on multiple addon channels while grouped, traced the early event-ID dedupe return that failed to refresh COMM/text suppression, moved fallback correlation ahead of event-ID dedupe, and added a delayed SAY/PARTY/text regression reproducing the timing window.
 
-**Verification boundary:** the source-level timing flaw is fixed in 0.6.4 development and the regression is present, but the updated automated suite has not yet been rerun after this change. A live group retest remains required.
+**Verification boundary:** the source-level timing flaw is fixed in 0.6.4 development. The updated automated suite passed on 5 November 2026, including delayed group-channel dedupe. A live group retest remains required before the audible duplicate is considered resolved in-game.
 
