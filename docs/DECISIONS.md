@@ -64,3 +64,13 @@ Roar Forever is the **WoW Forever voice-restoration project**, creatively relate
 
 **Packaging:** retain the 0.6.2 runtime-only `.pkgmeta` policy; no development documentation or tests belong in the player ZIP.
 
+## 5 November 2026 — leave all group roar playback to Forever
+
+**Problem:** after fixing COMM/text deduplication, grouped `/roar` still sounded doubled in the live client.
+
+**Decision:** stop RoarForever from restoring `/roar` for party/raid members on both COMM and text paths. Grouped voice playback belongs to Forever; RoarForever continues restoring nearby non-grouped players and keeps the existing self-roar behavior.
+
+**Reasoning:** the older group-roar exception came from earlier Forever behavior where roar was treated differently from other grouped voices. Current live observation plus contemporary player reports indicate grouped voiced emotes are audible natively. Keeping the exception therefore risks one native sound plus one addon sound.
+
+**Verification boundary:** the source-level overlap is removed and regression coverage was updated, but the final automated suite and a live grouped-roar retest still need to pass before the 0.6.3-beta tag is created.
+
