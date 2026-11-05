@@ -285,9 +285,20 @@ playerFaction='Horde'; beforeSent=#sent; beforeSounds=#sounds
 SlashCmdList.ROARFOREVERFTA()
 assert(#sent==beforeSent and #sounds==beforeSounds)
 playerFaction='Alliance'; now=117
+beforeAddon=#addonSent
 SlashCmdList.ROARFOREVERFTA()
 assert(#sent==beforeSent+1 and sent[#sent].text=='cheers for the Alliance! For the Alliance!' and sent[#sent].kind=='C_EMOTE')
 assert(#sounds==beforeSounds+1 and sounds[#sounds]==1502109)
+-- Group channels can echo our own outbound packet back through CHAT_MSG_ADDON.
+-- Sender display formatting must not matter: an exact recently-sent local payload
+-- is always self and must never trigger a second local faction-cry sound.
+local ownFtaPayload=nil
+for i=beforeAddon+1,#addonSent do
+    if addonSent[i].channel=='PARTY' then ownFtaPayload=addonSent[i].payload end
+end
+assert(ownFtaPayload)
+addon('RoarForever',ownFtaPayload,'PARTY','Different local display')
+assert(#sounds==beforeSounds+1)
 now=118; event('CHAT_MSG_EMOTE','cheers for the Alliance! For the Alliance!','Tester','Player-self'); flush(); assert(#sounds==beforeSounds+1)
 now=119; event('CHAT_MSG_EMOTE','cheers for the Alliance! For the Alliance!','Other','Player-other'); flush(); assert(#sounds==beforeSounds+2)
 now=120; event('CHAT_MSG_EMOTE','cheers for the Alliance! For the Alliance!','Friend','Player-friend'); flush(); assert(#sounds==beforeSounds+3)
@@ -309,6 +320,22 @@ playerPos={x=0,y=0,instanceID=0}
 guidRace['Player-other']='Gnome'; guidRace['Player-friend']='Gnome'; guidRace['Player-self']='Gnome'
 grouped=true; units.party1={name='Friend',realm='Home',guid='Player-friend'}
 units.target={name='Other',realm='Away',guid='Player-other'}
+-- Own grouped roar: self text supplies the one local sound. If the PARTY copy
+-- of our own outbound COMM packet echoes back with a differently formatted sender,
+-- it must be discarded as local transport echo rather than played as another player.
+beforeSounds=#sounds; beforeAddon=#addonSent
+now=199
+DoEmote('ROAR')
+local ownRoarPayload=nil
+for i=beforeAddon+1,#addonSent do
+    if addonSent[i].channel=='PARTY' then ownRoarPayload=addonSent[i].payload end
+end
+assert(ownRoarPayload)
+event('CHAT_MSG_TEXT_EMOTE','You roar with bestial vigor. So fierce!','Tester','Player-self')
+assert(#sounds==beforeSounds+1)
+addon('RoarForever',ownRoarPayload,'PARTY','Different local display')
+assert(#sounds==beforeSounds+1)
+
 -- Nearby COMM roar with empty SoundKit -> FileDataID once; text afterwards must not double.
 beforeSounds=#sounds; beforeAddon=#addonSent
 now=200
@@ -400,4 +427,4 @@ assert(#sounds==before+22 and #sent==0)
 RoarForeverDB=true
 assert(RF.AddonEnabled() and RF.EmoteEnabled('joke'))
 ''')
-print(f'PASS: {count} translated template cases, 7 locale variants, menu callbacks, saved options, preview pool, train controls, faction cries, group roar restoration, Skyborne roar exception, COMM distance, COMM/text sender correlation, delayed group-channel dedupe, logical-sender playback dedupe, secret-identity guards, identity and detection regressions.')
+print(f'PASS: {count} translated template cases, 7 locale variants, menu callbacks, saved options, preview pool, train controls, faction cries, group roar restoration, Skyborne roar exception, COMM distance, self-echo suppression, COMM/text sender correlation, delayed group-channel dedupe, logical-sender playback dedupe, secret-identity guards, identity and detection regressions.')
