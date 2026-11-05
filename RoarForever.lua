@@ -996,6 +996,29 @@ local recentCommEventIDs = {}
 -- addon message back to us; reject those echoes without depending on sender-name
 -- formatting, which can differ from UnitFullName on Forever.
 local recentLocalCommPayloads = {}
+
+local function RememberLocalCommPayload(payload)
+    local now = GetTime()
+    for cachedPayload, seenAt in pairs(recentLocalCommPayloads) do
+        if (now - seenAt) > COMM_DEDUPE_TTL then
+            recentLocalCommPayloads[cachedPayload] = nil
+        end
+    end
+    recentLocalCommPayloads[payload] = now
+end
+
+local function IsRecentLocalCommPayload(payload)
+    local seenAt = recentLocalCommPayloads[payload]
+    if not seenAt then
+        return false
+    end
+    if (GetTime() - seenAt) <= COMM_DEDUPE_TTL then
+        return true
+    end
+    recentLocalCommPayloads[payload] = nil
+    return false
+end
+
 local eventCounter = 0
 local debugCommEnabled = false
 local prefixRegistered = false
@@ -1113,7 +1136,7 @@ local function BroadcastEmoteEvent(emoteName)
 
     -- Cache the exact packet before sending. PARTY/RAID/INSTANCE_CHAT may echo
     -- it back to the sender; that echo must never become a second local sound.
-    recentLocalCommPayloads[payload] = GetTime()
+    RememberLocalCommPayload(payload)
 
     local function send(channel)
         -- The modern/Forever API returns Enum.SendAddonMessageResult. select(-1)
@@ -1282,12 +1305,8 @@ local function HandleAddonMessage(prefix, message, channel, sender)
     -- Suppress an exact recently-sent local payload before sender identity,
     -- fallback correlation, event-ID dedupe, or playback. This is deliberately
     -- independent of CHAT_MSG_ADDON sender-name formatting.
-    local localSentAt = recentLocalCommPayloads[message]
-    if localSentAt then
-        if (GetTime() - localSentAt) <= COMM_DEDUPE_TTL then
-            return
-        end
-        recentLocalCommPayloads[message] = nil
+    if IsRecentLocalCommPayload(message) then
+        return
     end
 
     -- Every copy of this logical COMM event is evidence that the matching text
