@@ -964,8 +964,12 @@ local function SenderKey(sender, guid)
     return SpeakerKey(sender, guid)
 end
 
+-- CHAT_MSG_ADDON has a sender name but no sender GUID, while CHAT_MSG_TEXT_EMOTE
+-- includes a GUID. Correlate those two event streams by the normalized sender name
+-- so COMM-first/text-first deduplication uses the same key on both paths.
 local function RecentCommKey(sender, guid, emoteName)
-    return SenderKey(sender, guid) .. "|" .. emoteName
+    local senderKey = NormalizeName(sender) or SafeGUID(guid) or "unknown"
+    return senderKey .. "|" .. emoteName
 end
 
 -- Text-emote fallback timers waiting for a matching COMM packet.
@@ -1231,18 +1235,18 @@ local function PlayFromComm(sender, guid, parsed, channel)
     PlayRestoredVoice(emoteName, voiceKey, distance, positionStatus, SpeakerKey(sender, guid))
 end
 
-local function HandleAddonMessage(prefix, message, channel, sender, _, _, _, _, _, _, _, guid)
+local function HandleAddonMessage(prefix, message, channel, sender)
     prefix = PlainString(prefix)
     message = PlainString(message)
     sender = PlainString(sender)
-    guid = SafeGUID(guid)
 
-    if prefix ~= COMM_PREFIX or not message then
+    if prefix ~= COMM_PREFIX or not message or not sender then
         return
     end
-    if not sender and not guid then
-        return
-    end
+
+    -- Forever's CHAT_MSG_ADDON payload does not provide a sender GUID. Keep this
+    -- path name-based and let the text-emote event supply a GUID independently.
+    local guid = nil
     if not AddonEnabled() then
         return
     end
