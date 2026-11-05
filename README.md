@@ -8,7 +8,7 @@ Roar Forever restores character voice sounds that Forever does not reliably play
 
 > **0.6.3-beta:** published tag for Forever 1.60.1 containing the restricted-map secret unit-identity fix and COMM/text `/roar` deduplication. A later grouped-roar overlap correction is not part of that tag.
 
-> **Development main — 0.6.4-beta:** additionally leaves party/raid `/roar` playback entirely to Forever to prevent native/addon overlap. Automated and live party/instance retesting of this post-0.6.3 change remains pending.
+> **Development main — 0.6.4-beta:** keeps party/raid `/roar` restoration after a live addon-off check confirmed Forever provides no native group roar sound. It strengthens cross-path duplicate identity and adds `/rf debugplay` to trace every actual addon sound call. Automated and live duplicate-diagnosis retesting remain pending.
 
 ## Options and previews
 
@@ -50,7 +50,7 @@ Players without Roar Forever are still heard through the existing text-emote / a
 
 SoundKit-based volume scaling is ready; the mapping table starts empty until IDs are verified from Forever DB2/CASC data. Until then, in-range COMM events use the existing FileDataID playback, and out-of-range (≥50 yards) or other-instance packets stay silent.
 
-Roar Forever does not replay your own normal voiced emotes, because the client already plays those. `/roar` remains the self exception for races that have no client roar; Skyborne already have a native self roar and are left to the game. In a party or raid, Forever plays grouped voiced emotes natively, so Roar Forever does not restore group-member `/roar` or other ordinary voices. Faction cries remain addon-driven because Forever does not natively wire them. Nearby players who are not in your group still get the restored set.
+Roar Forever does not replay your own normal voiced emotes, because the client already plays those. `/roar` remains the self exception for races that have no client roar; Skyborne already have a native self roar and are left to the game. In a party or raid, most ordinary group voices are left to the client, but `/roar` remains restored by RoarForever because a live addon-off check confirmed Forever provides no group roar sound. Faction cries remain addon-driven because Forever does not natively wire them. Nearby players who are not in your group still get the restored set.
 
 Someone who is not using Roar Forever can still `/train` without sending a line, so there is nothing for the addon to hear unless they use a distinctive announce. The same is true for faction cries without the distinctive chat line or addon communication.
 
@@ -76,6 +76,7 @@ Playback is local: another player does not need Roar Forever installed for you t
 | `/rf status` | Show whether the addon is on, your character voice, and the mapped emotes. |
 | `/rf id <FileDataID>` | Test a specific FileDataID. |
 | `/rf debugcomm` | Toggle COMM diagnostics: received packets plus outgoing send result codes (success, throttled, blocked, invalid channel, etc.). |
+| `/rf debugplay` | Toggle actual restored-sound playback tracing, including source path, speaker key, FileDataID, and sound handle. |
 | `/rf debugpos` | Print your outdoor `UnitPosition` x, y, and instance ID. |
 | `/rf soundkit <ID> [volume]` | Play a **candidate** SoundKit ID at an optional volume (default 1.0). For validating IDs you already have — not a way to discover voice mappings from scratch. |
 | `/rf voltest <ID>` | Play a candidate SoundKit at about 100%, 70%, 40%, 20%, and 10% with short gaps. |
