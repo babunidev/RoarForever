@@ -2,10 +2,16 @@
 
 Release notes for the standalone player voice-emote sound addon.
 
+## Unreleased
+
+- Development version: `0.6.4-beta`.
+- Stopped restoring `/roar` for party/raid members. Forever already plays grouped voiced emotes natively, so addon playback there could overlap the client sound. RoarForever still restores `/roar` for nearby non-grouped players and keeps the existing self-roar behavior.
+- Updated grouped-roar regression expectations so party/raid roar must produce no RoarForever playback while nearby non-grouped roar remains restored.
+- Live party/instance retest and the complete automated regression suite remain pending for this post-0.6.3 fix.
+
 ## 0.6.3-beta — 2026-11-05
 
-- Stopped restoring `/roar` for party/raid members. Forever already plays grouped voiced emotes natively, so addon playback there could overlap the client sound. RoarForever still restores `/roar` for nearby non-grouped players and keeps the existing self-roar behavior.
-> **Release status:** approved by Babuni for public beta release. The tag must be created only after the updated automated regression suite passes on the exact release commit. Live dungeon/group verification remains separate from automated checks, including confirmation that group `/roar` now produces only the native client sound.
+> **Publication:** annotated tag `v0.6.3-beta` was published on commit `6efb00416469e0a99a4122099d39da744d7a6470`. This release contains the secret-identity and COMM/text correlation fixes; it does not contain the later native group-roar suppression change.
 
 - Fixed a second `/roar` playback path when COMM and `CHAT_MSG_TEXT_EMOTE` represented the same emote with different identity shapes: Forever's `CHAT_MSG_ADDON` provides a sender name but no sender GUID, while text-emote events provide a GUID. Short-lived COMM/text correlation now keys by normalized sender name so both arrival orders deduplicate correctly.
 - Corrected the test harness to model Forever's real `CHAT_MSG_ADDON` payload without an invented sender GUID. The updated regression suite must pass on the release commit before the public tag is pushed.
