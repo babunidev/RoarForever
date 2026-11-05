@@ -26,3 +26,7 @@ Roar Forever is the **WoW Forever voice-restoration project**, creatively relate
 
 Forever's `CHAT_MSG_ADDON` event provides the sender name but no sender GUID, whereas `CHAT_MSG_TEXT_EMOTE` includes the sender GUID. Event-ID deduplication handles repeated SAY/PARTY/RAID copies of one COMM packet, but COMM-versus-text correlation must not use GUID-preferred identity keys because the two events expose different identity fields. Development main therefore correlates the brief COMM/text fallback window by normalized sender name. GUID-aware identity remains available for self/group classification and voice lookup where the event actually supplies it.
 
+### Native group-voice boundary
+
+Forever plays voiced emotes for party/raid members natively even where nearby non-grouped players may not hear them. RoarForever therefore treats group membership as a playback boundary: ordinary grouped voices, including `/roar` and `/train`, are left to the client. COMM and text detection can still identify those events for deduplication/state, but restored audio is suppressed for grouped senders. Nearby non-grouped players remain eligible for restoration, and self `/roar` retains its race-specific exception.
+
