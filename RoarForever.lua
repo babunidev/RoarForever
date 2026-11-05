@@ -587,6 +587,7 @@ local SEND_ADDON_RESULT_NAMES = {
 -- player's spam/restart cuts their own previous line, while other players overlap.
 local lastSoundHandleBySpeaker = {}
 local previewSoundHandle
+local debugPlaybackEnabled = false
 
 local function SpeakerKey(sender, guid)
     return SafeGUID(guid) or NormalizeName(sender) or "unknown"
@@ -609,11 +610,21 @@ local function StopSpeakerSound(speakerKey)
     lastSoundHandleBySpeaker[speakerKey] = nil
 end
 
-local function PlaySoundFileForSpeaker(speakerKey, fileDataID)
+local function PlaySoundFileForSpeaker(speakerKey, fileDataID, source)
     StopSpeakerSound(speakerKey)
     local willPlay, handle = PlaySoundFile(fileDataID, "Master")
     if willPlay then
         lastSoundHandleBySpeaker[speakerKey] = handle
+    end
+    if debugPlaybackEnabled then
+        print(string.format(
+            "RoarForever PLAY source=%s speaker=%s file=%s handle=%s played=%s",
+            tostring(source or "?"),
+            tostring(speakerKey),
+            tostring(fileDataID),
+            tostring(handle),
+            tostring(willPlay and true or false)
+        ))
     end
     return willPlay and true or false, handle
 end
@@ -644,7 +655,7 @@ local function VolumeForDistance(distance)
     return (1 - t) ^ 1.5
 end
 
-local function PlayEmoteByKey(emoteName, voiceKey, speakerKey)
+local function PlayEmoteByKey(emoteName, voiceKey, speakerKey, source)
     local emoteMap = voiceSounds[emoteName]
     local sounds = emoteMap and emoteMap[voiceKey]
     if not sounds or #sounds == 0 then
@@ -652,12 +663,12 @@ local function PlayEmoteByKey(emoteName, voiceKey, speakerKey)
     end
 
     local fileDataID = sounds[math.random(#sounds)]
-    local willPlay = PlaySoundFileForSpeaker(speakerKey or "unknown", fileDataID)
+    local willPlay = PlaySoundFileForSpeaker(speakerKey or "unknown", fileDataID, source)
     return willPlay, fileDataID
 end
 
 -- positionStatus: "ok" | "mismatch" | "unavailable"
-local function PlayRestoredVoice(emoteName, voiceKey, distance, positionStatus, speakerKey)
+local function PlayRestoredVoice(emoteName, voiceKey, distance, positionStatus, speakerKey, source)
     if positionStatus == "mismatch" then
         return false
     end
@@ -677,14 +688,14 @@ local function PlayRestoredVoice(emoteName, voiceKey, distance, positionStatus, 
             end
             return PlaySoundKitForSpeaker(speakerKey, kit, volume)
         end
-        return PlayEmoteByKey(emoteName, voiceKey, speakerKey)
+        return PlayEmoteByKey(emoteName, voiceKey, speakerKey, source)
     end
 
     -- Position unavailable: full-volume fallback.
     if kit then
         return PlaySoundKitForSpeaker(speakerKey, kit, 1.0)
     end
-    return PlayEmoteByKey(emoteName, voiceKey, speakerKey)
+    return PlayEmoteByKey(emoteName, voiceKey, speakerKey, source)
 end
 
 -- Normalize chat formatting without lowercasing UTF-8 names or translated text.
@@ -932,8 +943,12 @@ local function IsSkyborneVoiceKey(voiceKey)
     return type(voiceKey) == "string" and string.sub(voiceKey, 1, 8) == "Skyborne"
 end
 
+local function LogicalSenderKey(sender, guid)
+    return NormalizeName(sender) or SafeGUID(guid) or "unknown"
+end
+
 local function CanPlayForSender(sender, guid, emoteName)
-    local senderKey = SpeakerKey(sender, guid)
+    local senderKey = LogicalSenderKey(sender, guid)
     local key = emoteName .. ":" .. senderKey
     local now = GetTime()
     local last = lastPlayTimeBySenderAndEmote[key]
@@ -968,8 +983,7 @@ end
 -- includes a GUID. Correlate those two event streams by the normalized sender name
 -- so COMM-first/text-first deduplication uses the same key on both paths.
 local function RecentCommKey(sender, guid, emoteName)
-    local senderKey = NormalizeName(sender) or SafeGUID(guid) or "unknown"
-    return senderKey .. "|" .. emoteName
+    return LogicalSenderKey(sender, guid) .. "|" .. emoteName
 end
 
 -- Text-emote fallback timers waiting for a matching COMM packet.
@@ -1018,15 +1032,14 @@ local function ShouldSuppressCommPlayback(emoteName, sender, guid, voiceKey)
     if IsLocalPlayer(sender, guid) then
         return true
     end
-
-    local isGrouped = IsGroupedSender(sender, guid)
-
-    -- Forever already plays group-member voiced emotes natively. Do not restore
-    -- /train or /roar for party/raid members or the native sound will overlap.
-    if isGrouped and (emoteName == "train" or emoteName == "roar") then
+    -- Forever already plays group-member /train natively (0.5.1 fix).
+    if emoteName == "train" and IsGroupedSender(sender, guid) then
         return true
     end
-
+    local isSelfOrGroup = IsLocalPlayer(sender, guid) or IsGroupedSender(sender, guid)
+    if emoteName == "roar" and isSelfOrGroup and IsSkyborneVoiceKey(voiceKey) then
+        return true
+    end
     return false
 end
 
@@ -1233,7 +1246,7 @@ local function PlayFromComm(sender, guid, parsed, channel)
         return
     end
 
-    PlayRestoredVoice(emoteName, voiceKey, distance, positionStatus, SpeakerKey(sender, guid))
+    PlayRestoredVoice(emoteName, voiceKey, distance, positionStatus, SpeakerKey(sender, guid), "COMM:" .. tostring(channel or "?"))
 end
 
 local function HandleAddonMessage(prefix, message, channel, sender)
@@ -1274,26 +1287,18 @@ end
 -- Returns true if the text-emote path should restore this sender/emote (legacy rules).
 local function ShouldRestoreFromText(emoteName, sender, guid)
     local isSelf = IsLocalPlayer(sender, guid)
-    local isGrouped = IsGroupedSender(sender, guid)
+    local isSelfOrGroup = isSelf or IsGroupedSender(sender, guid)
     local isFactionCry = factionEmotes[emoteName] ~= nil
 
     if isFactionCry then
-        return not isSelf
-    end
-
-    -- Forever plays party/raid member voices natively. RoarForever restores
-    -- nearby non-grouped players, but leaves every grouped voice to the client.
-    if isGrouped then
+        if isSelf then
+            return false
+        end
+    elseif emoteName ~= "roar" and isSelfOrGroup then
         return false
     end
 
-    if isSelf then
-        if emoteName ~= "roar" then
-            return false
-        end
-
-        -- Skyborne already have a native self roar; other races still use the
-        -- addon for their own missing roar.
+    if emoteName == "roar" and isSelfOrGroup then
         local voiceKey = GetSenderVoiceKey(sender, guid)
         if IsSkyborneVoiceKey(voiceKey) then
             return false
@@ -1315,7 +1320,7 @@ local function PlayTextFallback(emoteName, sender, guid)
     end
     local voiceKey = GetSenderVoiceKey(sender, guid)
     if voiceKey then
-        PlayEmoteByKey(emoteName, voiceKey, SpeakerKey(sender, guid))
+        PlayEmoteByKey(emoteName, voiceKey, SpeakerKey(sender, guid), "TEXT")
     end
 end
 
@@ -1366,7 +1371,7 @@ local function HandleChatEmote(event, text, sender, guid)
         end
         local voiceKey = GetSenderVoiceKey(sender, guid)
         if voiceKey then
-            PlayEmoteByKey(emoteName, voiceKey, SpeakerKey(sender, guid))
+            PlayEmoteByKey(emoteName, voiceKey, SpeakerKey(sender, guid), "SELF_TEXT")
         end
         return
     end
@@ -1436,6 +1441,12 @@ SlashCmdList.ROARFOREVER = function(msg)
     if lower == "debugcomm" then
         debugCommEnabled = not debugCommEnabled
         print("Roar Forever: debugcomm " .. (debugCommEnabled and "on" or "off"))
+        return
+    end
+
+    if lower == "debugplay" then
+        debugPlaybackEnabled = not debugPlaybackEnabled
+        print("Roar Forever: debugplay " .. (debugPlaybackEnabled and "on" or "off"))
         return
     end
 
@@ -1543,7 +1554,7 @@ SlashCmdList.ROARFOREVER = function(msg)
         return
     end
 
-    print("Roar Forever: /rf on | /rf off | /rf test [emote] | /rf status | /rf id <FileDataID> | /rf debugcomm | /rf debugpos | /rf soundkit <ID> [volume] | /rf voltest <ID>")
+    print("Roar Forever: /rf on | /rf off | /rf test [emote] | /rf status | /rf id <FileDataID> | /rf debugcomm | /rf debugplay | /rf debugpos | /rf soundkit <ID> [volume] | /rf voltest <ID>")
 end
 
 -- Forever never announces /train, and does not wire faction cries at all.
