@@ -42,5 +42,5 @@ Roar Forever is the **WoW Forever voice-restoration project**, creatively relate
 
 **AI contribution:** traced the stack to name-based sender matching, checked current Forever secret-value behavior for unit names/GUIDs/race/sex, implemented guarded identity helpers, narrowed self/group classification to accessible unit tokens, added simulated regression coverage, and updated repository documentation.
 
-**Verification boundary:** the reported error itself is live-client evidence. The fix is implemented in development main, but automated regression execution and a live dungeon retest remain pending; no public follow-up version has been authorized or tagged.
+**Verification boundary:** the reported error itself is live-client evidence. The fix is implemented in development main, and `python tests/test_addon.py` passed on 5 November 2026 with the new secret-identity guard coverage. A live dungeon retest remains pending because the simulator cannot reproduce Blizzard-tagged secret values; no public follow-up version has been authorized or tagged.
 
