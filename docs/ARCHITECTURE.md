@@ -36,3 +36,7 @@ COMM and text-emote events expose different identity shapes, so both short-windo
 
 A single logical COMM emote is broadcast on SAY and, while grouped, also on PARTY or RAID and sometimes INSTANCE_CHAT. All copies share one event ID and only the first copy may play restored audio. Later channel copies are still meaningful timing evidence: before event-ID deduplication returns, they refresh the short-lived COMM/text correlation and cancel any pending text fallback. This prevents a text-emote event arriving after the first packet's 0.35-second window from replaying the same group roar.
 
+### Local group COMM echoes
+
+Grouped addon channels may deliver this client's own outbound COMM packet back through `CHAT_MSG_ADDON`. Sender display formatting is not reliable enough to make self-suppression depend only on `UnitFullName("player")`. RoarForever therefore caches exact outbound payloads for the short COMM dedupe window and drops an exact recent local echo before sender classification, COMM/text correlation, event-ID dedupe or sound playback. The cache is pruned as new packets are sent.
+
