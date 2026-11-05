@@ -7,9 +7,11 @@ Release notes for the standalone player voice-emote sound addon.
 - Development version: `0.6.4-beta`.
 - Reverted the proposed group-roar suppression after a direct live check with RoarForever disabled confirmed that Forever itself does **not** play the missing group `/roar` sound. Group roar restoration remains core addon behavior.
 - Stabilized the playback duplicate key so COMM events (sender name only) and text-emote events (sender name + GUID) identify the same logical speaker.
+- Fixed a group-only delayed duplicate path: later SAY/PARTY/RAID/INSTANCE copies of the same COMM event now refresh COMM/text fallback suppression before event-ID dedupe discards their audio playback. This prevents a late text-emote event from replaying a roar after the original 0.35-second COMM window expires.
+- Added a regression reproducing SAY → delayed PARTY duplicate → later text-emote delivery for one event ID; automated execution of this new case remains pending.
 - Added `/rf debugplay`, which reports every actual RoarForever FileDataID playback with its source path (`COMM`, `TEXT`, or `SELF_TEXT`) for live duplicate diagnosis.
 - Restored grouped-roar regression expectations and added coverage that name-only COMM and name+GUID text events share the same playback cooldown identity.
-- `python tests/test_addon.py` passed on 2026-11-05 with 593 translated template cases, 7 locale variants, and the full regression suite including group roar restoration, COMM/text sender correlation, logical-sender playback dedupe, and secret-identity guards. A live grouped-roar `/rf debugplay` trace remains pending.
+- The previous corrected 0.6.4 suite passed on 2026-11-05. After adding the delayed group-channel regression, the updated suite must be rerun before this new fix is considered automatically verified. A live grouped-roar `/rf debugplay` trace remains pending.
 
 ## 0.6.3-beta — 2026-11-05
 
