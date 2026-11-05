@@ -14,6 +14,10 @@ The 0.6.x COMM payload records emote, voice key, event and optional position/ins
 
 Treat full two-part Forever player names as identity, avoiding invented realm-suffix concerns. `test_addon.py` tests a simulated environment; the 0.6.1-beta suite passed 593 translated template cases across seven locale variants together with menu/settings/preview/train/faction/Skyborne/COMM-distance/identity/detection regressions. Real sound playback, audio channel/mix, positioning, networking and client compatibility still require live game verification. Version 0.6.1-beta also reports outgoing addon-message result codes through `/rf debugcomm`; this improves diagnostics without changing the COMM protocol.
 
+### Secret-aware unit identity
+
+Forever restricted maps can return secret values from unit identity APIs. Development main routes `UnitName`/`UnitFullName` and `UnitGUID` through guarded helpers and checks race/sex values before constructing voice keys. Self classification reads only the `player` unit; group classification scans party/raid tokens only. `target`, `mouseover`, and `focus` remain optional voice-key fallbacks, but secret identities are discarded before comparison or string/table operations. This preserves accessible player/group behavior without attempting to bypass Forever's restrictions.
+
 ## Related development history
 
 Roar Forever is the **WoW Forever voice-restoration project**, creatively related to Roar Sound Effects. It restores client-native voice playback for a growing set of recognized emotes and explores addon communication and distance-sensitive audio. It does **not** implement an action-slot or successful-spellcast emote generator; that latter behavior belongs to Flourish Forever. Its own mapping and voice-preview choices must not be confused with the Roar Guild editable emote registry. See [the source-backed comparison](EMOTE_FAMILY_HISTORY.md) for the distinct mechanisms and shared creative direction.
