@@ -324,6 +324,19 @@ assert(not CanPlayForSender('Correlation Friend','Player-correlation','roar'))
 -- Same eventID on another channel is deduped.
 addon('RoarForever','1|E|roar|GnomeFemale|42|10.00|0.00|0','PARTY','Other')
 assert(#sounds==beforeSounds+1)
+-- Group-channel duplicates must also refresh COMM/text suppression. This
+-- reproduces the live group-only timing bug: SAY plays, PARTY arrives later,
+-- then the text emote arrives after the original 0.35s window.
+now=210; beforeSounds=#sounds
+addon('RoarForever','1|E|roar|GnomeFemale|420|10.00|0.00|0','SAY','Other')
+assert(#sounds==beforeSounds+1)
+now=210.30
+addon('RoarForever','1|E|roar|GnomeFemale|420|10.00|0.00|0','PARTY','Other')
+assert(#sounds==beforeSounds+1)
+now=210.40
+event('CHAT_MSG_TEXT_EMOTE','Other roars with bestial vigor. So fierce!','Other','Player-other')
+flush()
+assert(#sounds==beforeSounds+1)
 -- Text-first: COMM cancels the 0.10s fallback.
 now=201; beforeSounds=#sounds
 event('CHAT_MSG_TEXT_EMOTE','Other roars with bestial vigor. So fierce!','Other','Player-other')
@@ -387,4 +400,4 @@ assert(#sounds==before+22 and #sent==0)
 RoarForeverDB=true
 assert(RF.AddonEnabled() and RF.EmoteEnabled('joke'))
 ''')
-print(f'PASS: {count} translated template cases, 7 locale variants, menu callbacks, saved options, preview pool, train controls, faction cries, group roar restoration, Skyborne roar exception, COMM distance, COMM/text sender correlation, logical-sender playback dedupe, secret-identity guards, identity and detection regressions.')
+print(f'PASS: {count} translated template cases, 7 locale variants, menu callbacks, saved options, preview pool, train controls, faction cries, group roar restoration, Skyborne roar exception, COMM distance, COMM/text sender correlation, delayed group-channel dedupe, logical-sender playback dedupe, secret-identity guards, identity and detection regressions.')
