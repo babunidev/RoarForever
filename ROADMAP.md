@@ -44,10 +44,12 @@ Validate peer emote detection, duplicated text/COMM cases, distance cutoff, UI b
 - [x] Suppress exact recently-sent local COMM payloads before identity matching, fallback correlation, or playback.
 - [x] Bound and expire the local COMM echo cache.
 - [x] Add regressions that feed outbound grouped `/roar` and `/fta` packets back through `CHAT_MSG_ADDON` with deliberately mismatched sender display text.
-- [ ] Rerun `python tests/test_addon.py` with local group COMM self-echo suppression coverage.
+- [x] Rerun `python tests/test_addon.py` with local group COMM self-echo suppression coverage; full suite passed before tagging on 2026-11-05.
 - [x] Rerun `python tests/test_addon.py` with the delayed group-channel dedupe regression; all 593 translated template cases, 7 locale variants, and the full suite including delayed group-channel dedupe passed on 2026-11-05.
 - [x] Run `python tests/test_addon.py` on the corrected 0.6.4 development state; PASS confirmed on 2026-11-05.
-- [ ] Capture a live grouped `/roar` with `/rf debugplay` and determine whether RoarForever calls playback once or more than once.
+- [x] Live grouped `/roar` and faction-cry retest confirmed the self-echo fix stopped the duplicate playback.
+- [x] Publish annotated tag `v0.6.4-beta` on tested commit `8c98e630f09bbe68cf6abeaebd7f2118a44f6274`.
+- [ ] Confirm CurseForge publishes `v0.6.4-beta` as Beta / Forever 1.60.1 and verify the runtime-only ZIP contents.
 - [x] Restrict future CurseForge packages to runtime files only.
 - [x] Publish annotated tag `v0.6.2-beta` on commit `028af0ce4980ef232bb9af8177e5ca1444c19f40` as the packaging-correction release.
 - [ ] Confirm CurseForge processes `v0.6.2-beta` as Beta / Forever 1.60.1 and verify the downloadable archive contains only the four runtime files.
