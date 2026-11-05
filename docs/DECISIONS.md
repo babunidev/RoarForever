@@ -73,3 +73,12 @@ Roar Forever is the **WoW Forever voice-restoration project**, creatively relate
 **Corrected decision:** preserve RoarForever group `/roar` restoration. Strengthen identity consistency between COMM and text paths and add direct playback tracing instead of suppressing the feature the addon exists to restore.
 
 **Verification boundary:** 0.6.4 development now needs the corrected automated suite plus a live `/rf debugplay` trace to establish whether one logical group roar causes one or multiple addon sound calls.
+
+## 5 November 2026 — refresh fallback suppression before COMM event dedupe
+
+**Problem:** grouped `/roar` can send one logical COMM event over SAY plus PARTY/RAID and sometimes INSTANCE_CHAT. Later copies share the same event ID and are correctly blocked from replaying audio, but the old early return also prevented them from refreshing the COMM/text suppression timestamp. A sufficiently late text-emote event could therefore outlive the original 0.35-second window and play a second restored roar.
+
+**Decision:** treat every valid copy of the same COMM event as timing evidence for COMM/text correlation. Cancel pending text fallback and refresh the recent-COMM timestamp before event-ID deduplication decides whether audio playback should return early.
+
+**Boundary:** event-ID dedupe still guarantees one COMM audio playback. This change only extends fallback suppression across delayed group-channel copies; it does not suppress group roar restoration or lengthen the intentional 0.07-second repeat cooldown.
+
