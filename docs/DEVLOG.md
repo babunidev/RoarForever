@@ -92,3 +92,11 @@ The event-ID dedupe itself was doing its job: later channel copies did not immed
 
 The fix I accepted moves fallback cancellation and recent-COMM refresh ahead of event-ID deduplication. Duplicate group-channel packets remain silent, but they keep the matching text fallback suppressed for the duration of the real multi-channel delivery. A regression now models SAY, a delayed PARTY copy and a later text-emote event for the same event ID. On 5 November 2026, the complete suite passed all 593 translated template cases, seven locale variants, and the full regression set including delayed group-channel dedupe. Live grouped-roar verification remains the final check for this fix.
 
+## 5 November 2026 — the common self-echo path
+
+The strongest clue arrived when both my own `/roar` and `/fta` produced the same nearly simultaneous double only while grouped. Those two commands do not share the same local playback path, but they do share grouped COMM. That made the returned PARTY/RAID packet the useful common denominator.
+
+RoarForever already tried to reject its own COMM by matching the sender against the player unit. Forever can expose different display forms across event APIs, though, so an echoed packet can fail that name comparison and be treated like another player's sound. The correction I accepted no longer asks a display name to prove packet ownership. Each exact outbound payload is remembered briefly, and an exact local echo is discarded before it reaches any playback path.
+
+Regression coverage now feeds the addon's own grouped roar and faction-cry packets back through `CHAT_MSG_ADDON` with deliberately mismatched sender text. Technical implementation and source tracing were handled with my AI assistant. The updated suite and live group retest still need to confirm the fix.
+
