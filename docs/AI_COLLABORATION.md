@@ -60,3 +60,11 @@ Roar Forever is the **WoW Forever voice-restoration project**, creatively relate
 
 **Verification boundary:** the secret-identity regression suite passed before release preparation. The final updated suite including COMM/text sender correlation still has to pass on the exact release commit before the tag is pushed. Live dungeon/group behavior remains separate beta verification.
 
+## Native group-roar overlap fix — 5 November 2026
+
+**Babuni:** reported that grouped `/roar` still sounded doubled after the COMM/text correlation fix and asked for the behavior to be checked again before release.
+
+**AI contribution:** re-audited all grouped roar playback paths, separated addon deduplication from native-client overlap, checked current community evidence for native grouped voiced emotes, removed the legacy group-roar restoration exception, updated regression expectations, and synchronized 0.6.3-beta documentation.
+
+**Verification boundary:** the remaining source-level native/addon overlap is removed in development main. The updated automated suite and a live party/instance retest remain pending, and `v0.6.3-beta` has not been tagged.
+
