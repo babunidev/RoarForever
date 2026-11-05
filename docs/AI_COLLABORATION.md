@@ -84,3 +84,11 @@ Roar Forever is the **WoW Forever voice-restoration project**, creatively relate
 
 **Verification boundary:** implementation and regression coverage are present in 0.6.4 development. The updated automated suite and live grouped playback still need verification.
 
+## 0.6.4-beta publication — 5 November 2026
+
+**Babuni:** live-tested the grouped self-echo correction, confirmed the duplicate playback was resolved, ran the final regression suite, and explicitly approved and pushed the `v0.6.4-beta` public tag.
+
+**AI contribution:** traced the local group COMM self-echo path, implemented exact recent-payload suppression and bounded expiry, added regression coverage for self `/roar` and faction cries, maintained release documentation, and verified the published GitHub tag points to the tested commit.
+
+**Verification boundary:** GitHub confirms annotated tag `v0.6.4-beta` targets commit `8c98e630f09bbe68cf6abeaebd7f2118a44f6274`. CurseForge publication and generated ZIP contents remain separately unconfirmed.
+
