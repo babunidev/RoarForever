@@ -46,3 +46,11 @@ The packaging cleanup was released as `v0.6.2-beta` after confirming that `RoarF
 
 Publication was explicitly approved by me. The annotated `v0.6.2-beta` tag points to commit `028af0ce4980ef232bb9af8177e5ca1444c19f40`. My AI assistant prepared and audited the packaging rules, version documentation and release comparison; the final tag was created and pushed from my local repository. CurseForge publication and the final downloadable archive remain separate verification steps until the new file is publicly visible and its contents can be inspected.
 
+## 5 November 2026 — the first dungeon secret-value failure
+
+A live dungeon run exposed something the simulated test environment could not reproduce: Forever returned the current target's name as a secret string, and RoarForever tried to compare that protected value while deciding whether an addon-message sender was me or someone in the group. The client stopped the comparison at the old `FindUnitBySender` path.
+
+The fix I accepted follows Forever's restriction rather than trying to work around it. Unit names, GUIDs, race and sex are now checked for secrecy before RoarForever compares, normalizes or uses them as speaker identities. Self detection only inspects `player`, group detection only inspects party/raid units, and target/focus/mouseover are left as optional voice fallbacks that can simply fail when their identities are protected.
+
+Technical tracing and implementation support from my AI assistant covered the stack analysis, current Forever secret-value predicates, the guarded identity layer and simulated regression cases. Those tests can verify that the guards are called and restricted sentinels are skipped, but they cannot manufacture Blizzard's real secret-value tag. The original dungeon case therefore remains a required live retest before this fix is called in-game verified.
+
