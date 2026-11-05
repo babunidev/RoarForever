@@ -52,3 +52,11 @@ Roar Forever is the **WoW Forever voice-restoration project**, creatively relate
 
 **Verification boundary:** the source-level duplicate path is confirmed and fixed in development main. The updated automated regression suite and a live grouped-roar retest remain pending. Native group-roar overlap remains a separate unverified possibility and was not silently changed.
 
+## 0.6.3-beta release preparation — 5 November 2026
+
+**Babuni:** approved publishing the secret-identity and roar-deduplication fixes together as `0.6.3-beta` and authorized the public release once the exact release commit passes the updated automated suite.
+
+**AI contribution:** prepared version metadata and release notes, preserved the runtime-only packaging policy, documented the release gate and verification boundaries, and audited the release scope against `v0.6.2-beta`.
+
+**Verification boundary:** the secret-identity regression suite passed before release preparation. The final updated suite including COMM/text sender correlation still has to pass on the exact release commit before the tag is pushed. Live dungeon/group behavior remains separate beta verification.
+
