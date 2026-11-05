@@ -8,6 +8,8 @@ Roar Forever restores character voice sounds that Forever does not reliably play
 
 > **0.6.2-beta:** this packaging-only beta contains the same addon runtime behavior as 0.6.1-beta, but the install archive now contains only the files WoW needs. Automated regression tests for the 0.6.x runtime pass, but live Forever release-client verification is still pending. If launch-day problems occur, `v0.5.7-beta` remains available from CurseForge's Files page as a pre-0.6 fallback.
 
+> **Development main:** contains an unreleased fix for Forever secret unit-identity values discovered during a live dungeon run after 0.6.2-beta. The fix is source-reviewed and has simulated guard coverage, but has not yet been rerun in the live restricted-map scenario.
+
 ## Options and previews
 
 Open `/rf` or `/rf config` for a movable Warcraft-style menu. Toggle individual emote categories, enable or disable the addon, and choose whether restored emotes send their extra chat messages (`/train`, `/forthehorde`, `/forthealliance`). Aliases such as `/flee` and `/retreat` share one switch.
@@ -88,6 +90,7 @@ Playback is local: another player does not need Roar Forever installed for you t
 - Translated full-message templates were sourced from [Forever 1.60.1.70009 EmotesTextData](https://wago.tools/db2/EmotesTextData?build=1.60.1.70009). No separate CurseForge language downloads are needed. French grammatical prefixes and Russian declined names are accounted for; client updates can change wording, so release builds should be spot-checked in game.
 - Custom `/train` and faction-cry announcements remain the same English lines in every locale so different-language addon users can recognize them.
 - Forever restricts outgoing addon messages for trial/veteran accounts. `/rf debugcomm` reports outgoing result codes so throttling or communication lockdown is visible during testing.
+- On restricted maps such as dungeons and raids, Forever can make non-group unit identity values secret. Development main checks `issecretvalue` before using unit names/GUIDs/race/sex and skips inaccessible identities instead of comparing them.
 - Sound mappings use Blizzard FileDataIDs from the current wowdev community listfile.
 - Gnome female `/roar` playback has been confirmed in-game. The new restored emotes should be treated as beta until they have been checked in the Forever client.
 
