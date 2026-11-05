@@ -66,4 +66,4 @@ Roar Forever is the **WoW Forever voice-restoration project**, creatively relate
 
 **AI contribution:** reverted the mistaken group suppression, traced the failing automated assertion to the expected group-restoration behavior, unified the playback cooldown identity with COMM/text correlation, added `/rf debugplay` for source-labelled sound-call tracing, restored the corresponding regression expectations, and corrected the repository history.
 
-**Verification boundary:** the native-overlap explanation is rejected by live evidence. The corrected 0.6.4 development code still requires the complete automated suite and a live debugplay trace before the remaining audible double can be attributed to a specific addon path or audio behavior.
+**Verification boundary:** the native-overlap explanation is rejected by live evidence. The corrected 0.6.4 automated suite passed on 5 November 2026, including group roar restoration, COMM/text sender correlation, logical-sender playback dedupe and secret-identity guards. A live `/rf debugplay` trace remains required before the remaining audible double can be attributed to a specific addon path or audio behavior.
