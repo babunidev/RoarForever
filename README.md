@@ -6,7 +6,7 @@ A lightweight player voice-emote sound fix for World of Warcraft: Forever.
 
 Roar Forever restores character voice sounds that Forever does not reliably play when nearby players use voiced emotes. It uses audio already included in the game client, so there are no bundled sound files. It works with default settings; `/rf` opens its options.
 
-> **0.6.3-beta:** approved release candidate for Forever 1.60.1. It fixes restricted-map secret unit-identity handling and duplicate COMM/text `/roar` restoration. The public tag is gated on the updated regression suite passing on the exact release commit; live dungeon/group verification remains separate.
+> **0.6.3-beta:** approved release candidate for Forever 1.60.1. It fixes restricted-map secret unit-identity handling, COMM/text `/roar` deduplication, and native/addon overlap for party/raid `/roar`. The public tag is gated on the updated regression suite passing on the exact release commit; live dungeon/group verification remains separate.
 
 > **Verification:** the secret-identity regression cases already passed before release preparation. The final 0.6.3-beta commit still requires the complete updated suite, including COMM/text sender correlation, before tagging.
 
@@ -50,7 +50,7 @@ Players without Roar Forever are still heard through the existing text-emote / a
 
 SoundKit-based volume scaling is ready; the mapping table starts empty until IDs are verified from Forever DB2/CASC data. Until then, in-range COMM events use the existing FileDataID playback, and out-of-range (≥50 yards) or other-instance packets stay silent.
 
-Roar Forever does not replay your own normal voiced emotes, because the client already plays those. `/roar` is the exception for races that have no client roar. Skyborne already have a native roar, so the addon leaves your own and group-member Skyborne roars to the game. In a party or raid, the client already plays most other voices for group members, so Roar Forever restores `/roar` there (except Skyborne), plus faction cries via COMM/announce. Nearby players who are not in your group still get the full set.
+Roar Forever does not replay your own normal voiced emotes, because the client already plays those. `/roar` remains the self exception for races that have no client roar; Skyborne already have a native self roar and are left to the game. In a party or raid, Forever plays grouped voiced emotes natively, so Roar Forever does not restore group-member `/roar` or other ordinary voices. Faction cries remain addon-driven because Forever does not natively wire them. Nearby players who are not in your group still get the restored set.
 
 Someone who is not using Roar Forever can still `/train` without sending a line, so there is nothing for the addon to hear unless they use a distinctive announce. The same is true for faction cries without the distinctive chat line or addon communication.
 
