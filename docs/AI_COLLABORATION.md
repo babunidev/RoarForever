@@ -76,3 +76,11 @@ Roar Forever is the **WoW Forever voice-restoration project**, creatively relate
 
 **Verification boundary:** the source-level timing flaw is fixed in 0.6.4 development. The updated automated suite passed on 5 November 2026, including delayed group-channel dedupe. A live group retest remains required before the audible duplicate is considered resolved in-game.
 
+## Local group COMM self-echo fix — 5 November 2026
+
+**Babuni:** clarified that the double affected both self `/roar` and self `/fta` only while grouped and asked for the duplicate to be stopped without changing intended roar behavior.
+
+**AI contribution:** compared the two local playback paths, isolated grouped COMM as their common second path, identified sender-name mismatch as a way an echoed local packet could bypass self suppression, implemented exact recent-outbound-payload rejection with bounded expiry, and added grouped roar/faction-cry self-echo regressions using mismatched sender display text.
+
+**Verification boundary:** implementation and regression coverage are present in 0.6.4 development. The updated automated suite and live grouped playback still need verification.
+
