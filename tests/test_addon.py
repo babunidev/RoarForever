@@ -125,7 +125,9 @@ def boot(locale='enUS', saved=None):
                 HandleAddonMessage=upvalue(handler,'HandleAddonMessage')
                 DetectEmote=upvalue(HandleChatEmote,'DetectEmote')
                 IsLocalPlayer=upvalue(HandleChatEmote,'IsLocalPlayer')
-                FindUnitBySender=upvalue(IsLocalPlayer,'FindUnitBySender')
+                PlayTextFallback=upvalue(HandleChatEmote,'PlayTextFallback')
+                GetSenderVoiceKey=upvalue(PlayTextFallback,'GetSenderVoiceKey')
+                FindUnitBySender=upvalue(GetSenderVoiceKey,'FindUnitBySender')
                 ParseCommMessage=upvalue(HandleAddonMessage,'ParseCommMessage')
                 VolumeForDistance=upvalue(upvalue(HandleAddonMessage,'PlayFromComm'),'VolumeForDistance')
             end
@@ -177,8 +179,11 @@ local originalTarget=units.target
 units.target={name='DungeonMob',realm='Away',guid='Creature-secret'}
 secretValues.DungeonMob=true
 secretValues['Creature-secret']=true
+local beforeSecretTargetChecks=secretChecks.DungeonMob or 0
+assert(isSelf('Tester',nil))
+assert((secretChecks.DungeonMob or 0)==beforeSecretTargetChecks)
 assert(FindUnitBySender('Nobody',nil)==nil)
-assert((secretChecks.DungeonMob or 0)>0)
+assert((secretChecks.DungeonMob or 0)>beforeSecretTargetChecks)
 assert(FindUnitBySender('Nobody','Player-missing')==nil)
 assert((secretChecks['Creature-secret'] or 0)>0)
 secretValues.HiddenSender=true
