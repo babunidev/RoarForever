@@ -72,5 +72,5 @@ Roar Forever is the **WoW Forever voice-restoration project**, creatively relate
 
 **Reasoning:** the older group-roar exception came from earlier Forever behavior where roar was treated differently from other grouped voices. Current live observation plus contemporary player reports indicate grouped voiced emotes are audible natively. Keeping the exception therefore risks one native sound plus one addon sound.
 
-**Verification boundary:** the source-level overlap is removed and regression coverage was updated, but the final automated suite and a live grouped-roar retest still need to pass before the 0.6.3-beta tag is created.
+**Version boundary:** `v0.6.3-beta` had already been published on commit `6efb00416469e0a99a4122099d39da744d7a6470` before this final native group-roar correction. The tag is immutable, so this change belongs to 0.6.4-beta development. Automated and live grouped-roar retesting remain pending.
 
