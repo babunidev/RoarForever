@@ -37,6 +37,10 @@ Validate peer emote detection, duplicated text/COMM cases, distance cutoff, UI b
 - [x] Restore addon group `/roar` playback and keep it as core RoarForever behavior.
 - [x] Stabilize the playback duplicate identity across name-only COMM and name+GUID text events.
 - [x] Add `/rf debugplay` to trace each actual addon sound call and source path.
+- [x] Identify the group-only timing flaw where duplicate COMM channel copies were discarded before refreshing COMM/text fallback suppression.
+- [x] Refresh/cancel COMM/text fallback state before event-ID dedupe so delayed PARTY/RAID/INSTANCE copies extend suppression without replaying audio.
+- [x] Add a regression for SAY → delayed PARTY duplicate → late text-emote delivery of the same roar.
+- [ ] Rerun `python tests/test_addon.py` with the delayed group-channel dedupe regression.
 - [x] Run `python tests/test_addon.py` on the corrected 0.6.4 development state; PASS confirmed on 2026-11-05.
 - [ ] Capture a live grouped `/roar` with `/rf debugplay` and determine whether RoarForever calls playback once or more than once.
 - [x] Restrict future CurseForge packages to runtime files only.
