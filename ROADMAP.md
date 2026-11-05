@@ -27,6 +27,10 @@ Validate peer emote detection, duplicated text/COMM cases, distance cutoff, UI b
 - [x] Guard unit name/GUID/race/sex identity values and remove arbitrary-unit queries from self/group classification.
 - [x] Run `python tests/test_addon.py` with the new secret-identity regression cases; 593 translated template cases, 7 locale variants, and all existing regressions including secret-identity guards passed on 2026-11-05.
 - [ ] Reproduce the original dungeon scenario with an identity-restricted target and confirm no Lua error.
+- [x] Audit suspected group `/roar` double playback and identify COMM/text correlation mismatch caused by `CHAT_MSG_ADDON` lacking a sender GUID.
+- [x] Correlate COMM and text fallback by normalized sender name and make the simulator model the real Forever addon-message payload.
+- [ ] Run `python tests/test_addon.py` with the COMM/text sender-correlation regression.
+- [ ] Retest `/roar` in a party/instance. If one addon playback still overlaps a native roar, verify the native group behavior separately before changing the established group-roar design.
 - [x] Restrict future CurseForge packages to runtime files only.
 - [x] Publish annotated tag `v0.6.2-beta` on commit `028af0ce4980ef232bb9af8177e5ca1444c19f40` as the packaging-correction release.
 - [ ] Confirm CurseForge processes `v0.6.2-beta` as Beta / Forever 1.60.1 and verify the downloadable archive contains only the four runtime files.
