@@ -84,3 +84,11 @@ The temporary group-suppression implementation was therefore reverted before rel
 
 A new `/rf debugplay` trace records each actual FileDataID playback with its source path. Technical implementation and documentation corrections were handled with my AI assistant. The corrected automated suite then passed all 593 translated template cases, seven locale variants, and the full regression set including group roar restoration, COMM/text sender correlation, logical-sender playback dedupe and secret-identity guards. The remaining evidence needed is a live grouped roar trace showing whether the addon calls playback once or more than once.
 
+## 5 November 2026 — the group-only timing gap
+
+The useful clue was not merely that the roar sounded doubled, but that it seemed specific to being grouped. Outside a group, one COMM roar normally travels over SAY. Inside a group, the same logical event can also arrive through PARTY or RAID and sometimes INSTANCE_CHAT, all carrying the same event ID.
+
+The event-ID dedupe itself was doing its job: later channel copies did not immediately play another sound. The timing gap sat beside it. Those later copies returned before refreshing the short COMM/text suppression timestamp, so a text-emote event arriving after the first packet's 0.35-second window could become eligible to restore the same roar again.
+
+The fix I accepted moves fallback cancellation and recent-COMM refresh ahead of event-ID deduplication. Duplicate group-channel packets remain silent, but they keep the matching text fallback suppressed for the duration of the real multi-channel delivery. A regression now models SAY, a delayed PARTY copy and a later text-emote event for the same event ID. Automated execution of that new case remains pending.
+
