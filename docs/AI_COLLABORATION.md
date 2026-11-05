@@ -36,3 +36,11 @@ Roar Forever is the **WoW Forever voice-restoration project**, creatively relate
 
 **Verification boundary:** GitHub confirms `v0.6.2-beta` points to commit `028af0ce4980ef232bb9af8177e5ca1444c19f40`. Runtime Lua equality was verified from repository blobs. CurseForge processing/public availability and the actual generated ZIP contents require separate confirmation; no new live-client gameplay test was performed for this packaging-only release.
 
+## Secret-identity dungeon fix — 5 November 2026
+
+**Babuni:** supplied the first live dungeon error and approved fixing the underlying Forever compatibility problem rather than applying a narrow line-level workaround.
+
+**AI contribution:** traced the stack to name-based sender matching, checked current Forever secret-value behavior for unit names/GUIDs/race/sex, implemented guarded identity helpers, narrowed self/group classification to accessible unit tokens, added simulated regression coverage, and updated repository documentation.
+
+**Verification boundary:** the reported error itself is live-client evidence. The fix is implemented in development main, but automated regression execution and a live dungeon retest remain pending; no public follow-up version has been authorized or tagged.
+
