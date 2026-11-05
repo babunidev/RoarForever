@@ -62,3 +62,9 @@ RoarForever had preferred GUIDs when building the short-lived COMM/text fallback
 
 The simulator was also corrected so addon messages no longer receive an invented GUID. Automated execution of that updated regression is still pending. If a live group retest still produces two simultaneous roars after this fix, the remaining candidate is native Forever group-roar audio overlapping one intentional addon restoration; that behavior must be verified separately before changing the established group-roar design.
 
+## 5 November 2026 — preparing 0.6.3-beta
+
+The two launch-day fixes now belong together in one beta: restricted dungeon identity can no longer be treated like ordinary Lua strings, and COMM/text roar deduplication now uses an identity field both Forever event paths actually share. After testing the dungeon fix successfully enough to continue and identifying the separate doubled-roar path, I approved 0.6.3-beta for public release.
+
+Release preparation keeps the lean package introduced in 0.6.2-beta. My AI assistant updated the version, release notes, roadmap and provenance records and compared the release scope against the previous public tag. The annotated public tag remains deliberately uncreated until the complete updated regression suite passes on the exact release commit; live dungeon and grouped-roar listening remain separately documented beta verification.
+
