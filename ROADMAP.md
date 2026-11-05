@@ -40,6 +40,11 @@ Validate peer emote detection, duplicated text/COMM cases, distance cutoff, UI b
 - [x] Identify the group-only timing flaw where duplicate COMM channel copies were discarded before refreshing COMM/text fallback suppression.
 - [x] Refresh/cancel COMM/text fallback state before event-ID dedupe so delayed PARTY/RAID/INSTANCE copies extend suppression without replaying audio.
 - [x] Add a regression for SAY → delayed PARTY duplicate → late text-emote delivery of the same roar.
+- [x] Identify the common `/roar` + `/fta` group-only path: this client's own PARTY/RAID COMM packet can echo back and be mistaken for another player when sender-name formatting differs.
+- [x] Suppress exact recently-sent local COMM payloads before identity matching, fallback correlation, or playback.
+- [x] Bound and expire the local COMM echo cache.
+- [x] Add regressions that feed outbound grouped `/roar` and `/fta` packets back through `CHAT_MSG_ADDON` with deliberately mismatched sender display text.
+- [ ] Rerun `python tests/test_addon.py` with local group COMM self-echo suppression coverage.
 - [x] Rerun `python tests/test_addon.py` with the delayed group-channel dedupe regression; all 593 translated template cases, 7 locale variants, and the full suite including delayed group-channel dedupe passed on 2026-11-05.
 - [x] Run `python tests/test_addon.py` on the corrected 0.6.4 development state; PASS confirmed on 2026-11-05.
 - [ ] Capture a live grouped `/roar` with `/rf debugplay` and determine whether RoarForever calls playback once or more than once.
