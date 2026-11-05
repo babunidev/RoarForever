@@ -5,9 +5,11 @@ Release notes for the standalone player voice-emote sound addon.
 ## Unreleased
 
 - Development version: `0.6.4-beta`.
-- Stopped restoring `/roar` for party/raid members. Forever already plays grouped voiced emotes natively, so addon playback there could overlap the client sound. RoarForever still restores `/roar` for nearby non-grouped players and keeps the existing self-roar behavior.
-- Updated grouped-roar regression expectations so party/raid roar must produce no RoarForever playback while nearby non-grouped roar remains restored.
-- Live party/instance retest and the complete automated regression suite remain pending for this post-0.6.3 fix.
+- Reverted the proposed group-roar suppression after a direct live check with RoarForever disabled confirmed that Forever itself does **not** play the missing group `/roar` sound. Group roar restoration remains core addon behavior.
+- Stabilized the playback duplicate key so COMM events (sender name only) and text-emote events (sender name + GUID) identify the same logical speaker.
+- Added `/rf debugplay`, which reports every actual RoarForever FileDataID playback with its source path (`COMM`, `TEXT`, or `SELF_TEXT`) for live duplicate diagnosis.
+- Restored grouped-roar regression expectations and added coverage that name-only COMM and name+GUID text events share the same playback cooldown identity.
+- The complete updated automated suite and a live grouped-roar debug trace remain pending.
 
 ## 0.6.3-beta — 2026-11-05
 
