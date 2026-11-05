@@ -54,3 +54,13 @@ Roar Forever is the **WoW Forever voice-restoration project**, creatively relate
 
 **Verification boundary:** the implementation is source-reviewed against Forever's secret-value API rules and simulated guard cases were added. A real restricted-map retest is still required because the local Lua simulator cannot create Blizzard-tagged secret values.
 
+## 5 November 2026 — release 0.6.3-beta after exact-commit regression pass
+
+**Decision:** publish the dungeon secret-identity fix and COMM/text roar deduplication together as `0.6.3-beta`.
+
+**Reasoning:** both issues affect live Forever multiplayer behavior and are narrow compatibility fixes. The public package should replace 0.6.2-beta rather than leave users on a known restricted-map error and a confirmed duplicate-restoration path.
+
+**Release gate:** Babuni explicitly approved the public beta. The annotated tag may be pushed only after `python tests/test_addon.py` passes on the exact release-preparation commit. Live dungeon and group-listening checks remain separate evidence and are not prerequisites for labeling this build as beta.
+
+**Packaging:** retain the 0.6.2 runtime-only `.pkgmeta` policy; no development documentation or tests belong in the player ZIP.
+
