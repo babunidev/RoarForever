@@ -4,7 +4,7 @@
 
 ## Current state
 
-The current development line is **0.6.4-beta** for World of Warcraft: Forever 1.60.1 / Interface 16001. Public tag `v0.6.3-beta` already exists on commit `6efb00416469e0a99a4122099d39da744d7a6470` and contains the dungeon secret-identity and COMM/text `/roar` correlation fixes. Development 0.6.4 adds native group-roar suppression discovered after that tag.
+The current development line is **0.6.4-beta** for World of Warcraft: Forever 1.60.1 / Interface 16001. Public tag `v0.6.3-beta` already exists on commit `6efb00416469e0a99a4122099d39da744d7a6470` and contains the dungeon secret-identity and COMM/text `/roar` correlation fixes. Development 0.6.4 preserves group `/roar` restoration, stabilizes logical-sender playback dedupe across COMM/text paths, and adds `/rf debugplay` for live duplicate diagnosis.
 
 ## Unverified points
 
@@ -29,7 +29,7 @@ Validate peer emote detection, duplicated text/COMM cases, distance cutoff, UI b
 - [ ] Reproduce the original dungeon scenario with an identity-restricted target and confirm no Lua error.
 - [x] Audit suspected group `/roar` double playback and identify COMM/text correlation mismatch caused by `CHAT_MSG_ADDON` lacking a sender GUID.
 - [x] Correlate COMM and text fallback by normalized sender name and make the simulator model the real Forever addon-message payload.
-- [ ] Run `python tests/test_addon.py` on 0.6.4 development with COMM/text sender correlation, logical-sender playback dedupe, secret-identity guards, and restored group-roar regressions.
+- [x] Run `python tests/test_addon.py` on 0.6.4 development with COMM/text sender correlation, logical-sender playback dedupe, secret-identity guards, and restored group-roar regressions; all 593 translated template cases, 7 locale variants, and the full regression suite passed on 2026-11-05.
 - [x] Approve `0.6.3-beta` for public release.
 - [x] Publish annotated tag `v0.6.3-beta` on commit `6efb00416469e0a99a4122099d39da744d7a6470`.
 - [ ] Confirm CurseForge publishes `v0.6.3-beta` as Beta / Forever 1.60.1 and verify the runtime-only ZIP contents.
@@ -37,7 +37,7 @@ Validate peer emote detection, duplicated text/COMM cases, distance cutoff, UI b
 - [x] Restore addon group `/roar` playback and keep it as core RoarForever behavior.
 - [x] Stabilize the playback duplicate identity across name-only COMM and name+GUID text events.
 - [x] Add `/rf debugplay` to trace each actual addon sound call and source path.
-- [ ] Run `python tests/test_addon.py` on the corrected 0.6.4 development state.
+- [x] Run `python tests/test_addon.py` on the corrected 0.6.4 development state; PASS confirmed on 2026-11-05.
 - [ ] Capture a live grouped `/roar` with `/rf debugplay` and determine whether RoarForever calls playback once or more than once.
 - [x] Restrict future CurseForge packages to runtime files only.
 - [x] Publish annotated tag `v0.6.2-beta` on commit `028af0ce4980ef232bb9af8177e5ca1444c19f40` as the packaging-correction release.
