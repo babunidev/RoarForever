@@ -1270,6 +1270,14 @@ local function HandleAddonMessage(prefix, message, channel, sender)
         return
     end
 
+    -- Every copy of this logical COMM event is evidence that the matching text
+    -- fallback must remain suppressed. Grouped sends can arrive over SAY plus
+    -- PARTY/RAID/INSTANCE_CHAT at different times, so refresh the COMM/text
+    -- correlation before event-ID dedupe discards the later channel copies.
+    local fallbackKey = RecentCommKey(sender, guid, parsed.emoteName)
+    CancelPendingFallback(fallbackKey)
+    MarkRecentComm(sender, guid, parsed.emoteName)
+
     local dedupeKey = SenderKey(sender, guid) .. ":" .. parsed.eventID
     local now = GetTime()
     local last = recentCommEventIDs[dedupeKey]
@@ -1278,9 +1286,6 @@ local function HandleAddonMessage(prefix, message, channel, sender)
     end
     recentCommEventIDs[dedupeKey] = now
 
-    local fallbackKey = RecentCommKey(sender, guid, parsed.emoteName)
-    CancelPendingFallback(fallbackKey)
-    MarkRecentComm(sender, guid, parsed.emoteName)
     PlayFromComm(sender, guid, parsed, channel)
 end
 
