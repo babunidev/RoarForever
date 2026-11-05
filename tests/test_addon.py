@@ -327,18 +327,18 @@ assert(#sounds==beforeSounds+1)
 -- Group-channel duplicates must also refresh COMM/text suppression. This
 -- reproduces the live group-only timing bug: SAY plays, PARTY arrives later,
 -- then the text emote arrives after the original 0.35s window.
-now=210; beforeSounds=#sounds
+now=200.51; beforeSounds=#sounds
 addon('RoarForever','1|E|roar|GnomeFemale|420|10.00|0.00|0','SAY','Other')
 assert(#sounds==beforeSounds+1)
-now=210.30
+now=200.81
 addon('RoarForever','1|E|roar|GnomeFemale|420|10.00|0.00|0','PARTY','Other')
 assert(#sounds==beforeSounds+1)
-now=210.40
+now=200.91
 event('CHAT_MSG_TEXT_EMOTE','Other roars with bestial vigor. So fierce!','Other','Player-other')
 flush()
 assert(#sounds==beforeSounds+1)
 -- Text-first: COMM cancels the 0.10s fallback.
-now=201; beforeSounds=#sounds
+now=201.50; beforeSounds=#sounds
 event('CHAT_MSG_TEXT_EMOTE','Other roars with bestial vigor. So fierce!','Other','Player-other')
 assert(#sounds==beforeSounds)
 addon('RoarForever','1|E|roar|GnomeFemale|43|5.00|0.00|0','SAY','Other')
