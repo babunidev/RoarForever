@@ -8,7 +8,7 @@ Roar Forever restores character voice sounds that Forever does not reliably play
 
 > **0.6.3-beta:** published tag for Forever 1.60.1 containing the restricted-map secret unit-identity fix and COMM/text `/roar` deduplication. A later grouped-roar overlap correction is not part of that tag.
 
-> **Development main — 0.6.4-beta:** keeps party/raid `/roar` restoration after a live addon-off check confirmed Forever provides no native group roar sound. It strengthens cross-path duplicate identity and adds `/rf debugplay` to trace every actual addon sound call. Automated and live duplicate-diagnosis retesting remain pending.
+> **Development main — 0.6.4-beta:** keeps party/raid `/roar` restoration after a live addon-off check confirmed Forever provides no native group roar sound. It strengthens cross-path duplicate identity and adds `/rf debugplay` to trace every actual addon sound call. The complete automated suite now passes; the remaining check is a live grouped-roar debugplay trace.
 
 ## Options and previews
 
