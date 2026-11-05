@@ -4,6 +4,8 @@
 
 A lightweight player voice-emote sound fix for World of Warcraft: Forever.
 
+> **0.6.4-beta:** tagged and pushed on tested commit `8c98e630f09bbe68cf6abeaebd7f2118a44f6274`. It fixes the group-only local COMM self-echo that could double `/roar` and faction-cry playback. CurseForge publication is still awaiting confirmation.
+
 Roar Forever restores character voice sounds that Forever does not reliably play when nearby players use voiced emotes. It uses audio already included in the game client, so there are no bundled sound files. It works with default settings; `/rf` opens its options.
 
 > **0.6.3-beta:** published tag for Forever 1.60.1 containing the restricted-map secret unit-identity fix and COMM/text `/roar` deduplication. A later grouped-roar overlap correction is not part of that tag.
