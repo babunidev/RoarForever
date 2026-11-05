@@ -44,3 +44,13 @@ Roar Forever is the **WoW Forever voice-restoration project**, creatively relate
 
 **Release verification:** `v0.6.2-beta` was explicitly approved and published as an annotated tag on commit `028af0ce4980ef232bb9af8177e5ca1444c19f40`. The three Lua runtime files match `v0.6.1-beta` byte-for-byte. Final CurseForge package visibility and archive-content inspection remain separate pending checks.
 
+## 5 November 2026 — skip secret unit identity instead of probing it
+
+**Problem:** a live dungeon run produced a Lua error when `UnitFullName("target")` returned a secret string and RoarForever compared it with a normal sender name.
+
+**Decision:** treat inaccessible identity as unavailable data. RoarForever checks secret names, GUIDs, race and sex before using them and skips the affected lookup instead of wrapping forbidden comparisons in `pcall` or trying alternate APIs to recover the same restricted identity.
+
+**Reasoning:** Forever deliberately protects non-group unit identity on restricted maps. The addon only needs reliable identity for self/group duplicate suppression and for optional voice lookup. Self checks therefore use only `player`; group checks use only party/raid tokens; arbitrary target/focus/mouseover identity is a best-effort fallback and may be ignored when secret.
+
+**Verification boundary:** the implementation is source-reviewed against Forever's secret-value API rules and simulated guard cases were added. A real restricted-map retest is still required because the local Lua simulator cannot create Blizzard-tagged secret values.
+
