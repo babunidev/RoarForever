@@ -100,3 +100,9 @@ RoarForever already tried to reject its own COMM by matching the sender against 
 
 Regression coverage now feeds the addon's own grouped roar and faction-cry packets back through `CHAT_MSG_ADDON` with deliberately mismatched sender text. Technical implementation and source tracing were handled with my AI assistant. The updated suite and live group retest still need to confirm the fix.
 
+## 5 November 2026 — publishing 0.6.4-beta
+
+The group-only duplicate was finally traced to RoarForever receiving its own grouped COMM packet back after the local sound had already played. Exact recent outbound payloads are now suppressed before playback, covering both `/roar` and faction cries without changing other players' restoration behavior.
+
+Before publication, the full local regression suite passed with 593 translated template cases, seven locale variants, self-echo suppression, delayed group-channel dedupe, logical-sender playback dedupe, secret-identity guards and the existing regression set. The annotated `v0.6.4-beta` tag was then pushed on commit `8c98e630f09bbe68cf6abeaebd7f2118a44f6274`. GitHub publication is confirmed; CurseForge publication remains unconfirmed until the new file appears publicly and its package contents are inspected.
+
