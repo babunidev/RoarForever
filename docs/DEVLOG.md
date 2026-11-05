@@ -68,3 +68,11 @@ The two launch-day fixes now belong together in one beta: restricted dungeon ide
 
 Release preparation keeps the lean package introduced in 0.6.2-beta. My AI assistant updated the version, release notes, roadmap and provenance records and compared the release scope against the previous public tag. The annotated public tag remains deliberately uncreated until the complete updated regression suite passes on the exact release commit; live dungeon and grouped-roar listening remain separately documented beta verification.
 
+## 5 November 2026 — removing the old group-roar exception
+
+The first deduplication fix removed a genuine addon-versus-addon double path, but the grouped roar still sounded doubled in live play. Looking again at the playback rules exposed an older assumption: RoarForever deliberately restored `/roar` for party and raid members even though the client already owned most other grouped voices.
+
+Current Forever behavior and player reports point the other way now. Grouped voiced emotes are audible natively, so keeping that exception can layer one addon roar over one client roar. The fix I accepted removes addon group-roar playback from both COMM and text restoration while leaving nearby non-grouped restoration and self-roar behavior intact.
+
+Technical review and implementation support from my AI assistant covered the second-pass playback audit, regression updates, release-note correction and the 0.6.3-beta release boundary. The tag remains held until the complete updated test suite passes and the grouped roar is retested in the live client.
+
