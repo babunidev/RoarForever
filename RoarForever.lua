@@ -1018,14 +1018,15 @@ local function ShouldSuppressCommPlayback(emoteName, sender, guid, voiceKey)
     if IsLocalPlayer(sender, guid) then
         return true
     end
-    -- Forever already plays group-member /train natively (0.5.1 fix).
-    if emoteName == "train" and IsGroupedSender(sender, guid) then
+
+    local isGrouped = IsGroupedSender(sender, guid)
+
+    -- Forever already plays group-member voiced emotes natively. Do not restore
+    -- /train or /roar for party/raid members or the native sound will overlap.
+    if isGrouped and (emoteName == "train" or emoteName == "roar") then
         return true
     end
-    local isSelfOrGroup = IsLocalPlayer(sender, guid) or IsGroupedSender(sender, guid)
-    if emoteName == "roar" and isSelfOrGroup and IsSkyborneVoiceKey(voiceKey) then
-        return true
-    end
+
     return false
 end
 
@@ -1273,18 +1274,26 @@ end
 -- Returns true if the text-emote path should restore this sender/emote (legacy rules).
 local function ShouldRestoreFromText(emoteName, sender, guid)
     local isSelf = IsLocalPlayer(sender, guid)
-    local isSelfOrGroup = isSelf or IsGroupedSender(sender, guid)
+    local isGrouped = IsGroupedSender(sender, guid)
     local isFactionCry = factionEmotes[emoteName] ~= nil
 
     if isFactionCry then
-        if isSelf then
-            return false
-        end
-    elseif emoteName ~= "roar" and isSelfOrGroup then
+        return not isSelf
+    end
+
+    -- Forever plays party/raid member voices natively. RoarForever restores
+    -- nearby non-grouped players, but leaves every grouped voice to the client.
+    if isGrouped then
         return false
     end
 
-    if emoteName == "roar" and isSelfOrGroup then
+    if isSelf then
+        if emoteName ~= "roar" then
+            return false
+        end
+
+        -- Skyborne already have a native self roar; other races still use the
+        -- addon for their own missing roar.
         local voiceKey = GetSenderVoiceKey(sender, guid)
         if IsSkyborneVoiceKey(voiceKey) then
             return false
