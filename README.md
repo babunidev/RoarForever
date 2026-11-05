@@ -8,7 +8,7 @@ Roar Forever restores character voice sounds that Forever does not reliably play
 
 > **0.6.2-beta:** this packaging-only beta contains the same addon runtime behavior as 0.6.1-beta, but the install archive now contains only the files WoW needs. Automated regression tests for the 0.6.x runtime pass, but live Forever release-client verification is still pending. If launch-day problems occur, `v0.5.7-beta` remains available from CurseForge's Files page as a pre-0.6 fallback.
 
-> **Development main:** contains an unreleased fix for Forever secret unit-identity values discovered during a live dungeon run after 0.6.2-beta. The fix is source-reviewed and has simulated guard coverage, but has not yet been rerun in the live restricted-map scenario.
+> **Development main:** contains an unreleased fix for Forever secret unit-identity values discovered during a live dungeon run after 0.6.2-beta. The updated automated regression suite passes, including the new secret-identity guard cases, but the original restricted-map dungeon scenario still requires a live retest.
 
 ## Options and previews
 
