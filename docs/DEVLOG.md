@@ -74,5 +74,5 @@ The first deduplication fix removed a genuine addon-versus-addon double path, bu
 
 Current Forever behavior and player reports point the other way now. Grouped voiced emotes are audible natively, so keeping that exception can layer one addon roar over one client roar. The fix I accepted removes addon group-roar playback from both COMM and text restoration while leaving nearby non-grouped restoration and self-roar behavior intact.
 
-Technical review and implementation support from my AI assistant covered the second-pass playback audit, regression updates, release-note correction and the 0.6.3-beta release boundary. The tag remains held until the complete updated test suite passes and the grouped roar is retested in the live client.
+Technical review and implementation support from my AI assistant covered the second-pass playback audit, regression updates and release-history correction. During that review, the `v0.6.3-beta` tag was found to have already been published on the earlier release-preparation commit, so the native group-roar correction could not truthfully be folded into that immutable tag. Development therefore advanced to 0.6.4-beta, with the complete updated test suite and grouped-roar live retest still pending.
 
