@@ -29,13 +29,16 @@ Validate peer emote detection, duplicated text/COMM cases, distance cutoff, UI b
 - [ ] Reproduce the original dungeon scenario with an identity-restricted target and confirm no Lua error.
 - [x] Audit suspected group `/roar` double playback and identify COMM/text correlation mismatch caused by `CHAT_MSG_ADDON` lacking a sender GUID.
 - [x] Correlate COMM and text fallback by normalized sender name and make the simulator model the real Forever addon-message payload.
-- [ ] Run `python tests/test_addon.py` on 0.6.4 development with the COMM/text sender-correlation and native group-roar suppression regressions.
+- [ ] Run `python tests/test_addon.py` on 0.6.4 development with COMM/text sender correlation, logical-sender playback dedupe, secret-identity guards, and restored group-roar regressions.
 - [x] Approve `0.6.3-beta` for public release.
 - [x] Publish annotated tag `v0.6.3-beta` on commit `6efb00416469e0a99a4122099d39da744d7a6470`.
 - [ ] Confirm CurseForge publishes `v0.6.3-beta` as Beta / Forever 1.60.1 and verify the runtime-only ZIP contents.
-- [x] Identify the remaining grouped `/roar` overlap as the legacy addon group-roar exception colliding with Forever's native grouped voice playback.
-- [x] Stop addon `/roar` playback for party/raid members on both COMM and text paths while preserving non-group restoration and self-roar behavior.
-- [ ] Retest 0.6.4 development `/roar` in a party/instance and confirm only the native group sound remains.
+- [x] Test the native-group-roar hypothesis with RoarForever disabled; Forever produced no group `/roar` sound, rejecting that hypothesis.
+- [x] Restore addon group `/roar` playback and keep it as core RoarForever behavior.
+- [x] Stabilize the playback duplicate identity across name-only COMM and name+GUID text events.
+- [x] Add `/rf debugplay` to trace each actual addon sound call and source path.
+- [ ] Run `python tests/test_addon.py` on the corrected 0.6.4 development state.
+- [ ] Capture a live grouped `/roar` with `/rf debugplay` and determine whether RoarForever calls playback once or more than once.
 - [x] Restrict future CurseForge packages to runtime files only.
 - [x] Publish annotated tag `v0.6.2-beta` on commit `028af0ce4980ef232bb9af8177e5ca1444c19f40` as the packaging-correction release.
 - [ ] Confirm CurseForge processes `v0.6.2-beta` as Beta / Forever 1.60.1 and verify the downloadable archive contains only the four runtime files.
