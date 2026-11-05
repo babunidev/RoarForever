@@ -7,7 +7,7 @@ Release notes for the standalone player voice-emote sound addon.
 - Fixed a live Forever dungeon error where identity-restricted `target`/focus/mouseover unit names could be returned as secret strings and then compared by RoarForever.
 - Added secret-value guards for unit names, GUIDs, race and sex before comparisons, string operations or speaker-key use.
 - Self detection now queries only the `player` unit, and group detection scans only party/raid units before any arbitrary-unit voice fallback. Secret arbitrary identities are skipped rather than inspected.
-- Added simulated regression coverage for secret-identity guards. The simulator cannot create Blizzard-tagged secret Lua values, so the fix still requires a live restricted-map retest.
+- Added simulated regression coverage for secret-identity guards. `python tests/test_addon.py` passed on 2026-11-05 with 593 translated template cases, 7 locale variants, and the full regression suite including secret-identity guards. The simulator cannot create Blizzard-tagged secret Lua values, so the fix still requires a live restricted-map retest.
 
 ## 0.6.2-beta — 2026-11-04
 
