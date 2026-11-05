@@ -241,16 +241,17 @@ grouped=true; units.party1={name='Friend',realm='Home',guid='Player-friend'}
 now=105; event('CHAT_MSG_TEXT_EMOTE','Friend cheers!','Friend','Player-friend'); assert(#sounds==6)
 units.target={name='Friend',realm='Away',guid='Player-stranger'}
 now=106; event('CHAT_MSG_TEXT_EMOTE','Friend cheers!','Friend','Player-stranger'); assert(#sounds==7)
--- Self/group roar still plays for races without a client roar.
+-- Own roar still plays for races without a client roar, but group-member roar is
+-- left to Forever because the client plays grouped voiced emotes natively.
 now=107; event('CHAT_MSG_TEXT_EMOTE','You roar with bestial vigor. So fierce!','Tester','Player-self'); assert(#sounds==8)
-now=108; event('CHAT_MSG_TEXT_EMOTE','Friend roars with bestial vigor. So fierce!','Friend','Player-friend'); flush(); assert(#sounds==9)
--- Skyborne already have a client roar: leave self and group to the game.
+now=108; event('CHAT_MSG_TEXT_EMOTE','Friend roars with bestial vigor. So fierce!','Friend','Player-friend'); flush(); assert(#sounds==8)
+-- Skyborne already have a native self roar; grouped Skyborne also remain native.
 guidRace['Player-self']='Skyborne'; guidRace['Player-friend']='Skyborne'
-now=109; event('CHAT_MSG_TEXT_EMOTE','You roar with bestial vigor. So fierce!','Tester','Player-self'); assert(#sounds==9)
-now=110; event('CHAT_MSG_TEXT_EMOTE','Friend roars with bestial vigor. So fierce!','Friend','Player-friend'); flush(); assert(#sounds==9)
+now=109; event('CHAT_MSG_TEXT_EMOTE','You roar with bestial vigor. So fierce!','Tester','Player-self'); assert(#sounds==8)
+now=110; event('CHAT_MSG_TEXT_EMOTE','Friend roars with bestial vigor. So fierce!','Friend','Player-friend'); flush(); assert(#sounds==8)
 -- Nearby non-grouped Skyborne roar is still restored.
 guidRace['Player-stranger']='Skyborne'
-now=111; event('CHAT_MSG_TEXT_EMOTE','Friend roars with bestial vigor. So fierce!','Friend','Player-stranger'); flush(); assert(#sounds==10)
+now=111; event('CHAT_MSG_TEXT_EMOTE','Friend roars with bestial vigor. So fierce!','Friend','Player-stranger'); flush(); assert(#sounds==9)
 -- /forthehorde: Horde orc plays locally via DoEmote hook; Alliance is refused.
 guidRace['Player-self']='Orc'; guidRace['Player-friend']='Orc'; guidRace['Player-stranger']='Orc'; guidRace['Player-other']='Orc'
 playerFaction='Alliance'; local beforeSent=#sent; local beforeSounds=#sounds
@@ -308,13 +309,17 @@ playerPos={x=0,y=0,instanceID=0}
 guidRace['Player-other']='Gnome'; guidRace['Player-friend']='Gnome'; guidRace['Player-self']='Gnome'
 grouped=true; units.party1={name='Friend',realm='Home',guid='Player-friend'}
 units.target={name='Other',realm='Away',guid='Player-other'}
--- Nearby COMM roar with empty SoundKit -> FileDataID once; text afterwards must not double.
+-- Nearby non-grouped COMM roar with empty SoundKit -> FileDataID once; text afterwards must not double.
 beforeSounds=#sounds; beforeAddon=#addonSent
 now=200
 addon('RoarForever','1|E|roar|GnomeFemale|42|10.00|0.00|0','SAY','Other')
 assert(#sounds==beforeSounds+1)
 event('CHAT_MSG_TEXT_EMOTE','Other roars with bestial vigor. So fierce!','Other','Player-other'); flush()
 assert(#sounds==beforeSounds+1)
+-- Group-member COMM roar is native in Forever and must not be restored by the addon.
+now=200.5; beforeSounds=#sounds
+addon('RoarForever','1|E|roar|GnomeFemale|420|5.00|0.00|0','PARTY','Friend')
+assert(#sounds==beforeSounds)
 -- Same eventID on another channel is deduped.
 addon('RoarForever','1|E|roar|GnomeFemale|42|10.00|0.00|0','PARTY','Other')
 assert(#sounds==beforeSounds+1)
@@ -381,4 +386,4 @@ assert(#sounds==before+22 and #sent==0)
 RoarForeverDB=true
 assert(RF.AddonEnabled() and RF.EmoteEnabled('joke'))
 ''')
-print(f'PASS: {count} translated template cases, 7 locale variants, menu callbacks, saved options, preview pool, train controls, faction cries, Skyborne roar exception, COMM distance, COMM/text sender correlation, secret-identity guards, identity and detection regressions.')
+print(f'PASS: {count} translated template cases, 7 locale variants, menu callbacks, saved options, preview pool, train controls, faction cries, native group-roar suppression, Skyborne self-roar exception, COMM distance, COMM/text sender correlation, secret-identity guards, identity and detection regressions.')
