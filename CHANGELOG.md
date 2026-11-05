@@ -4,6 +4,8 @@ Release notes for the standalone player voice-emote sound addon.
 
 ## Unreleased
 
+- Fixed a second `/roar` playback path when COMM and `CHAT_MSG_TEXT_EMOTE` represented the same emote with different identity shapes: Forever's `CHAT_MSG_ADDON` provides a sender name but no sender GUID, while text-emote events provide a GUID. Short-lived COMM/text correlation now keys by normalized sender name so both arrival orders deduplicate correctly.
+- Corrected the test harness to model Forever's real `CHAT_MSG_ADDON` payload without an invented sender GUID. Automated execution of the updated regression suite remains pending.
 - Fixed a live Forever dungeon error where identity-restricted `target`/focus/mouseover unit names could be returned as secret strings and then compared by RoarForever.
 - Added secret-value guards for unit names, GUIDs, race and sex before comparisons, string operations or speaker-key use.
 - Self detection now queries only the `player` unit, and group detection scans only party/raid units before any arbitrary-unit voice fallback. Secret arbitrary identities are skipped rather than inspected.
