@@ -82,3 +82,13 @@ Roar Forever is the **WoW Forever voice-restoration project**, creatively relate
 
 **Boundary:** event-ID dedupe still guarantees one COMM audio playback. This change only extends fallback suppression across delayed group-channel copies; it does not suppress group roar restoration or lengthen the intentional 0.07-second repeat cooldown.
 
+## 5 November 2026 — suppress exact local COMM echoes before identity matching
+
+**Problem:** self `/roar` and `/fta` could each play once locally and then again only while grouped. Both commands broadcast COMM while grouped, so a returned PARTY/RAID packet is a common second path. Name-based self detection can fail if `CHAT_MSG_ADDON` formats the local sender differently from `UnitFullName("player")`.
+
+**Decision:** remember each exact outbound COMM payload for the short dedupe window and reject an exact recent local echo before identity matching, fallback correlation or playback. Keep group roar restoration unchanged.
+
+**Reasoning:** packet identity is stronger than display-name equivalence for recognizing our own transport echo. Exact payload matching avoids broad suppression of other players and does not alter the intentional repeat cooldown.
+
+**Verification boundary:** regression cases now replay locally generated grouped roar and faction-cry packets through `CHAT_MSG_ADDON` with deliberately different sender text. Automated execution and live group verification remain pending.
+
