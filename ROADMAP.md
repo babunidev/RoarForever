@@ -4,7 +4,7 @@
 
 ## Current state
 
-The current release candidate is **0.6.3-beta** for World of Warcraft: Forever 1.60.1 / Interface 16001. It adds the live dungeon secret-identity fix and COMM/text `/roar` deduplication on top of the runtime-only packaging from 0.6.2-beta. The public tag is approved but remains gated on the updated regression suite passing on the exact release commit.
+The current development line is **0.6.4-beta** for World of Warcraft: Forever 1.60.1 / Interface 16001. Public tag `v0.6.3-beta` already exists on commit `6efb00416469e0a99a4122099d39da744d7a6470` and contains the dungeon secret-identity and COMM/text `/roar` correlation fixes. Development 0.6.4 adds native group-roar suppression discovered after that tag.
 
 ## Unverified points
 
@@ -29,13 +29,13 @@ Validate peer emote detection, duplicated text/COMM cases, distance cutoff, UI b
 - [ ] Reproduce the original dungeon scenario with an identity-restricted target and confirm no Lua error.
 - [x] Audit suspected group `/roar` double playback and identify COMM/text correlation mismatch caused by `CHAT_MSG_ADDON` lacking a sender GUID.
 - [x] Correlate COMM and text fallback by normalized sender name and make the simulator model the real Forever addon-message payload.
-- [ ] Run `python tests/test_addon.py` with the COMM/text sender-correlation and native group-roar suppression regressions.
-- [x] Approve `0.6.3-beta` for public release after the exact release commit passes the updated automated suite.
-- [ ] Create and push annotated tag `v0.6.3-beta` on the tested release commit.
+- [ ] Run `python tests/test_addon.py` on 0.6.4 development with the COMM/text sender-correlation and native group-roar suppression regressions.
+- [x] Approve `0.6.3-beta` for public release.
+- [x] Publish annotated tag `v0.6.3-beta` on commit `6efb00416469e0a99a4122099d39da744d7a6470`.
 - [ ] Confirm CurseForge publishes `v0.6.3-beta` as Beta / Forever 1.60.1 and verify the runtime-only ZIP contents.
 - [x] Identify the remaining grouped `/roar` overlap as the legacy addon group-roar exception colliding with Forever's native grouped voice playback.
 - [x] Stop addon `/roar` playback for party/raid members on both COMM and text paths while preserving non-group restoration and self-roar behavior.
-- [ ] Retest `/roar` in a party/instance and confirm only the native group sound remains.
+- [ ] Retest 0.6.4 development `/roar` in a party/instance and confirm only the native group sound remains.
 - [x] Restrict future CurseForge packages to runtime files only.
 - [x] Publish annotated tag `v0.6.2-beta` on commit `028af0ce4980ef232bb9af8177e5ca1444c19f40` as the packaging-correction release.
 - [ ] Confirm CurseForge processes `v0.6.2-beta` as Beta / Forever 1.60.1 and verify the downloadable archive contains only the four runtime files.
