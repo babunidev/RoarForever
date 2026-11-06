@@ -1138,7 +1138,6 @@ local function PlayLocalFactionCry(emoteName)
     return PlayEmoteByKey(emoteName, voiceKey, SpeakerKey(sender, guid), "LOCAL_FACTION")
 end
 
-local factionSlashActive = false
 local function HandleFactionCry(emoteName, fromDoEmote)
     local info = factionEmotes[emoteName]
     if not info then
@@ -1152,18 +1151,11 @@ local function HandleFactionCry(emoteName, fromDoEmote)
         return
     end
 
-    -- Forever 1.60 EmotesText has neither faction-cry token. Keep calling the
-    -- retail token so a future build can supply the native cheer animation
-    -- without an addon change. Do not fall back to CHEER: that would send the
-    -- wrong emote text and play the cheer voice on top of the faction cry.
-    -- The slash owns local voice/announcement when it invokes DoEmote; the
-    -- hook handles direct macro/keybind calls only.
-    if not fromDoEmote and DoEmote then
-        factionSlashActive = true
-        pcall(DoEmote, info.token)
-        factionSlashActive = false
-    end
-
+    -- Forever does not wire native faction-cry emote tokens, and addon-driven
+    -- DoEmote/PerformEmote can be protected in restricted contexts such as
+    -- battlegrounds. The addon slash commands therefore own only the restored
+    -- voice and custom announcement. The DoEmote hook below remains observation
+    -- only for direct player/macro calls; this handler never invokes DoEmote.
     if AddonEnabled() and EmoteEnabled(emoteName) then
         PlayLocalFactionCry(emoteName)
     end
@@ -1203,7 +1195,7 @@ if hooksecurefunc and DoEmote then
             AnnounceCustomLineFromInput("train", TRAIN_LINE)
             return
         end
-        if type(emote) ~= "string" or factionSlashActive then return end
+        if type(emote) ~= "string" then return end
         local emoteName = factionEmoteByToken[string.upper(emote)]
         if emoteName then HandleFactionCry(emoteName, true) end
     end)
