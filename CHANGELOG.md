@@ -2,9 +2,15 @@
 
 Release notes for the standalone player voice-emote sound addon.
 
-## Unreleased
+## 0.6.5-beta — prepared 2026-11-06
 
-No unreleased runtime changes after `v0.6.4-beta`.
+- Prepared locally for tagging and publication; no push performed by the assistant.
+- Remove COMM transmission, reception, distance checks, and delayed text fallbacks. Received chat emotes now provide the sole remote trigger, eliminating late-packet double playback, split COMM/text speaker identities, and identical-payload echo collisions.
+- Preserve native self/group exclusions, restored group roar, Skyborne exceptions, faction cries, previews, localization, and settings. Silent custom announcements no longer provide remote restoration.
+- Replace accumulating event/cooldown/handle maps with one bounded 128-speaker store, pruned every five seconds after 60 seconds idle. Eviction stops the stored handle.
+- Guard faction slash/hook reentrancy explicitly. Allow congratulations involving names containing “ding.”
+- Remove obsolete COMM/position/SoundKit diagnostics; retain `/rf debugplay`.
+- Babuni directed a reliability-first simplification and local-only testing/commit. AI implemented the changes and regression coverage. Mocked Lua 5.1 tests pass. Babuni reports the simplified version seems to be working well after testing; individual checklist scenarios have not all been separately confirmed.
 
 ## 0.6.4-beta — 2026-11-05
 

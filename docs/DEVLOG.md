@@ -106,3 +106,12 @@ The group-only duplicate was finally traced to RoarForever receiving its own gro
 
 Before publication, the full local regression suite passed with 593 translated template cases, seven locale variants, self-echo suppression, delayed group-channel dedupe, logical-sender playback dedupe, secret-identity guards and the existing regression set. The annotated `v0.6.4-beta` tag was then pushed on commit `8c98e630f09bbe68cf6abeaebd7f2118a44f6274`. GitHub publication is confirmed; CurseForge publication remains unconfirmed until the new file appears publicly and its package contents are inspected.
 
+
+
+## 2026-11-06 — Fewer sound triggers, bounded memory
+
+Repeated group voices led me to prioritize dependable playback over distance features. With that direction, AI removed the competing addon-message path and made received emote text the remote trigger, bounded speaker memory, and replaced a faction-cry timing workaround with explicit ownership. Silent custom announcements now mean no remote restoration signal. The Lua 5.1 simulations pass, including delayed old packets and idle cleanup; live testing must wait for the servers. This work remains local until that test is complete.
+
+## 2026-11-06 — Preparing 0.6.5-beta
+
+After testing, the simpler playback seemed to be working well, and publication became my next step. AI reconciled the newer 0.6.4 release documentation with the local runtime change and prepared 0.6.5-beta. This records my general positive test report, not completion of every scenario in the checklist. Tagging and pushing remain the manual release step.

@@ -4,11 +4,22 @@
 
 ## Current state
 
-The current development line is **0.6.4-beta** for World of Warcraft: Forever 1.60.1 / Interface 16001. Public tag `v0.6.3-beta` already exists on commit `6efb00416469e0a99a4122099d39da744d7a6470` and contains the dungeon secret-identity and COMM/text `/roar` correlation fixes. Development 0.6.4 preserves group `/roar` restoration, stabilizes logical-sender playback dedupe across COMM/text paths, and adds `/rf debugplay` for live duplicate diagnosis.
+Prepared release **0.6.5-beta** now uses received chat emotes as the sole remote playback trigger. COMM/distance handling has been removed, group roar restoration retained, speaker state bounded, and faction slash/hook ownership made explicit. Babuni reports that this version seems to be working well after testing and has requested publication commands. Release metadata is prepared locally; tagging and pushing are pending. The individual scenarios below remain unchecked unless explicitly confirmed.
 
-## Unverified points
+## Live acceptance checklist
 
-Validate peer emote detection, duplicated text/COMM cases, distance cutoff, UI behavior and SoundKitIDs inside the actual Forever release client.
+- [ ] Solo, party and raid: self roar and another member's roar play once; Skyborne native exceptions remain correct.
+- [ ] Train remains native for self/group; nearby outsiders restore its announcement once.
+- [ ] Faction cries play once from slash and direct DoEmote macro, including own echoed chat; group listeners hear one voice.
+- [ ] Repeat an emote: it replaces that speaker's voice; two different speakers can overlap.
+- [ ] Move beyond chat delivery range; remote restoration stops. Check indoors and restricted maps.
+- [ ] Disable announcements: custom local voices remain, remote restoration has no announcement trigger.
+- [ ] Test peers running the previous addon version, options, previews, and reloading saved settings.
+- [x] Lua 5.1 simulations: 593 translated templates, seven locales, group/native rules, old-packet timing immunity, speaker state cap/idle expiry, UI and identity guards.
+
+## Historical acceptance ledger
+
+The entries below record earlier COMM/distance development and are superseded where they conflict with the current chat-only behavior.
 
 ## Acceptance and provenance ledger — 2026-10-27
 

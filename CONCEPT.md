@@ -6,7 +6,7 @@ A sound-restoration and voiced-emote companion for World of Warcraft: Forever, u
 
 ## Design qualities
 
-Sound restoration is optional and per-emote. The 0.6.x line adds addon-to-addon COMM and distance rules, while SoundKitID coverage still explicitly requires in-game verification.
+Sound restoration is optional and per-emote. Current local development favors chat-driven restoration, preserving the game’s emote delivery range and removing competing COMM/distance sound triggers.
 
 This is an evidence-based summary of README, code and existing development notes.
 
@@ -14,7 +14,7 @@ This is an evidence-based summary of README, code and existing development notes
 
 RoarForever started with a small expressive problem: missing playback made voiced emotes feel silent. The design keeps the game's built-in voices at the center rather than shipping replacement sound packs. Later revisions expanded to multiple sound categories, faction cries and train playback, plus a per-emote menu with previews and settings.
 
-The 0.6.x direction addresses social distance between addon users: COMM adds sender position when available; listeners suppress playback outside a 50-yard world-space boundary, while a brief chat fallback still supports players without the addon. The SoundKitID layer for continuous attenuation remains distinct from already implemented out-of-range silence and is still awaiting verified mappings.
+Earlier 0.6.x development explored social distance between addon users: COMM adds sender position when available; listeners suppress playback outside a 50-yard world-space boundary, while a brief chat fallback still supports players without the addon. That COMM/distance implementation was removed in the 2026-11-06 local revision; stable once-per-emote restoration takes priority.
 
 ## Related development history
 
