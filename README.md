@@ -12,7 +12,7 @@ Roar Forever restores character voice sounds that Forever does not reliably play
 
 > **0.6.5-beta:** published chat-driven release on commit `aa2c73445838460f58af53d0f07239e213d0d828`, replacing COMM/distance playback with received chat emotes as the sole remote trigger.
 
-> **Development main — 0.6.6-beta:** fixes a live battleground `ADDON_ACTION_BLOCKED` from `/fta`/`/fth` by keeping faction slash commands off `DoEmote`/`PerformEmote`. Updated automated and live battleground verification are pending.
+> **Development main — 0.6.6-beta:** RoarForever is disabled entirely while inside battleground instances (`IsInInstance()` type `"pvp"`) after live protected-action failures there. Restored sounds, previews, custom slash behavior, announcements, and emote-hook reactions are suppressed until leaving the battleground; the user's saved on/off setting is preserved. Updated automated and live battleground verification are pending.
 
 ## Options and previews
 
