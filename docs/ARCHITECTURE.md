@@ -53,3 +53,9 @@ A single logical COMM emote is broadcast on SAY and, while grouped, also on PART
 
 Grouped addon channels may deliver this client's own outbound COMM packet back through `CHAT_MSG_ADDON`. Sender display formatting is not reliable enough to make self-suppression depend only on `UnitFullName("player")`. RoarForever therefore caches exact outbound payloads for the short COMM dedupe window and drops an exact recent local echo before sender classification, COMM/text correlation, event-ID dedupe or sound playback. The cache is pruned as new packets are sent.
 
+### Battleground runtime boundary
+
+Forever 1.60.1 supports `IsInInstance()`; battlegrounds report instance type `"pvp"`. RoarForever treats that context as a hard runtime boundary. Automatic text restoration, restored audio, previews, raw sound tests, train/faction custom slash behavior, announcements, and `DoEmote` hook reactions are suppressed while inside a battleground. `PLAYER_ENTERING_WORLD` stops any restored voice or preview already active when the battleground loads.
+
+The account-wide enabled setting is not changed by this suppression. Leaving the battleground restores ordinary behavior according to the saved setting.
+
