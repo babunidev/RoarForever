@@ -100,3 +100,8 @@ RoarForever already tried to reject its own COMM by matching the sender against 
 
 Regression coverage now feeds the addon's own grouped roar and faction-cry packets back through `CHAT_MSG_ADDON` with deliberately mismatched sender text. Technical implementation and source tracing were handled with my AI assistant. The updated suite and live group retest still need to confirm the fix.
 
+
+
+## 2026-11-06 — Fewer sound triggers, bounded memory
+
+Repeated group voices led me to prioritize dependable playback over distance features. With that direction, AI removed the competing addon-message path and made received emote text the remote trigger, bounded speaker memory, and replaced a faction-cry timing workaround with explicit ownership. Silent custom announcements now mean no remote restoration signal. The Lua 5.1 simulations pass, including delayed old packets and idle cleanup; live testing must wait for the servers. This work remains local until that test is complete.

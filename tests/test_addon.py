@@ -72,7 +72,7 @@ def boot(locale='enUS', saved=None):
         playerFaction='Horde'
         function UnitFactionGroup() return playerFaction end
         function IsInGroup() return grouped end
-        function IsInRaid() return false end
+        function IsInRaid() return raided or false end
         function UnitInParty(u) return u:match('^party')~=nil end
         function GetTime() return now end
         function UnitPosition() return playerPos.x, playerPos.y, 0, playerPos.instanceID end
@@ -95,7 +95,6 @@ def boot(locale='enUS', saved=None):
         doEmoteCallsHook=true
         function DoEmote(token) if doEmoteCallsHook and emoteHook then emoteHook(token) end end
         function hooksecurefunc(_,fn) emoteHook=fn end
-        function pcall(fn, ...) return true, fn(...) end
         C_Timer={After=function(_,fn) timers[#timers+1]=fn end}
         function flush() local pending=timers; timers={}; for _,f in ipairs(pending) do f() end end
         function upvalue(fn,key)
@@ -123,15 +122,12 @@ def boot(locale='enUS', saved=None):
             if f.events.CHAT_MSG_TEXT_EMOTE then
                 handler=f.scripts.OnEvent
                 HandleChatEmote=upvalue(handler,'HandleChatEmote')
-                HandleAddonMessage=upvalue(handler,'HandleAddonMessage')
                 DetectEmote=upvalue(HandleChatEmote,'DetectEmote')
-                IsLocalPlayer=upvalue(HandleChatEmote,'IsLocalPlayer')
-                PlayTextFallback=upvalue(HandleChatEmote,'PlayTextFallback')
+                PlayTextFallback=upvalue(HandleChatEmote,'PlayTextEmote')
+                IsLocalPlayer=upvalue(upvalue(PlayTextFallback,'ShouldRestoreFromText'),'IsLocalPlayer')
                 CanPlayForSender=upvalue(PlayTextFallback,'CanPlayForSender')
                 GetSenderVoiceKey=upvalue(PlayTextFallback,'GetSenderVoiceKey')
                 FindUnitBySender=upvalue(GetSenderVoiceKey,'FindUnitBySender')
-                ParseCommMessage=upvalue(HandleAddonMessage,'ParseCommMessage')
-                VolumeForDistance=upvalue(upvalue(HandleAddonMessage,'PlayFromComm'),'VolumeForDistance')
             end
         end
     ''')
@@ -158,7 +154,8 @@ local detect=DetectEmote
 assert(detect('Other checks her mana potions.','CHAT_MSG_EMOTE','Other')==nil)
 assert(detect('Other roars with laughter.','CHAT_MSG_EMOTE','Other')==nil)
 assert(detect('Other checks her mana potions.','CHAT_MSG_TEXT_EMOTE','Other')==nil)
-assert(detect('Other congratulates Dingle.','CHAT_MSG_TEXT_EMOTE','Other')==nil)
+assert(detect('Other congratulates Dingle.','CHAT_MSG_TEXT_EMOTE','Other')=='congrats')
+assert(detect('Dingbat congratulates everyone.','CHAT_MSG_TEXT_EMOTE','Dingbat')=='congrats')
 assert(detect('Other congratulates Alice.','CHAT_MSG_TEXT_EMOTE','Other')=='congrats')
 assert(detect('Other blows a train whistle. Choo choo!','CHAT_MSG_EMOTE','Other')=='train')
 assert(detect('Other discusses a train whistle.','CHAT_MSG_EMOTE','Other')==nil)
@@ -231,8 +228,8 @@ assert(RF.AddonEnabled())
 panel.announce.checked=false; panel.announce.scripts.OnClick(panel.announce)
 local beforeAddon=#addonSent
 SlashCmdList.ROARFOREVERTRAIN(); flush(); assert(#sent==0)
--- Train slash -> DoEmote hook broadcasts once (SAY + PARTY when grouped later).
-assert(#addonSent>beforeAddon)
+-- Chat-only restoration never broadcasts addon packets.
+assert(#addonSent==beforeAddon)
 panel.announce.checked=true; panel.announce.scripts.OnClick(panel.announce)
 SlashCmdList.ROARFOREVERTRAIN(); assert(#sent==1 and sent[1].text=='blows a train whistle. Choo choo!' and sent[1].kind=='C_EMOTE')
 now=104; RF.SettingsDB().emotes.train=false
@@ -262,17 +259,8 @@ beforeAddon=#addonSent
 SlashCmdList.ROARFOREVERFTH()
 assert(#sent==beforeSent+1 and sent[#sent].text=='cheers for the Horde! For the Horde!' and sent[#sent].kind=='C_EMOTE')
 assert(#sounds==beforeSounds+1 and sounds[#sounds]==1387394)
--- One logical broadcast: same eventID on SAY and PARTY while grouped.
-local fthPayloads={}
-for i=beforeAddon+1,#addonSent do fthPayloads[#fthPayloads+1]=addonSent[i] end
-assert(#fthPayloads>=2)
-local eventPart=fthPayloads[1].payload:match('^1|E|forthehorde|OrcMale|([^|]+)')
-assert(eventPart)
-for _,row in ipairs(fthPayloads) do
-    assert(row.prefix=='RoarForever')
-    assert(row.payload:match('^1|E|forthehorde|OrcMale|'..eventPart))
-end
--- Own announce must not double-play; nearby and grouped others still play via delayed text fallback.
+assert(#addonSent==beforeAddon)
+-- Own announce must not double-play; nearby and grouped others play once from received chat.
 now=113; event('CHAT_MSG_EMOTE','cheers for the Horde! For the Horde!','Tester','Player-self'); flush(); assert(#sounds==beforeSounds+1)
 now=114; event('CHAT_MSG_EMOTE','cheers for the Horde! For the Horde!','Other','Player-other'); flush(); assert(#sounds==beforeSounds+2)
 now=115; event('CHAT_MSG_EMOTE','cheers for the Horde! For the Horde!','Friend','Player-friend'); flush(); assert(#sounds==beforeSounds+3)
@@ -289,16 +277,9 @@ beforeAddon=#addonSent
 SlashCmdList.ROARFOREVERFTA()
 assert(#sent==beforeSent+1 and sent[#sent].text=='cheers for the Alliance! For the Alliance!' and sent[#sent].kind=='C_EMOTE')
 assert(#sounds==beforeSounds+1 and sounds[#sounds]==1502109)
--- Group channels can echo our own outbound packet back through CHAT_MSG_ADDON.
--- Sender display formatting must not matter: an exact recently-sent local payload
--- is always self and must never trigger a second local faction-cry sound.
-local ownFtaPayload=nil
-for i=beforeAddon+1,#addonSent do
-    if addonSent[i].channel=='PARTY' then ownFtaPayload=addonSent[i].payload end
-end
-assert(ownFtaPayload)
-addon('RoarForever',ownFtaPayload,'PARTY','Different local display')
-assert(#sounds==beforeSounds+1)
+-- Legacy packets cannot replay local faction cries, even with another display name.
+addon('RoarForever','1|E|forthealliance|HumanMale|1|||','PARTY','Different local display')
+assert(#sounds==beforeSounds+1 and #addonSent==beforeAddon)
 now=118; event('CHAT_MSG_EMOTE','cheers for the Alliance! For the Alliance!','Tester','Player-self'); flush(); assert(#sounds==beforeSounds+1)
 now=119; event('CHAT_MSG_EMOTE','cheers for the Alliance! For the Alliance!','Other','Player-other'); flush(); assert(#sounds==beforeSounds+2)
 now=120; event('CHAT_MSG_EMOTE','cheers for the Alliance! For the Alliance!','Friend','Player-friend'); flush(); assert(#sounds==beforeSounds+3)
@@ -307,107 +288,98 @@ doEmoteCallsHook=false; now=121; beforeSent=#sent; beforeSounds=#sounds; beforeA
 SlashCmdList.ROARFOREVERFTA()
 assert(#sent==beforeSent+1 and sent[#sent].kind=='C_EMOTE')
 assert(#sounds==beforeSounds+1)
-assert(#addonSent==beforeAddon) -- no COMM without DoEmote hook
+assert(#addonSent==beforeAddon) -- no addon transmission
 doEmoteCallsHook=true
 
--- --- 0.6 COMM / distance ---
-local parse=ParseCommMessage
-assert(parse('1|E|roar|GnomeFemale|7|10.00|20.00|0'))
-assert(parse('1|E|roar|NotAVoice|7|10.00|20.00|0')==nil)
-assert(parse('1|E|cheer|GnomeFemale|7|10.00|20.00|0')==nil)
-assert(parse('9|E|roar|GnomeFemale|7')==nil)
-playerPos={x=0,y=0,instanceID=0}
-guidRace['Player-other']='Gnome'; guidRace['Player-friend']='Gnome'; guidRace['Player-self']='Gnome'
-grouped=true; units.party1={name='Friend',realm='Home',guid='Player-friend'}
-units.target={name='Other',realm='Away',guid='Player-other'}
--- Own grouped roar: self text supplies the one local sound. If the PARTY copy
--- of our own outbound COMM packet echoes back with a differently formatted sender,
--- it must be discarded as local transport echo rather than played as another player.
-beforeSounds=#sounds; beforeAddon=#addonSent
-now=199
-DoEmote('ROAR')
-local ownRoarPayload=nil
-for i=beforeAddon+1,#addonSent do
-    if addonSent[i].channel=='PARTY' then ownRoarPayload=addonSent[i].payload end
+-- Legacy COMM at any time/channel must never trigger sound. Text is authoritative.
+grouped=true; units.party1={name='Friend Surname',realm='',guid='Player-friend'}
+guidRace['Player-friend']='Human'
+local payload='1|E|roar|HumanMale|7|||'
+local before=#sounds
+for _,channel in ipairs({'SAY','PARTY','RAID','INSTANCE_CHAT'}) do
+    addon('RoarForever',payload,channel,'Friend Surname')
 end
-assert(ownRoarPayload)
-event('CHAT_MSG_TEXT_EMOTE','You roar with bestial vigor. So fierce!','Tester','Player-self')
-assert(#sounds==beforeSounds+1)
-addon('RoarForever',ownRoarPayload,'PARTY','Different local display')
-assert(#sounds==beforeSounds+1)
-
--- Nearby COMM roar with empty SoundKit -> FileDataID once; text afterwards must not double.
-beforeSounds=#sounds; beforeAddon=#addonSent
-now=200
-addon('RoarForever','1|E|roar|GnomeFemale|42|10.00|0.00|0','SAY','Other')
-assert(#sounds==beforeSounds+1)
-event('CHAT_MSG_TEXT_EMOTE','Other roars with bestial vigor. So fierce!','Other','Player-other'); flush()
-assert(#sounds==beforeSounds+1)
--- Playback cooldown must identify the same logical sender across COMM(name only)
--- and text(name + GUID), rather than treating them as two speakers.
-now=200.5
-assert(CanPlayForSender('Correlation Friend',nil,'roar'))
-assert(not CanPlayForSender('Correlation Friend','Player-correlation','roar'))
--- Same eventID on another channel is deduped.
-addon('RoarForever','1|E|roar|GnomeFemale|42|10.00|0.00|0','PARTY','Other')
-assert(#sounds==beforeSounds+1)
--- Group-channel duplicates must also refresh COMM/text suppression. This
--- reproduces the live group-only timing bug: SAY plays, PARTY arrives later,
--- then the text emote arrives after the original 0.35s window.
-now=200.51; beforeSounds=#sounds
-addon('RoarForever','1|E|roar|GnomeFemale|420|10.00|0.00|0','SAY','Other')
-assert(#sounds==beforeSounds+1)
-now=200.81
-addon('RoarForever','1|E|roar|GnomeFemale|420|10.00|0.00|0','PARTY','Other')
-assert(#sounds==beforeSounds+1)
-now=200.91
-event('CHAT_MSG_TEXT_EMOTE','Other roars with bestial vigor. So fierce!','Other','Player-other')
-flush()
-assert(#sounds==beforeSounds+1)
--- Text-first: COMM cancels the 0.10s fallback.
-now=201.50; beforeSounds=#sounds
-event('CHAT_MSG_TEXT_EMOTE','Other roars with bestial vigor. So fierce!','Other','Player-other')
-assert(#sounds==beforeSounds)
-addon('RoarForever','1|E|roar|GnomeFemale|43|5.00|0.00|0','SAY','Other')
-flush()
-assert(#sounds==beforeSounds+1)
--- Distance >= 50 with empty kits: silent (FileDataID suppressed).
-now=202; beforeSounds=#sounds
-addon('RoarForever','1|E|roar|GnomeFemale|44|60.00|0.00|0','SAY','Other')
-assert(#sounds==beforeSounds)
--- Different instance: silent, not full volume.
-now=203; beforeSounds=#sounds
-addon('RoarForever','1|E|roar|GnomeFemale|45|5.00|0.00|99','SAY','Other')
-assert(#sounds==beforeSounds)
--- Position unavailable: normal FileDataID fallback.
-now=204; beforeSounds=#sounds
-addon('RoarForever','1|E|roar|GnomeFemale|46','SAY','Other')
-assert(#sounds==beforeSounds+1)
--- Group train COMM suppressed; stranger train COMM plays.
-now=205; beforeSounds=#sounds
-addon('RoarForever','1|E|train|GnomeFemale|47|5.00|0.00|0','PARTY','Friend')
-assert(#sounds==beforeSounds)
-addon('RoarForever','1|E|train|GnomeFemale|48|5.00|0.00|0','SAY','Other')
-assert(#sounds==beforeSounds+1)
--- Group faction cry COMM still plays within range.
-now=206; beforeSounds=#sounds
-guidRace['Player-friend']='Orc'
-addon('RoarForever','1|E|forthehorde|OrcMale|49|8.00|0.00|0','PARTY','Friend')
-assert(#sounds==beforeSounds+1 and sounds[#sounds]==1387394)
--- SendAddonMessage result codes must not break broadcasting; debugcomm can expose them in-game.
-addonSendResult=3
-now=207; beforeAddon=#addonSent
-SlashCmdList.ROARFOREVER('debugcomm')
+assert(#sounds==before)
+now=130
+event('CHAT_MSG_TEXT_EMOTE','Friend Surname roars with bestial vigor. So fierce!','Friend Surname','Player-friend')
+assert(#sounds==before+1)
+local handle=#sounds
+for _,delay in ipairs({0.05,0.1,0.25,0.5,2,10}) do
+    now=130+delay
+    for _,channel in ipairs({'SAY','PARTY','RAID','INSTANCE_CHAT'}) do
+        addon('RoarForever',payload,channel,'Friend Surname')
+        addon('RoarForever',payload,channel,'Different local display')
+    end
+    flush()
+    assert(#sounds==before+1)
+end
+-- Next real roar replaces that player's handle, never another player's handle.
+now=141
+event('CHAT_MSG_TEXT_EMOTE','Friend Surname roars with bestial vigor. So fierce!','Friend Surname','Player-friend')
+assert(#sounds==before+2 and stopped[#stopped]==handle)
+-- Group train and ordinary voices remain native; group faction cry is restored.
+now=142; before=#sounds
+event('CHAT_MSG_EMOTE','blows a train whistle. Choo choo!','Friend Surname','Player-friend')
+event('CHAT_MSG_TEXT_EMOTE','Friend Surname cheers!','Friend Surname','Player-friend')
+assert(#sounds==before)
+event('CHAT_MSG_EMOTE','cheers for the Alliance! For the Alliance!','Friend Surname','Player-friend')
+assert(#sounds==before+1)
+-- Raid membership uses raid tokens and keeps the same native exclusions.
+raided=true; units.raid1=units.party1; units.party1=nil
+now=142.5; before=#sounds
+event('CHAT_MSG_TEXT_EMOTE','Friend Surname cheers!','Friend Surname','Player-friend')
+event('CHAT_MSG_EMOTE','blows a train whistle. Choo choo!','Friend Surname','Player-friend')
+assert(#sounds==before)
+event('CHAT_MSG_TEXT_EMOTE','Friend Surname roars with bestial vigor. So fierce!','Friend Surname','Player-friend')
+assert(#sounds==before+1)
+raided=false; units.party1=units.raid1; units.raid1=nil
+-- Missing/secret coordinates are never read. No packet is required for text playback.
+UnitPosition=function() error('chat-only playback must not query coordinates') end
+now=143
+event('CHAT_MSG_TEXT_EMOTE','Friend Surname roars with bestial vigor. So fierce!','Friend Surname','Player-friend')
+assert(#sounds==before+2)
+-- Direct faction macro and slash each invoke playback just once, even if DoEmote is slow.
+local originalDoEmote=DoEmote
+DoEmote=function(token) now=now+0.2; originalDoEmote(token); now=now+0.2 end
+now=150; before=#sounds
+SlashCmdList.ROARFOREVERFTA(); assert(#sounds==before+1)
+now=152; DoEmote('FORTHEALLIANCE'); assert(#sounds==before+2)
+assert(#addonSent==0 and registeredPrefix==nil)
+-- Own roar is driven only by its chat event; arbitrary legacy echo names do nothing.
+now=154; before=#sounds
 DoEmote('ROAR')
-assert(#addonSent>beforeAddon)
-addonSendResult=0
-SlashCmdList.ROARFOREVER('debugcomm')
--- Volume curve samples.
-local vol=VolumeForDistance
-assert(vol(0)==1 and vol(5)==1 and vol(50)==0 and vol(60)==0)
-local v10,v30=vol(10),vol(30)
-assert(v10>0.80 and v10<0.95, 'vol10='..tostring(v10))
-assert(v30>0.20 and v30<0.45, 'vol30='..tostring(v30))
+event('CHAT_MSG_TEXT_EMOTE','You roar with bestial vigor. So fierce!','Tester','Player-self')
+for _,channel in ipairs({'PARTY','RAID','INSTANCE_CHAT'}) do
+    addon('RoarForever',payload,channel,'Different local display')
+end
+assert(#sounds==before+1)
+-- An intentional repeat after the short cooldown still restarts the voice.
+now=now+0.1
+event('CHAT_MSG_TEXT_EMOTE','You roar with bestial vigor. So fierce!','Tester','Player-self')
+assert(#sounds==before+2 and stopped[#stopped]==before+1)
+-- A failing native faction token must not leave hook ownership stuck.
+DoEmote=function() error('unsupported native token') end
+now=155; before=#sounds
+SlashCmdList.ROARFOREVERFTA(); assert(#sounds==before+1)
+DoEmote=originalDoEmote
+now=156; DoEmote('FORTHEALLIANCE'); assert(#sounds==before+2)
+-- All per-speaker state has a hard cap, then expires while idle.
+local speakerState=upvalue(CanPlayForSender,'SpeakerState')
+local states=upvalue(speakerState,'speakerStates')
+local function stateCount() local n=0; for _ in pairs(states) do n=n+1 end; return n end
+for i=1,2000 do
+    now=160+i*0.001
+    event('CHAT_MSG_TEXT_EMOTE','Visitor laughs.','Visitor '..i,'Player-visitor'..i)
+    assert(stateCount()<=128)
+end
+assert(stateCount()==128)
+now=230
+for _,f in ipairs(frames) do if f.scripts.OnUpdate then f.scripts.OnUpdate(f,5) end end
+assert(stateCount()==0)
+-- Duplicate chat callbacks within the cooldown remain suppressed.
+now=240; before=#sounds
+for i=1,2 do event('CHAT_MSG_TEXT_EMOTE','Visitor laughs.','Visitor','Player-visitor') end
+assert(#sounds==before+1)
 ''')
 # Saved options load after the addon files: no eager defaults overwrite them.
 lua,ns=boot(saved="RoarForeverDB={enabled=false,emotes={joke=false},announceTrain=false,existing='kept'}")
@@ -427,4 +399,4 @@ assert(#sounds==before+22 and #sent==0)
 RoarForeverDB=true
 assert(RF.AddonEnabled() and RF.EmoteEnabled('joke'))
 ''')
-print(f'PASS: {count} translated template cases, 7 locale variants, menu callbacks, saved options, preview pool, train controls, faction cries, group roar restoration, Skyborne roar exception, COMM distance, self-echo suppression, COMM/text sender correlation, delayed group-channel dedupe, logical-sender playback dedupe, secret-identity guards, identity and detection regressions.')
+print(f'PASS: {count} translated templates; 7 locales; UI/settings/previews; native group exclusions; group roar and faction cries; legacy packet timing/echo immunity; speaker exclusivity; bounded/idle cache cleanup; secret identity guards; detection regressions.')

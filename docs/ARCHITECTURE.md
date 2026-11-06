@@ -2,6 +2,19 @@
 
 **Author:** Babuni.dev
 
+## Current local revision — 2026-11-06
+
+Babuni requested reliable group playback, low memory use, and a local-only commit before live testing, permitting removal of distance handling. The implemented simplification removes COMM and the delayed fallback altogether: chat receipt is the only remote playback trigger. Old peer packets are ignored. Custom announcement settings now also determine whether remote users receive a restoration trigger; native client audio remains outside addon control.
+
+Speaker GUID (or available plain sender name) keys one store containing the sound handle, last activity, and per-emote cooldowns. The store has a hard limit of 128 speakers, evicts the oldest at capacity, and removes entries idle for 60 seconds on a five-second cleanup interval. Eviction stops the handle. Faction slash handling explicitly suppresses its nested DoEmote hook, while direct macros still use that hook. Congratulations matching no longer excludes names containing “ding.”
+
+AI implemented the change and Lua 5.1 simulations. These checks do not establish live audio, network delivery range, native sound behavior, or UI correctness. Run the current ROADMAP checklist before release.
+
+## Historical implementation notes
+
+The following sections preserve the earlier COMM/distance design and decisions; they do not describe the current runtime.
+
+
 RoarForever.lua with Options.lua and Locales.lua provides emote and sound handling, settings/preview UI, options persistence and localizations; test_addon.py and an existing CHANGELOG document ongoing releases.
 
 Source inspection establishes file and code design, not live-client verification.

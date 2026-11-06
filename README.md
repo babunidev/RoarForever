@@ -8,7 +8,7 @@ Roar Forever restores character voice sounds that Forever does not reliably play
 
 > **0.6.3-beta:** published tag for Forever 1.60.1 containing the restricted-map secret unit-identity fix and COMM/text `/roar` deduplication. A later grouped-roar overlap correction is not part of that tag.
 
-> **Development main — 0.6.4-beta:** keeps party/raid `/roar` restoration after a live addon-off check confirmed Forever provides no native group roar sound. It now also drops exact echoes of this client's own recent grouped COMM packets before playback, covering the group-only double heard on self `/roar` and faction cries when sender-name formatting differs. Updated self-echo regressions still need a local automated rerun and live group retest.
+> **Local development — 0.6.4-beta:** chat-driven restoration replaces COMM/distance playback to remove competing sound triggers. Automated Lua 5.1 regression tests pass; live party/raid audio testing is pending. Not pushed or released.
 
 ## Options and previews
 
@@ -38,21 +38,21 @@ These switches control which built-in game voice-emote sounds Roar Forever resto
 - `/congrats` / `/congratulate` — restores a random congratulations line for other players.
 - `/followme` — restores the follow-me voice for other players.
 - `/whistle` — restores the whistle for other players.
-- `/train` — Roar Forever takes over `/train`, plays the normal choo-choo, and can announce "blows a train whistle. Choo choo!" Other Roar Forever users hear train through addon communication when the game does not already play it. In a party or raid, group-member train stays with the native client sound (no addon double).
-- `/forthehorde` / `/fth` — Horde-only. Plays the race/sex “For the Horde!” voice and optional announce line. Other Roar Forever users primarily hear it through addon communication (including in a party or raid), with distance-aware restored emote audio when positions are available.
+- `/train` — Roar Forever takes over `/train`, plays the normal choo-choo, and can announce "blows a train whistle. Choo choo!" Other Roar Forever users restore train when they receive its chat announcement and the game does not already play it. In a party or raid, group-member train stays with the native client sound (no addon double).
+- `/forthehorde` / `/fth` — Horde-only. Plays the race/sex “For the Horde!” voice and optional announce line. Other Roar Forever users hear it when they receive its chat announcement, including in a party or raid.
 - `/forthealliance` / `/fta` — Alliance-only. Same behavior with the “For the Alliance!” voices. Forever does not currently wire either native faction-emote token, so the cheer animation may be missing until Blizzard adds it. Using the wrong faction’s command prints a short refusal. No Skyborne faction-cry recording was found in the client.
 
-### Distance-aware restored emote audio (0.6)
+### Chat-driven playback
 
-When both players use Roar Forever, `/roar`, `/train`, `/forthehorde`, and `/forthealliance` also send a short invisible addon message with the speaker’s outdoor position. Receivers fade or silence that restored voice by distance (same world/instance). This is **not** true left/right 3D positional audio — the public addon API cannot pan per sound.
+Received `CHAT_MSG_TEXT_EMOTE` and recognized custom `CHAT_MSG_EMOTE` lines are the sole remote sound triggers. The game controls delivery range; Roar Forever adds no distance calculation or attenuation. It neither sends nor receives addon packets, so old peers' SAY/PARTY/RAID copies cannot cause another sound. Hiding an emote in your chat-window settings is not an addon mute: receipt of the event is what matters.
 
-Players without Roar Forever are still heard through the existing text-emote / announce detection. A brief wait prefers the addon packet when both arrive so the sound is not played twice.
+Keep announcements enabled if you want nearby addon users to restore your train or faction cry. With announcements off, the local voice still works, but this addon supplies no remote restoration signal. Standard emotes do not require the sender to have this addon. Voice identity must be available through the event GUID or an accessible unit; inaccessible identities are skipped.
 
-SoundKit-based volume scaling is ready; the mapping table starts empty until IDs are verified from Forever DB2/CASC data. Until then, in-range COMM events use the existing FileDataID playback, and out-of-range (≥50 yards) or other-instance packets stay silent.
+One tracked sound per speaker replaces that speaker's previous restored voice. Different speakers can overlap. State is capped at 128 speakers; the least recently active speaker is evicted at capacity. Every five seconds, records idle for at least 60 seconds are removed and their handles stopped. There is no network-event cache. Preview pools are finite and independent.
 
 Roar Forever does not replay your own normal voiced emotes, because the client already plays those. `/roar` remains the self exception for races that have no client roar; Skyborne already have a native self roar and are left to the game. In a party or raid, most ordinary group voices are left to the client, but `/roar` remains restored by RoarForever because a live addon-off check confirmed Forever provides no group roar sound. Faction cries remain addon-driven because Forever does not natively wire them. Nearby players who are not in your group still get the restored set.
 
-Someone who is not using Roar Forever can still `/train` without sending a line, so there is nothing for the addon to hear unless they use a distinctive announce. The same is true for faction cries without the distinctive chat line or addon communication.
+Someone who is not using Roar Forever can still `/train` without sending a line, so there is nothing for the addon to hear unless they use a distinctive announce. The same is true for faction cries without the distinctive chat line.
 
 ## Installation
 
@@ -75,11 +75,7 @@ Playback is local: another player does not need Roar Forever installed for you t
 | `/forthealliance` or `/fta` | Alliance faction cry (Roar Forever). |
 | `/rf status` | Show whether the addon is on, your character voice, and the mapped emotes. |
 | `/rf id <FileDataID>` | Test a specific FileDataID. |
-| `/rf debugcomm` | Toggle COMM diagnostics: received packets plus outgoing send result codes (success, throttled, blocked, invalid channel, etc.). |
 | `/rf debugplay` | Toggle actual restored-sound playback tracing, including source path, speaker key, FileDataID, and sound handle. |
-| `/rf debugpos` | Print your outdoor `UnitPosition` x, y, and instance ID. |
-| `/rf soundkit <ID> [volume]` | Play a **candidate** SoundKit ID at an optional volume (default 1.0). For validating IDs you already have — not a way to discover voice mappings from scratch. |
-| `/rf voltest <ID>` | Play a candidate SoundKit at about 100%, 70%, 40%, 20%, and 10% with short gaps. |
 
 `/roarforever` can also be used in place of `/rf`.
 
@@ -90,7 +86,6 @@ Playback is local: another player does not need Roar Forever installed for you t
 - Bundled languages: English, German, French, Spanish, and Russian. The menu and standard emote detection follow your client language. `enGB` uses English and `esMX` uses the Spanish pack; unsupported client languages fall back to English labels/templates.
 - Translated full-message templates were sourced from [Forever 1.60.1.70009 EmotesTextData](https://wago.tools/db2/EmotesTextData?build=1.60.1.70009). No separate CurseForge language downloads are needed. French grammatical prefixes and Russian declined names are accounted for; client updates can change wording, so release builds should be spot-checked in game.
 - Custom `/train` and faction-cry announcements remain the same English lines in every locale so different-language addon users can recognize them.
-- Forever restricts outgoing addon messages for trial/veteran accounts. `/rf debugcomm` reports outgoing result codes so throttling or communication lockdown is visible during testing.
 - On restricted maps such as dungeons and raids, Forever can make non-group unit identity values secret. Development main checks `issecretvalue` before using unit names/GUIDs/race/sex and skips inaccessible identities instead of comparing them.
 - Sound mappings use Blizzard FileDataIDs from the current wowdev community listfile.
 - Gnome female `/roar` playback has been confirmed in-game. The new restored emotes should be treated as beta until they have been checked in the Forever client.

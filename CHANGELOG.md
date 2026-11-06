@@ -2,7 +2,17 @@
 
 Release notes for the standalone player voice-emote sound addon.
 
-## Unreleased
+## Unreleased — 2026-11-06 local revision
+
+- Keep `0.6.4-beta` as the local development version; no release or push.
+- Remove COMM transmission, reception, distance checks, and delayed text fallbacks. Received chat emotes now provide the sole remote trigger, eliminating late-packet double playback, split COMM/text speaker identities, and identical-payload echo collisions.
+- Preserve native self/group exclusions, restored group roar, Skyborne exceptions, faction cries, previews, localization, and settings. Silent custom announcements no longer provide remote restoration.
+- Replace accumulating event/cooldown/handle maps with one bounded 128-speaker store, pruned every five seconds after 60 seconds idle. Eviction stops the stored handle.
+- Guard faction slash/hook reentrancy explicitly. Allow congratulations involving names containing “ding.”
+- Remove obsolete COMM/position/SoundKit diagnostics; retain `/rf debugplay`.
+- Babuni directed a reliability-first simplification and local-only testing/commit. AI implemented the changes and regression coverage. Mocked Lua 5.1 tests pass; live client audio and group verification remain pending.
+
+### Superseded development iterations — retained as history
 
 - Development version: `0.6.4-beta`.
 - Reverted the proposed group-roar suppression after a direct live check with RoarForever disabled confirmed that Forever itself does **not** play the missing group `/roar` sound. Group roar restoration remains core addon behavior.
