@@ -113,5 +113,5 @@ Roar Forever is the **WoW Forever voice-restoration project**, creatively relate
 
 **Reasoning:** `pcall` cannot authorize a protected action, and Forever does not currently wire native faction-cry emote tokens anyway. Removing the addon-initiated emote call preserves the useful behavior while eliminating the protected battleground action.
 
-**Verification boundary:** the fix and mocked regression are implemented in 0.6.5-beta development. The updated suite and a live battleground retest remain pending.
+**Version boundary:** `v0.6.5-beta` had already been published on commit `aa2c73445838460f58af53d0f07239e213d0d828` before this live battleground failure. The fix therefore belongs to 0.6.6-beta development. The updated suite and a live battleground retest remain pending.
 
