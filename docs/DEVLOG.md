@@ -130,3 +130,9 @@ The boundary I chose is simple: while the client reports a battleground instance
 
 Technical verification with my AI assistant covered the Forever 1.60.1 instance API, the central battleground gate, and a simulated enter/leave regression. Live battleground testing then produced no addon errors, confirming the hard-disable works in the target context. Automated execution of the updated regression and the resume-after-leaving check remain pending.
 
+## 7 November 2026 — approving 0.6.6-beta
+
+The battleground boundary now has both sides of the live check behind it. RoarForever stayed quiet and error-free inside the battleground, then returned to its normal behavior after leaving without changing the saved enabled state. With that confirmed, I approved 0.6.6-beta for public beta publication.
+
+The release remains gated on one final automated run against the exact release commit. Technical release preparation with my AI assistant covers the battleground hard-disable, protected faction-slash isolation, version boundary, regression coverage and publication records. The annotated tag should only be created after that exact commit passes the updated suite.
+
