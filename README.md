@@ -10,7 +10,9 @@ Roar Forever restores character voice sounds that Forever does not reliably play
 
 > **0.6.3-beta:** published tag for Forever 1.60.1 containing the restricted-map secret unit-identity fix and COMM/text `/roar` deduplication. A later grouped-roar overlap correction is not part of that tag.
 
-> **Prepared release — 0.6.5-beta:** chat-driven restoration replaces COMM/distance playback to remove competing sound triggers. A live battleground protected-action error from `/fta`/`/fth` is fixed by keeping faction slash commands off `DoEmote`/`PerformEmote`. The previous Lua 5.1 suite passed; the new protected-slash regression still needs a rerun. Tagging and publication are pending.
+> **0.6.5-beta:** published chat-driven release on commit `aa2c73445838460f58af53d0f07239e213d0d828`, replacing COMM/distance playback with received chat emotes as the sole remote trigger.
+
+> **Development main — 0.6.6-beta:** fixes a live battleground `ADDON_ACTION_BLOCKED` from `/fta`/`/fth` by keeping faction slash commands off `DoEmote`/`PerformEmote`. Updated automated and live battleground verification are pending.
 
 ## Options and previews
 
