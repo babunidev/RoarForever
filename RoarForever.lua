@@ -2,6 +2,18 @@ local _, RF = ...
 local frame = CreateFrame("Frame")
 
 local EMOTE_COOLDOWN = 0.07
+
+-- Forever uses the modern instance API. Battlegrounds report instance type
+-- "pvp". RoarForever is intentionally inert there because restricted-action
+-- rules can block addon-driven chat/emote behavior.
+local function IsBattlegroundContext()
+    if not IsInInstance then
+        return false
+    end
+    local ok, inInstance, instanceType = pcall(IsInInstance)
+    return ok and inInstance and instanceType == "pvp"
+end
+
 -- Bounded session state; no network-event history is retained.
 local MAX_SPEAKERS = 128
 local SPEAKER_TTL = 60
@@ -618,6 +630,9 @@ local function StopSpeakerSound(speakerKey)
 end
 
 local function PlaySoundFileForSpeaker(speakerKey, fileDataID, source)
+    if IsBattlegroundContext() then
+        return false
+    end
     StopSpeakerSound(speakerKey)
     local willPlay, handle = PlaySoundFile(fileDataID, "Master")
     if willPlay then
@@ -834,6 +849,10 @@ local function AddonEnabled()
     return SettingsDB().enabled ~= false
 end
 
+local function AddonOperational()
+    return AddonEnabled() and not IsBattlegroundContext()
+end
+
 local function SetAddonEnabled(enabled)
     SettingsDB().enabled = enabled and true or false
 end
@@ -849,6 +868,9 @@ RF.EmoteEnabled = EmoteEnabled
 
 local previewPools = {}
 function RF.Preview(emote)
+    if IsBattlegroundContext() then
+        return false
+    end
     local pool = previewPools[emote]
     if not pool then
         pool = {}
@@ -938,7 +960,7 @@ local function ShouldRestoreFromText(emoteName, sender, guid)
 end
 
 local function PlayTextEmote(emoteName, sender, guid)
-    if not AddonEnabled() or not EmoteEnabled(emoteName) then
+    if not AddonOperational() or not EmoteEnabled(emoteName) then
         return
     end
     if not ShouldRestoreFromText(emoteName, sender, guid) then
@@ -961,7 +983,7 @@ local function HandleChatEmote(event, text, sender, guid)
     if not text or (not sender and not guid) then
         return
     end
-    if not AddonEnabled() then
+    if not AddonOperational() then
         return
     end
 
@@ -973,7 +995,27 @@ local function HandleChatEmote(event, text, sender, guid)
     PlayTextEmote(emoteName, sender, guid)
 end
 
+local function StopAllRestoredSounds()
+    if previewSoundHandle and StopSound then
+        StopSound(previewSoundHandle)
+        previewSoundHandle = nil
+    end
+    for key, state in pairs(speakerStates) do
+        if state.handle and StopSound then
+            StopSound(state.handle)
+        end
+        state.handle = nil
+    end
+end
+
 frame:SetScript("OnEvent", function(self, event, ...)
+    if event == "PLAYER_ENTERING_WORLD" then
+        if IsBattlegroundContext() then
+            StopAllRestoredSounds()
+        end
+        return
+    end
+
     if event ~= "CHAT_MSG_TEXT_EMOTE" and event ~= "CHAT_MSG_EMOTE" then
         return
     end
@@ -983,6 +1025,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
     HandleChatEmote(event, text, sender, guid)
 end)
 
+frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 frame:RegisterEvent("CHAT_MSG_TEXT_EMOTE")
 frame:RegisterEvent("CHAT_MSG_EMOTE")
 
@@ -1008,6 +1051,19 @@ SlashCmdList.ROARFOREVER = function(msg)
         SetAddonEnabled(true)
         print("Roar Forever is on.")
         return
+    end
+
+    if IsBattlegroundContext() then
+        if lower == "status" then
+            print("Roar Forever is disabled while inside battlegrounds.")
+        elseif lower ~= "off" and lower ~= "disable" and lower ~= "on" and lower ~= "enable"
+            and lower ~= "" and lower ~= "config" and lower ~= "ui" then
+            print("Roar Forever is disabled while inside battlegrounds.")
+        end
+        if lower ~= "off" and lower ~= "disable" and lower ~= "on" and lower ~= "enable"
+            and lower ~= "" and lower ~= "config" and lower ~= "ui" then
+            return
+        end
     end
 
     if lower == "debugplay" then
@@ -1056,7 +1112,10 @@ SlashCmdList.ROARFOREVER = function(msg)
         end
 
         table.sort(mapped)
-        local state = AddonEnabled() and "on" or "off"
+            local state = AddonEnabled() and "on" or "off"
+        if IsBattlegroundContext() then
+            state = state .. " (suppressed in battleground)"
+        end
         print("Roar Forever is " .. state .. ". Detected " .. voiceKey .. "; mapped emotes: " .. (#mapped > 0 and table.concat(mapped, ", ") or "none"))
         return
     end
@@ -1092,7 +1151,7 @@ local function CustomAnnounceEnabled()
 end
 
 local function AnnounceCustomLine(emoteName, line)
-    if not AddonEnabled() or not EmoteEnabled(emoteName) or not CustomAnnounceEnabled() then
+    if not AddonOperational() or not EmoteEnabled(emoteName) or not CustomAnnounceEnabled() then
         return
     end
 
@@ -1156,7 +1215,7 @@ local function HandleFactionCry(emoteName, fromDoEmote)
     -- battlegrounds. The addon slash commands therefore own only the restored
     -- voice and custom announcement. The DoEmote hook below remains observation
     -- only for direct player/macro calls; this handler never invokes DoEmote.
-    if AddonEnabled() and EmoteEnabled(emoteName) then
+    if AddonOperational() and EmoteEnabled(emoteName) then
         PlayLocalFactionCry(emoteName)
     end
     AnnounceCustomLineFromInput(emoteName, info.line)
@@ -1166,6 +1225,9 @@ end
 -- the silent game /train and still plays the choo-choo through DoEmote.
 SLASH_ROARFOREVERTRAIN1 = "/train"
 SlashCmdList.ROARFOREVERTRAIN = function()
+    if IsBattlegroundContext() then
+        return
+    end
     if DoEmote then
         DoEmote("TRAIN")
     end
@@ -1178,6 +1240,9 @@ if not SlashCmdList.FTH then
     SLASH_ROARFOREVERFTH2 = "/fth"
 end
 SlashCmdList.ROARFOREVERFTH = function()
+    if IsBattlegroundContext() then
+        return
+    end
     HandleFactionCry("forthehorde", false)
 end
 
@@ -1186,11 +1251,17 @@ if not SlashCmdList.FTA then
     SLASH_ROARFOREVERFTA2 = "/fta"
 end
 SlashCmdList.ROARFOREVERFTA = function()
+    if IsBattlegroundContext() then
+        return
+    end
     HandleFactionCry("forthealliance", false)
 end
 
 if hooksecurefunc and DoEmote then
     hooksecurefunc("DoEmote", function(emote)
+        if IsBattlegroundContext() then
+            return
+        end
         if IsTrainToken(emote) then
             AnnounceCustomLineFromInput("train", TRAIN_LINE)
             return
