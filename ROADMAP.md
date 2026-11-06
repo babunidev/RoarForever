@@ -4,13 +4,15 @@
 
 ## Current state
 
-Prepared release **0.6.5-beta** now uses received chat emotes as the sole remote playback trigger. COMM/distance handling has been removed, group roar restoration retained, speaker state bounded, and faction slash/hook ownership made explicit. Babuni reports that this version seems to be working well after testing and has requested publication commands. Release metadata is prepared locally; tagging and pushing are pending. The individual scenarios below remain unchecked unless explicitly confirmed.
+Prepared release **0.6.5-beta** now uses received chat emotes as the sole remote playback trigger. COMM/distance handling has been removed, group roar restoration retained, and speaker state bounded. A live battleground `/fta` error exposed addon-driven `DoEmote` as protected; faction slash commands now avoid that API entirely while the hook remains observation-only for direct calls. The updated automated suite and battleground retest are pending before tagging.
 
 ## Live acceptance checklist
 
 - [ ] Solo, party and raid: self roar and another member's roar play once; Skyborne native exceptions remain correct.
 - [ ] Train remains native for self/group; nearby outsiders restore its announcement once.
 - [ ] Faction cries play once from slash and direct DoEmote macro, including own echoed chat; group listeners hear one voice.
+- [ ] Battleground: `/fta` and `/fth` play/announce without `ADDON_ACTION_BLOCKED` or a `PerformEmote()` protected-action report.
+- [ ] Rerun Lua 5.1 simulations and confirm `protected faction-slash isolation` in the PASS line.
 - [ ] Repeat an emote: it replaces that speaker's voice; two different speakers can overlap.
 - [ ] Move beyond chat delivery range; remote restoration stops. Check indoors and restricted maps.
 - [ ] Disable announcements: custom local voices remain, remote restoration has no announcement trigger.
