@@ -98,5 +98,5 @@ Roar Forever is the **WoW Forever voice-restoration project**, creatively relate
 
 **AI contribution:** matched the stack to the current 0.6.5 faction slash handler, verified the Forever restricted-action model, removed addon-initiated faction `DoEmote` calls while preserving local voice/announcement and direct-call observation, and added regression coverage proving faction slashes leave `DoEmote` untouched.
 
-**Verification boundary:** the live failure is confirmed evidence for the diagnosis. The source fix is implemented; updated automated and live battleground verification are pending.
+**Version and verification boundary:** `v0.6.5-beta` was already published on commit `aa2c73445838460f58af53d0f07239e213d0d828`, so this source fix belongs to 0.6.6-beta development. The live failure is confirmed evidence for the diagnosis; updated automated and live battleground verification are pending.
 
