@@ -106,5 +106,5 @@ Roar Forever is the **WoW Forever voice-restoration project**, creatively relate
 
 **AI contribution:** verified the Forever 1.60.1 `IsInInstance()` battleground classification, implemented a central `"pvp"` runtime gate across restoration, previews, tests, custom slash behavior, announcements and emote hooks, stopped active restored sounds on battleground entry, preserved the saved user setting, and added an enter/leave battleground regression.
 
-**Verification boundary:** source implementation and regression coverage are present in 0.6.6-beta development. Updated automated execution and live battleground verification remain pending; no 0.6.6 tag has been authorized or published.
+**Verification boundary:** live battleground testing after the hard-disable produced no addon errors, confirming the runtime boundary in the target client. Source regression coverage is present, but updated automated execution and the post-battleground resume check remain pending. No 0.6.6 tag has been authorized or published.
 
