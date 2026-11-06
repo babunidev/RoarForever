@@ -4,7 +4,7 @@
 
 ## Current state
 
-Published tag **v0.6.5-beta** points to `aa2c73445838460f58af53d0f07239e213d0d828` and contains the chat-only remote playback simplification. Current **0.6.6-beta development** responds to live battleground protected-action failures by disabling RoarForever runtime behavior entirely whenever the instance type is `"pvp"`. Live battleground testing confirms the hard-disable prevents addon errors. Updated automated execution and the post-battleground resume check remain pending; no 0.6.6 tag is approved or published.
+Published tag **v0.6.5-beta** points to `aa2c73445838460f58af53d0f07239e213d0d828` and contains the chat-only remote playback simplification. Current **0.6.6-beta development** responds to live battleground protected-action failures by disabling RoarForever runtime behavior entirely whenever the instance type is `"pvp"`. Live battleground testing confirms the hard-disable prevents addon errors, and normal RoarForever behavior resumes after leaving. Babuni approved `0.6.6-beta` for public beta publication; the tag remains gated on the updated automated suite passing on the exact release commit.
 
 ## Live acceptance checklist
 
@@ -12,8 +12,11 @@ Published tag **v0.6.5-beta** points to `aa2c73445838460f58af53d0f07239e213d0d82
 - [ ] Train remains native for self/group; nearby outsiders restore its announcement once.
 - [ ] Faction cries play once from slash and direct DoEmote macro, including own echoed chat; group listeners hear one voice.
 - [x] Battleground: live testing after the hard-disable produced no addon errors or protected-action reports.
-- [ ] Leave the battleground and confirm the previous saved enabled state resumes automatically.
+- [x] Leave the battleground and confirm the previous saved enabled state resumes automatically.
 - [ ] Rerun Lua 5.1 simulations and confirm `battleground hard-disable` in the PASS line.
+- [x] Approve `0.6.6-beta` for public release after the exact release commit passes the updated automated suite.
+- [ ] Create and push annotated tag `v0.6.6-beta` on the tested release commit.
+- [ ] Confirm CurseForge publishes `v0.6.6-beta` as Beta / Forever 1.60.1 and verify runtime-only package contents.
 - [ ] Repeat an emote: it replaces that speaker's voice; two different speakers can overlap.
 - [ ] Move beyond chat delivery range; remote restoration stops. Check indoors and restricted maps.
 - [ ] Disable announcements: custom local voices remain, remote restoration has no announcement trigger.
