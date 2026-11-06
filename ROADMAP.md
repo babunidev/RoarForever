@@ -4,7 +4,7 @@
 
 ## Current state
 
-Prepared release **0.6.5-beta** now uses received chat emotes as the sole remote playback trigger. COMM/distance handling has been removed, group roar restoration retained, and speaker state bounded. A live battleground `/fta` error exposed addon-driven `DoEmote` as protected; faction slash commands now avoid that API entirely while the hook remains observation-only for direct calls. The updated automated suite and battleground retest are pending before tagging.
+Published tag **v0.6.5-beta** points to `aa2c73445838460f58af53d0f07239e213d0d828` and contains the chat-only remote playback simplification. Current **0.6.6-beta development** fixes the later live battleground `/fta` protected-action failure by keeping addon faction slashes off `DoEmote`/`PerformEmote`. Updated automated and live battleground verification are pending; no 0.6.6 tag is approved or published.
 
 ## Live acceptance checklist
 
