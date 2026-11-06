@@ -404,4 +404,4 @@ assert(#sounds==before+22 and #sent==0)
 RoarForeverDB=true
 assert(RF.AddonEnabled() and RF.EmoteEnabled('joke'))
 ''')
-print(f'PASS: {count} translated templates; 7 locales; UI/settings/previews; native group exclusions; group roar and faction cries; legacy packet timing/echo immunity; speaker exclusivity; bounded/idle cache cleanup; secret identity guards; detection regressions.')
+print(f'PASS: {count} translated templates; 7 locales; UI/settings/previews; native group exclusions; group roar and faction cries; protected faction-slash isolation; legacy packet timing/echo immunity; speaker exclusivity; bounded/idle cache cleanup; secret identity guards; detection regressions.')
