@@ -92,3 +92,11 @@ Roar Forever is the **WoW Forever voice-restoration project**, creatively relate
 
 **Verification boundary:** GitHub confirms annotated tag `v0.6.4-beta` targets commit `8c98e630f09bbe68cf6abeaebd7f2118a44f6274`. CurseForge publication and generated ZIP contents remain separately unconfirmed.
 
+## Battleground protected faction-slash fix — 6 November 2026
+
+**Babuni:** supplied the live battleground `ADDON_ACTION_BLOCKED` stack showing RoarForever reaching protected `PerformEmote()` from `/fta`.
+
+**AI contribution:** matched the stack to the current 0.6.5 faction slash handler, verified the Forever restricted-action model, removed addon-initiated faction `DoEmote` calls while preserving local voice/announcement and direct-call observation, and added regression coverage proving faction slashes leave `DoEmote` untouched.
+
+**Verification boundary:** the live failure is confirmed evidence for the diagnosis. The source fix is implemented; updated automated and live battleground verification are pending.
+
