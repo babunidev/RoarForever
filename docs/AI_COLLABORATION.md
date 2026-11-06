@@ -108,3 +108,11 @@ Roar Forever is the **WoW Forever voice-restoration project**, creatively relate
 
 **Verification boundary:** live battleground testing after the hard-disable produced no addon errors, confirming the runtime boundary in the target client. Source regression coverage is present, but updated automated execution and the post-battleground resume check remain pending. No 0.6.6 tag has been authorized or published.
 
+## 0.6.6-beta release approval — 7 November 2026
+
+**Babuni:** confirmed live battleground suppression produced no addon errors, confirmed normal RoarForever behavior resumed after leaving, and explicitly approved `0.6.6-beta` for public beta publication.
+
+**AI contribution:** synchronized release metadata and verification records, preserved the immutable `v0.6.5-beta` boundary, and prepared the exact-commit automated test gate for the `v0.6.6-beta` tag.
+
+**Verification boundary:** battleground suppression and post-battleground resume are live-client verified. The final automated suite still must pass on the exact release commit before the public tag is created and pushed. CurseForge publication remains separate verification after the tag.
+
