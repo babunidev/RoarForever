@@ -114,11 +114,11 @@ Repeated group voices led me to prioritize dependable playback over distance fea
 
 ## 2026-11-06 — Preparing 0.6.5-beta
 
-After testing, the simpler playback seemed to be working well, and publication became my next step. AI reconciled the newer 0.6.4 release documentation with the local runtime change and prepared 0.6.5-beta. This records my general positive test report, not completion of every scenario in the checklist. Tagging and pushing remain the manual release step.
+After testing, the simpler playback seemed to be working well, and publication became my next step. AI reconciled the newer 0.6.4 release documentation with the local runtime change and prepared 0.6.5-beta. The annotated `v0.6.5-beta` tag was subsequently published on commit `aa2c73445838460f58af53d0f07239e213d0d828`. This records my general positive test report, not completion of every scenario in the checklist.
 
 ## 6 November 2026 — battlegrounds expose the faction-slash boundary
 
 A battleground run exposed a different kind of failure from the earlier duplicate-sound work: `/fta` reached Forever's protected `PerformEmote()` path through the addon's `DoEmote("FORTHEALLIANCE")` call. Wrapping that call in `pcall` had never made it safe; the restriction system blocks the action before ordinary Lua error handling matters.
 
-The correction I accepted removes `DoEmote` from the faction slash path entirely. The command still plays its restored voice and sends its custom announcement, while the existing hook can observe a direct player or macro `DoEmote` without RoarForever initiating one itself. My AI assistant traced the live stack, implemented the narrow change and added a regression that checks the slash never calls `DoEmote`. The updated automated suite and a battleground retest remain pending.
+The correction I accepted removes `DoEmote` from the faction slash path entirely. The command still plays its restored voice and sends its custom announcement, while the existing hook can observe a direct player or macro `DoEmote` without RoarForever initiating one itself. My AI assistant traced the live stack, implemented the narrow change and added a regression that checks the slash never calls `DoEmote`. Because 0.6.5-beta had already been published, this starts 0.6.6-beta development. The updated automated suite and a battleground retest remain pending.
 
