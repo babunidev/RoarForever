@@ -92,8 +92,11 @@ def boot(locale='enUS', saved=None):
                 return addonSendResult
             end,
         }
-        doEmoteCallsHook=true
-        function DoEmote(token) if doEmoteCallsHook and emoteHook then emoteHook(token) end end
+        doEmoteCallsHook=true; doEmoteCalls={}
+        function DoEmote(token)
+            doEmoteCalls[#doEmoteCalls+1]=token
+            if doEmoteCallsHook and emoteHook then emoteHook(token) end
+        end
         function hooksecurefunc(_,fn) emoteHook=fn end
         C_Timer={After=function(_,fn) timers[#timers+1]=fn end}
         function flush() local pending=timers; timers={}; for _,f in ipairs(pending) do f() end end
@@ -255,11 +258,11 @@ playerFaction='Alliance'; local beforeSent=#sent; local beforeSounds=#sounds
 SlashCmdList.ROARFOREVERFTH(); flush()
 assert(#sent==beforeSent and #sounds==beforeSounds)
 playerFaction='Horde'; now=112
-beforeAddon=#addonSent
+beforeAddon=#addonSent; local beforeDoEmote=#doEmoteCalls
 SlashCmdList.ROARFOREVERFTH()
 assert(#sent==beforeSent+1 and sent[#sent].text=='cheers for the Horde! For the Horde!' and sent[#sent].kind=='C_EMOTE')
 assert(#sounds==beforeSounds+1 and sounds[#sounds]==1387394)
-assert(#addonSent==beforeAddon)
+assert(#addonSent==beforeAddon and #doEmoteCalls==beforeDoEmote)
 -- Own announce must not double-play; nearby and grouped others play once from received chat.
 now=113; event('CHAT_MSG_EMOTE','cheers for the Horde! For the Horde!','Tester','Player-self'); flush(); assert(#sounds==beforeSounds+1)
 now=114; event('CHAT_MSG_EMOTE','cheers for the Horde! For the Horde!','Other','Player-other'); flush(); assert(#sounds==beforeSounds+2)
@@ -273,22 +276,23 @@ playerFaction='Horde'; beforeSent=#sent; beforeSounds=#sounds
 SlashCmdList.ROARFOREVERFTA()
 assert(#sent==beforeSent and #sounds==beforeSounds)
 playerFaction='Alliance'; now=117
-beforeAddon=#addonSent
+beforeAddon=#addonSent; beforeDoEmote=#doEmoteCalls
 SlashCmdList.ROARFOREVERFTA()
 assert(#sent==beforeSent+1 and sent[#sent].text=='cheers for the Alliance! For the Alliance!' and sent[#sent].kind=='C_EMOTE')
 assert(#sounds==beforeSounds+1 and sounds[#sounds]==1502109)
+assert(#doEmoteCalls==beforeDoEmote)
 -- Legacy packets cannot replay local faction cries, even with another display name.
 addon('RoarForever','1|E|forthealliance|HumanMale|1|||','PARTY','Different local display')
 assert(#sounds==beforeSounds+1 and #addonSent==beforeAddon)
 now=118; event('CHAT_MSG_EMOTE','cheers for the Alliance! For the Alliance!','Tester','Player-self'); flush(); assert(#sounds==beforeSounds+1)
 now=119; event('CHAT_MSG_EMOTE','cheers for the Alliance! For the Alliance!','Other','Player-other'); flush(); assert(#sounds==beforeSounds+2)
 now=120; event('CHAT_MSG_EMOTE','cheers for the Alliance! For the Alliance!','Friend','Player-friend'); flush(); assert(#sounds==beforeSounds+3)
--- Slash path must still announce when DoEmote is a silent no-op (no hook).
-doEmoteCallsHook=false; now=121; beforeSent=#sent; beforeSounds=#sounds; beforeAddon=#addonSent
+-- Slash path is independent of DoEmote entirely; disabling the hook must not matter.
+doEmoteCallsHook=false; now=121; beforeSent=#sent; beforeSounds=#sounds; beforeAddon=#addonSent; beforeDoEmote=#doEmoteCalls
 SlashCmdList.ROARFOREVERFTA()
 assert(#sent==beforeSent+1 and sent[#sent].kind=='C_EMOTE')
 assert(#sounds==beforeSounds+1)
-assert(#addonSent==beforeAddon) -- no addon transmission
+assert(#addonSent==beforeAddon and #doEmoteCalls==beforeDoEmote)
 doEmoteCallsHook=true
 
 -- Legacy COMM at any time/channel must never trigger sound. Text is authoritative.
@@ -338,12 +342,13 @@ UnitPosition=function() error('chat-only playback must not query coordinates') e
 now=143
 event('CHAT_MSG_TEXT_EMOTE','Friend Surname roars with bestial vigor. So fierce!','Friend Surname','Player-friend')
 assert(#sounds==before+2)
--- Direct faction macro and slash each invoke playback just once, even if DoEmote is slow.
+-- Slash never invokes protected DoEmote. A direct player/macro DoEmote call is
+-- still observed by the hook and restores the faction voice once.
 local originalDoEmote=DoEmote
 DoEmote=function(token) now=now+0.2; originalDoEmote(token); now=now+0.2 end
-now=150; before=#sounds
-SlashCmdList.ROARFOREVERFTA(); assert(#sounds==before+1)
-now=152; DoEmote('FORTHEALLIANCE'); assert(#sounds==before+2)
+now=150; before=#sounds; beforeDoEmote=#doEmoteCalls
+SlashCmdList.ROARFOREVERFTA(); assert(#sounds==before+1 and #doEmoteCalls==beforeDoEmote)
+now=152; DoEmote('FORTHEALLIANCE'); assert(#sounds==before+2 and #doEmoteCalls==beforeDoEmote+1)
 assert(#addonSent==0 and registeredPrefix==nil)
 -- Own roar is driven only by its chat event; arbitrary legacy echo names do nothing.
 now=154; before=#sounds
@@ -357,8 +362,8 @@ assert(#sounds==before+1)
 now=now+0.1
 event('CHAT_MSG_TEXT_EMOTE','You roar with bestial vigor. So fierce!','Tester','Player-self')
 assert(#sounds==before+2 and stopped[#stopped]==before+1)
--- A failing native faction token must not leave hook ownership stuck.
-DoEmote=function() error('unsupported native token') end
+-- Even if DoEmote would fail or be protected, the addon slash never calls it.
+DoEmote=function() error('protected or unsupported native token') end
 now=155; before=#sounds
 SlashCmdList.ROARFOREVERFTA(); assert(#sounds==before+1)
 DoEmote=originalDoEmote
