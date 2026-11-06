@@ -115,3 +115,15 @@ Roar Forever is the **WoW Forever voice-restoration project**, creatively relate
 
 **Version boundary:** `v0.6.5-beta` had already been published on commit `aa2c73445838460f58af53d0f07239e213d0d828` before this live battleground failure. The fix therefore belongs to 0.6.6-beta development. The updated suite and a live battleground retest remain pending.
 
+## 6 November 2026 — disable RoarForever runtime behavior in battlegrounds
+
+**Live evidence:** battleground testing produced repeated protected-action failures, including `ADDON_ACTION_BLOCKED` from a faction slash reaching protected `PerformEmote()` and a subsequent generic “Interface action failed because of an AddOn” message.
+
+**Decision:** treat battlegrounds as an intentionally unsupported runtime context. When `IsInInstance()` reports type `"pvp"`, RoarForever suppresses automatic restoration, restored audio, previews, raw sound tests, train/faction custom slash behavior, announcements, and `DoEmote` hook reactions. Entering a battleground stops any restored voice or preview already playing.
+
+**State behavior:** battleground suppression does not modify the saved enabled setting. Leaving the battleground automatically returns RoarForever to the state chosen by the player.
+
+**Reasoning:** the addon's purpose is voice restoration, not combat/PvP automation. A hard boundary is smaller, safer, and easier to verify than maintaining a growing set of battleground-specific protected-action exceptions.
+
+**Verification boundary:** Forever 1.60.1 documents `IsInInstance()` with `"pvp"` for battlegrounds. The implementation and mocked regression are present in 0.6.6-beta development; the updated automated suite and a live enter/leave battleground test remain pending.
+
