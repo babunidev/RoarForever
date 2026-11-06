@@ -10,7 +10,7 @@ def boot(locale='enUS', saved=None):
     lua.globals().testLocale = locale
     lua.execute('''
         frames={}; sounds={}; soundKits={}; sent={}; stopped={}; timers={}; addonSent={}; SlashCmdList={}; UISpecialFrames={}
-        now=100; grouped=false; playerPos={x=0,y=0,instanceID=0}; addonSendResult=0
+        now=100; grouped=false; playerPos={x=0,y=0,instanceID=0}; addonSendResult=0; instanceType='none'
         secretValues={}; secretChecks={}
         function issecretvalue(v)
             if v==nil then return false end
@@ -73,6 +73,7 @@ def boot(locale='enUS', saved=None):
         function UnitFactionGroup() return playerFaction end
         function IsInGroup() return grouped end
         function IsInRaid() return raided or false end
+        function IsInInstance() return instanceType~='none', instanceType end
         function UnitInParty(u) return u:match('^party')~=nil end
         function GetTime() return now end
         function UnitPosition() return playerPos.x, playerPos.y, 0, playerPos.instanceID end
@@ -368,6 +369,28 @@ now=155; before=#sounds
 SlashCmdList.ROARFOREVERFTA(); assert(#sounds==before+1)
 DoEmote=originalDoEmote
 now=156; DoEmote('FORTHEALLIANCE'); assert(#sounds==before+2)
+
+-- Battleground hard-disable: no restored playback, previews, custom slash action,
+-- announcements, raw test playback, or hook work while instance type is "pvp".
+instanceType='pvp'; now=157
+local bgSounds=#sounds; local bgSent=#sent; local bgDoEmote=#doEmoteCalls
+event('PLAYER_ENTERING_WORLD')
+event('CHAT_MSG_TEXT_EMOTE','Friend Surname roars with bestial vigor. So fierce!','Friend Surname','Player-friend')
+assert(#sounds==bgSounds)
+assert(not RF.Preview('roar') and #sounds==bgSounds)
+SlashCmdList.ROARFOREVER('test roar'); assert(#sounds==bgSounds)
+SlashCmdList.ROARFOREVER('id 539992'); assert(#sounds==bgSounds)
+SlashCmdList.ROARFOREVERTRAIN(); assert(#sounds==bgSounds and #sent==bgSent and #doEmoteCalls==bgDoEmote)
+SlashCmdList.ROARFOREVERFTA(); assert(#sounds==bgSounds and #sent==bgSent and #doEmoteCalls==bgDoEmote)
+SlashCmdList.ROARFOREVERFTH(); assert(#sounds==bgSounds and #sent==bgSent and #doEmoteCalls==bgDoEmote)
+DoEmote('FORTHEALLIANCE'); assert(#sounds==bgSounds and #sent==bgSent and #doEmoteCalls==bgDoEmote+1)
+
+-- Leaving the battleground automatically restores the prior enabled state.
+instanceType='none'; now=158
+event('PLAYER_ENTERING_WORLD')
+event('CHAT_MSG_TEXT_EMOTE','Friend Surname roars with bestial vigor. So fierce!','Friend Surname','Player-friend')
+assert(#sounds==bgSounds+1)
+
 -- All per-speaker state has a hard cap, then expires while idle.
 local speakerState=upvalue(CanPlayForSender,'SpeakerState')
 local states=upvalue(speakerState,'speakerStates')
@@ -404,4 +427,4 @@ assert(#sounds==before+22 and #sent==0)
 RoarForeverDB=true
 assert(RF.AddonEnabled() and RF.EmoteEnabled('joke'))
 ''')
-print(f'PASS: {count} translated templates; 7 locales; UI/settings/previews; native group exclusions; group roar and faction cries; protected faction-slash isolation; legacy packet timing/echo immunity; speaker exclusivity; bounded/idle cache cleanup; secret identity guards; detection regressions.')
+print(f'PASS: {count} translated templates; 7 locales; UI/settings/previews; native group exclusions; group roar and faction cries; protected faction-slash isolation; battleground hard-disable; legacy packet timing/echo immunity; speaker exclusivity; bounded/idle cache cleanup; secret identity guards; detection regressions.')
