@@ -2,17 +2,22 @@
 
 Release notes for the standalone player voice-emote sound addon.
 
-## 0.6.5-beta — prepared 2026-11-06
+## 0.6.6-beta — development
 
 - Fixed a live battleground `ADDON_ACTION_BLOCKED` error from `/fta`/`/fth`: addon faction-cry slash commands no longer call `DoEmote`, which Forever can route into protected `PerformEmote()`. They now own only the restored voice and custom announcement; direct player/macro `DoEmote` calls remain observation-only through the hook.
-- Added regression coverage that faction slash commands never invoke `DoEmote`, including when that function would fail or be protected. The updated suite still needs to be rerun after this fix.
-- Prepared locally for tagging and publication; no push performed by the assistant.
-- Remove COMM transmission, reception, distance checks, and delayed text fallbacks. Received chat emotes now provide the sole remote trigger, eliminating late-packet double playback, split COMM/text speaker identities, and identical-payload echo collisions.
-- Preserve native self/group exclusions, restored group roar, Skyborne exceptions, faction cries, previews, localization, and settings. Silent custom announcements no longer provide remote restoration.
-- Replace accumulating event/cooldown/handle maps with one bounded 128-speaker store, pruned every five seconds after 60 seconds idle. Eviction stops the stored handle.
-- Separate faction slash behavior from direct `DoEmote` observation; faction slashes never invoke the protected emote API. Allow congratulations involving names containing “ding.”
-- Remove obsolete COMM/position/SoundKit diagnostics; retain `/rf debugplay`.
-- Babuni directed a reliability-first simplification and local-only testing/commit. AI implemented the changes and regression coverage. The earlier mocked Lua 5.1 suite passed before the battleground protected-action fix; the updated suite must be rerun. Babuni reports the simplified version otherwise seems to be working well after testing; individual checklist scenarios have not all been separately confirmed.
+- Added regression coverage that faction slash commands never invoke `DoEmote`, including when that function would fail or be protected.
+- Updated automated regression execution and a live battleground retest remain pending.
+
+## 0.6.5-beta — 2026-11-06
+
+> **Publication:** annotated tag `v0.6.5-beta` points to commit `aa2c73445838460f58af53d0f07239e213d0d828`. The later battleground protected-action fix is not part of this immutable tag.
+
+- Removed COMM transmission, reception, distance checks, and delayed text fallbacks. Received chat emotes became the sole remote trigger, eliminating late-packet double playback, split COMM/text speaker identities, and identical-payload echo collisions.
+- Preserved native self/group exclusions, restored group roar, Skyborne exceptions, faction cries, previews, localization, and settings. Silent custom announcements no longer provide remote restoration.
+- Replaced accumulating event/cooldown/handle maps with one bounded 128-speaker store, pruned every five seconds after 60 seconds idle. Eviction stops the stored handle.
+- Guarded faction slash/hook reentrancy explicitly and allowed congratulations involving names containing “ding.”
+- Removed obsolete COMM/position/SoundKit diagnostics; retained `/rf debugplay`.
+- Babuni directed the reliability-first simplification. AI implemented the changes and regression coverage. Mocked Lua 5.1 tests passed before publication; Babuni reported the simplified version seemed to be working well after testing, while individual checklist scenarios remained separately tracked.
 
 ## 0.6.4-beta — 2026-11-05
 
