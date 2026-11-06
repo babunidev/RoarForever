@@ -122,3 +122,11 @@ A battleground run exposed a different kind of failure from the earlier duplicat
 
 The correction I accepted removes `DoEmote` from the faction slash path entirely. The command still plays its restored voice and sends its custom announcement, while the existing hook can observe a direct player or macro `DoEmote` without RoarForever initiating one itself. My AI assistant traced the live stack, implemented the narrow change and added a regression that checks the slash never calls `DoEmote`. Because 0.6.5-beta had already been published, this starts 0.6.6-beta development. The updated automated suite and a battleground retest remain pending.
 
+## 6 November 2026 — drawing a hard line around battlegrounds
+
+Another battleground attempt still produced the game's generic “Interface action failed because of an AddOn” warning. At that point the useful decision was no longer to keep shaving individual protected calls away. RoarForever exists to restore character voices, and there is no benefit in letting that work touch a context where Forever applies stricter PvP restrictions.
+
+The boundary I chose is simple: while the client reports a battleground instance, the addon does nothing that can affect gameplay or sound. Restored voices, previews, tests, custom train and faction commands, announcements and emote-hook reactions are all suppressed, and any restored voice already playing is stopped when the battleground loads. The saved on/off choice remains untouched so ordinary behavior returns after leaving.
+
+Technical verification with my AI assistant covered the Forever 1.60.1 instance API, the central battleground gate, and a simulated enter/leave regression. Automated execution of that updated test and a live battleground retest remain pending.
+
