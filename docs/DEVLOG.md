@@ -128,5 +128,5 @@ Another battleground attempt still produced the game's generic “Interface acti
 
 The boundary I chose is simple: while the client reports a battleground instance, the addon does nothing that can affect gameplay or sound. Restored voices, previews, tests, custom train and faction commands, announcements and emote-hook reactions are all suppressed, and any restored voice already playing is stopped when the battleground loads. The saved on/off choice remains untouched so ordinary behavior returns after leaving.
 
-Technical verification with my AI assistant covered the Forever 1.60.1 instance API, the central battleground gate, and a simulated enter/leave regression. Automated execution of that updated test and a live battleground retest remain pending.
+Technical verification with my AI assistant covered the Forever 1.60.1 instance API, the central battleground gate, and a simulated enter/leave regression. Live battleground testing then produced no addon errors, confirming the hard-disable works in the target context. Automated execution of the updated regression and the resume-after-leaving check remain pending.
 
