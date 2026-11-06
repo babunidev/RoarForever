@@ -105,3 +105,13 @@ Roar Forever is the **WoW Forever voice-restoration project**, creatively relate
 
 **Verification boundary:** regression cases now replay locally generated grouped roar and faction-cry packets through `CHAT_MSG_ADDON` with deliberately different sender text. Automated execution and live group verification remain pending.
 
+## 6 November 2026 — faction slashes must not invoke protected emote APIs
+
+**Live evidence:** using `/fta` in a battleground produced `ADDON_ACTION_BLOCKED` because RoarForever called `DoEmote("FORTHEALLIANCE")`, which Forever routed into protected `PerformEmote()`.
+
+**Decision:** `/fta`, `/fth`, and their long forms never call `DoEmote`. The addon slash path owns only the restored local voice and custom announcement. The existing `DoEmote` hook remains observation-only for a direct player/macro call that reaches it.
+
+**Reasoning:** `pcall` cannot authorize a protected action, and Forever does not currently wire native faction-cry emote tokens anyway. Removing the addon-initiated emote call preserves the useful behavior while eliminating the protected battleground action.
+
+**Verification boundary:** the fix and mocked regression are implemented in 0.6.5-beta development. The updated suite and a live battleground retest remain pending.
+
