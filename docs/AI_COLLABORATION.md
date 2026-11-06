@@ -100,3 +100,11 @@ Roar Forever is the **WoW Forever voice-restoration project**, creatively relate
 
 **Version and verification boundary:** `v0.6.5-beta` was already published on commit `aa2c73445838460f58af53d0f07239e213d0d828`, so this source fix belongs to 0.6.6-beta development. The live failure is confirmed evidence for the diagnosis; updated automated and live battleground verification are pending.
 
+## Battleground hard-disable — 6 November 2026
+
+**Babuni:** after another live battleground “Interface action failed because of an AddOn” warning, decided RoarForever should be disabled entirely in battlegrounds rather than continue accumulating PvP-specific exceptions.
+
+**AI contribution:** verified the Forever 1.60.1 `IsInInstance()` battleground classification, implemented a central `"pvp"` runtime gate across restoration, previews, tests, custom slash behavior, announcements and emote hooks, stopped active restored sounds on battleground entry, preserved the saved user setting, and added an enter/leave battleground regression.
+
+**Verification boundary:** source implementation and regression coverage are present in 0.6.6-beta development. Updated automated execution and live battleground verification remain pending; no 0.6.6 tag has been authorized or published.
+
