@@ -4,15 +4,16 @@
 
 ## Current state
 
-Published tag **v0.6.5-beta** points to `aa2c73445838460f58af53d0f07239e213d0d828` and contains the chat-only remote playback simplification. Current **0.6.6-beta development** fixes the later live battleground `/fta` protected-action failure by keeping addon faction slashes off `DoEmote`/`PerformEmote`. Updated automated and live battleground verification are pending; no 0.6.6 tag is approved or published.
+Published tag **v0.6.5-beta** points to `aa2c73445838460f58af53d0f07239e213d0d828` and contains the chat-only remote playback simplification. Current **0.6.6-beta development** responds to live battleground protected-action failures by disabling RoarForever runtime behavior entirely whenever the instance type is `"pvp"`. Updated automated and live battleground verification are pending; no 0.6.6 tag is approved or published.
 
 ## Live acceptance checklist
 
 - [ ] Solo, party and raid: self roar and another member's roar play once; Skyborne native exceptions remain correct.
 - [ ] Train remains native for self/group; nearby outsiders restore its announcement once.
 - [ ] Faction cries play once from slash and direct DoEmote macro, including own echoed chat; group listeners hear one voice.
-- [ ] Battleground: `/fta` and `/fth` play/announce without `ADDON_ACTION_BLOCKED` or a `PerformEmote()` protected-action report.
-- [ ] Rerun Lua 5.1 simulations and confirm `protected faction-slash isolation` in the PASS line.
+- [ ] Battleground: RoarForever produces no restored sound, preview, announcement, custom slash action, or hook reaction, and no protected-action report.
+- [ ] Leave the battleground and confirm the previous saved enabled state resumes automatically.
+- [ ] Rerun Lua 5.1 simulations and confirm `battleground hard-disable` in the PASS line.
 - [ ] Repeat an emote: it replaces that speaker's voice; two different speakers can overlap.
 - [ ] Move beyond chat delivery range; remote restoration stops. Check indoors and restricted maps.
 - [ ] Disable announcements: custom local voices remain, remote restoration has no announcement trigger.
