@@ -6,10 +6,10 @@ Release notes for the standalone player voice-emote sound addon.
 
 - Disable RoarForever runtime behavior entirely inside battleground instances (`IsInInstance()` type `"pvp"`). Chat restoration, previews, `/rf test`, raw ID playback, `/train`, faction-cry slashes, announcements, and DoEmote-hook reactions are suppressed there; entering a battleground also stops any restored sound already playing.
 - Preserve the user's saved enabled/disabled setting while suppressed so normal behavior resumes automatically after leaving the battleground.
-- Added regression coverage for the battleground hard-disable and automatic restoration after returning to a non-PvP instance context. Updated automated execution and live battleground verification remain pending.
+- Added regression coverage for the battleground hard-disable and automatic restoration after returning to a non-PvP instance context. Live battleground testing now confirms the addon produces no errors there; updated automated execution remains pending.
 - Fixed a live battleground `ADDON_ACTION_BLOCKED` error from `/fta`/`/fth`: addon faction-cry slash commands no longer call `DoEmote`, which Forever can route into protected `PerformEmote()`. They now own only the restored voice and custom announcement; direct player/macro `DoEmote` calls remain observation-only through the hook.
 - Added regression coverage that faction slash commands never invoke `DoEmote`, including when that function would fail or be protected.
-- Updated automated regression execution and a live battleground retest remain pending.
+- Live battleground retesting after the hard-disable reports no errors. Updated automated regression execution remains pending.
 
 ## 0.6.5-beta — 2026-11-06
 
