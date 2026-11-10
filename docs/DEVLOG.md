@@ -136,3 +136,15 @@ The battleground boundary now has both sides of the live check behind it. RoarFo
 
 The release remains gated on one final automated run against the exact release commit. Technical release preparation with my AI assistant covers the battleground hard-disable, protected faction-slash isolation, version boundary, regression coverage and publication records. The annotated tag should only be created after that exact commit passes the updated suite.
 
+## 11 November 2026 — Sky Elf roars for everyone
+
+A report from Zephyrus Isle said Sky Elf players could no longer hear each other's roars. The addon had been leaving Skyborne `/roar` to the game since 0.5.2, for the person roaring and for anyone in their party or raid, on the belief that Forever already played it. That belief does not match what players are hearing now.
+
+The correction drops that exception. A Sky Elf roar is restored the same way as every other race: for yourself, for your group, and for nearby players. My AI assistant removed the voice-key check and updated the regression that used to require those roars to stay silent. A live listen with two Sky Elf characters is still the check that matters.
+
+## 11 November 2026 — publishing 0.6.7-beta
+
+The GitHub page had fallen behind the tags. It still described 0.6.6-beta as waiting for a tag, and the newest GitHub release download was 0.5.1. The public notes now name 0.6.7-beta as the current release and point installers at the four-file package rather than the development repository.
+
+The install rule stays the one set for 0.6.2-beta: CurseForge excludes the documentation and tests, and the GitHub release file is the same four runtime files. My AI assistant corrected the release notes, checked the package list, and prepared the annotated tag. CurseForge's own generated archive still needs a look after it finishes processing.
+

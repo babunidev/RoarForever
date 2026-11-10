@@ -42,7 +42,7 @@ Keep announcements enabled if you want nearby addon users to restore your train 
 
 One tracked sound per speaker replaces that speaker's previous restored voice. Different speakers can overlap. State is capped at 128 speakers; the least recently active speaker is evicted at capacity. Every five seconds, records idle for at least 60 seconds are removed and their handles stopped. There is no network-event cache. Preview pools are finite and independent.
 
-Roar Forever does not replay your own normal voiced emotes, because the client already plays those. `/roar` remains the self exception for races that have no client roar; Skyborne already have a native self roar and are left to the game. In a party or raid, most ordinary group voices are left to the client, but `/roar` remains restored by RoarForever because a live addon-off check confirmed Forever provides no group roar sound. Faction cries remain addon-driven because Forever does not natively wire them. Nearby players who are not in your group still get the restored set.
+Roar Forever does not replay your own normal voiced emotes, because the client already plays those. `/roar` is restored for your own character, your group, and nearby players of every race, including Skyborne. In a party or raid, most ordinary group voices are left to the client. Faction cries remain addon-driven because Forever does not natively wire them. Nearby players who are not in your group still get the restored set.
 
 Someone who is not using Roar Forever can still `/train` without sending a line, so there is nothing for the addon to hear unless they use a distinctive announce. The same is true for faction cries without the distinctive chat line.
 
@@ -101,7 +101,7 @@ The journal distinguishes source-based reconstruction, author direction, AI assi
 
 ## Documentation audit #33 — 27 October 2026
 
-The current source declares **0.6.5-beta** (Interface 16001). Its historical documentation records the evolution from local missing-voice restoration to configured emote categories, multiplayer COMM, text fallback and distance-based suppression. These are separate from *verified volume attenuation*, which depends on verified SoundKitID mappings. The existing client audio is not authored by the addon.
+This audit is historical. The current release is **0.6.7-beta** (Interface 16001). The audit records the evolution from local missing-voice restoration to configured emote categories, multiplayer COMM, text fallback and distance-based suppression. These are separate from *verified volume attenuation*, which depends on verified SoundKitID mappings. The existing client audio is not authored by the addon.
 
 Expanded portfolio documentation: [interaction design](docs/DESIGN.md), [content/audio provenance](docs/CONTENT.md), [architecture](docs/ARCHITECTURE.md), [decisions](docs/DECISIONS.md), [development history](docs/DEVLOG.md) and [human–AI collaboration](docs/AI_COLLABORATION.md). This audit is documentation-only; no client tests were run.
 

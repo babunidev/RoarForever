@@ -246,13 +246,13 @@ now=106; event('CHAT_MSG_TEXT_EMOTE','Friend cheers!','Friend','Player-stranger'
 -- Self/group roar still plays for races without a client roar.
 now=107; event('CHAT_MSG_TEXT_EMOTE','You roar with bestial vigor. So fierce!','Tester','Player-self'); assert(#sounds==8)
 now=108; event('CHAT_MSG_TEXT_EMOTE','Friend roars with bestial vigor. So fierce!','Friend','Player-friend'); flush(); assert(#sounds==9)
--- Skyborne already have a client roar: leave self and group to the game.
+-- Skyborne roar follows the same rule as every other race.
 guidRace['Player-self']='Skyborne'; guidRace['Player-friend']='Skyborne'
-now=109; event('CHAT_MSG_TEXT_EMOTE','You roar with bestial vigor. So fierce!','Tester','Player-self'); assert(#sounds==9)
-now=110; event('CHAT_MSG_TEXT_EMOTE','Friend roars with bestial vigor. So fierce!','Friend','Player-friend'); flush(); assert(#sounds==9)
+now=109; event('CHAT_MSG_TEXT_EMOTE','You roar with bestial vigor. So fierce!','Tester','Player-self'); assert(#sounds==10)
+now=110; event('CHAT_MSG_TEXT_EMOTE','Friend roars with bestial vigor. So fierce!','Friend','Player-friend'); flush(); assert(#sounds==11)
 -- Nearby non-grouped Skyborne roar is still restored.
 guidRace['Player-stranger']='Skyborne'
-now=111; event('CHAT_MSG_TEXT_EMOTE','Friend roars with bestial vigor. So fierce!','Friend','Player-stranger'); flush(); assert(#sounds==10)
+now=111; event('CHAT_MSG_TEXT_EMOTE','Friend roars with bestial vigor. So fierce!','Friend','Player-stranger'); flush(); assert(#sounds==12)
 -- /forthehorde: Horde orc plays locally via DoEmote hook; Alliance is refused.
 guidRace['Player-self']='Orc'; guidRace['Player-friend']='Orc'; guidRace['Player-stranger']='Orc'; guidRace['Player-other']='Orc'
 playerFaction='Alliance'; local beforeSent=#sent; local beforeSounds=#sounds

@@ -106,7 +106,7 @@ Roar Forever is the **WoW Forever voice-restoration project**, creatively relate
 
 **AI contribution:** verified the Forever 1.60.1 `IsInInstance()` battleground classification, implemented a central `"pvp"` runtime gate across restoration, previews, tests, custom slash behavior, announcements and emote hooks, stopped active restored sounds on battleground entry, preserved the saved user setting, and added an enter/leave battleground regression.
 
-**Verification boundary:** live battleground testing after the hard-disable produced no addon errors, confirming the runtime boundary in the target client. Source regression coverage is present, but updated automated execution and the post-battleground resume check remain pending. No 0.6.6 tag has been authorized or published.
+**Verification boundary:** live battleground testing after the hard-disable produced no addon errors, confirming the runtime boundary in the target client. Source regression coverage is present. Annotated tag `v0.6.6-beta` was later published on commit `01d0059485dc62e81e8600de740631e65edd7188`.
 
 ## 0.6.6-beta release approval — 7 November 2026
 
@@ -115,4 +115,20 @@ Roar Forever is the **WoW Forever voice-restoration project**, creatively relate
 **AI contribution:** synchronized release metadata and verification records, preserved the immutable `v0.6.5-beta` boundary, and prepared the exact-commit automated test gate for the `v0.6.6-beta` tag.
 
 **Verification boundary:** battleground suppression and post-battleground resume are live-client verified. The final automated suite still must pass on the exact release commit before the public tag is created and pushed. CurseForge publication remains separate verification after the tag.
+
+## Skyborne roar restoration — 11 November 2026
+
+**Babuni:** reported that Sky Elf players could not hear each other's roars, rejected the assumption that the client still plays a native Skyborne roar, and directed that everyone should hear everyone.
+
+**AI contribution:** removed the self and group Skyborne `/roar` skip from `ShouldRestoreFromText`, updated the regression to expect those roars to play, and recorded the 0.6.7-beta behavior change.
+
+**Verification boundary:** mocked Lua coverage expects one playback each for a Skyborne self roar, a grouped Skyborne roar, and a nearby Skyborne roar. Live two-character listening remains pending. No claim is made that a client patch on this date removed the native file.
+
+## 0.6.7-beta publication — 11 November 2026
+
+**Babuni:** directed the public beta tag and required that an addon install contain only the files WoW loads.
+
+**AI contribution:** corrected the GitHub-facing release status, kept the CurseForge `.pkgmeta` ignore list limited to development files, and prepared a release archive of `RoarForever.toc`, `Locales.lua`, `RoarForever.lua`, and `Options.lua`.
+
+**Verification boundary:** the archive listing is the packaging check. CurseForge's generated download still has to be inspected after the tag is processed. Live Sky Elf listening remains pending.
 

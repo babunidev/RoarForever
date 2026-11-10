@@ -2,17 +2,22 @@
 
 Release notes for the standalone player voice-emote sound addon.
 
+## 0.6.7-beta — 2026-11-11
+
+- Sky Elf `/roar` plays again for you, your party, and your raid. The addon no longer assumes the game already plays that roar.
+- Nearby Sky Elf roars were already restored and still are.
+
 ## 2026-11-10 — Documentation readability
 
 - Reorganized the README around installation, voice restoration and commands; preserved full emote behavior and compatibility detail in `docs/EMOTE_REFERENCE.md`. No game-client code or sound mapping changed.
 
 ## 0.6.6-beta — 2026-11-07
 
-> **Release status:** approved by Babuni for public beta publication. Create the annotated tag only after the updated automated suite passes on the exact release commit.
+> **Publication:** annotated tag `v0.6.6-beta` points to commit `01d0059485dc62e81e8600de740631e65edd7188`.
 
 - Disable RoarForever runtime behavior entirely inside battleground instances (`IsInInstance()` type `"pvp"`). Chat restoration, previews, `/rf test`, raw ID playback, `/train`, faction-cry slashes, announcements, and DoEmote-hook reactions are suppressed there; entering a battleground also stops any restored sound already playing.
 - Preserve the user's saved enabled/disabled setting while suppressed so normal behavior resumes automatically after leaving the battleground.
-- Added regression coverage for the battleground hard-disable and automatic restoration after returning to a non-PvP instance context. Live testing confirms both clean battleground suppression and normal operation after leaving; the final automated suite must pass on the exact release commit before tagging.
+- Added regression coverage for the battleground hard-disable and automatic restoration after returning to a non-PvP instance context. Live testing confirms both clean battleground suppression and normal operation after leaving.
 - Fixed a live battleground `ADDON_ACTION_BLOCKED` error from `/fta`/`/fth`: addon faction-cry slash commands no longer call `DoEmote`, which Forever can route into protected `PerformEmote()`. They now own only the restored voice and custom announcement; direct player/macro `DoEmote` calls remain observation-only through the hook.
 - Added regression coverage that faction slash commands never invoke `DoEmote`, including when that function would fail or be protected.
 - Live battleground retesting after the hard-disable reports no errors, and normal addon behavior resumes after leaving the battleground.

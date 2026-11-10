@@ -907,10 +907,6 @@ local function IsLocalPlayer(sender, guid)
     return UnitMatchesSender("player", wanted, guid)
 end
 
-local function IsSkyborneVoiceKey(voiceKey)
-    return type(voiceKey) == "string" and string.sub(voiceKey, 1, 8) == "Skyborne"
-end
-
 local function CanPlayForSender(sender, guid, emoteName)
     local state = SpeakerState(SpeakerKey(sender, guid))
     local now = GetTime()
@@ -947,13 +943,6 @@ local function ShouldRestoreFromText(emoteName, sender, guid)
         end
     elseif emoteName ~= "roar" and isSelfOrGroup then
         return false
-    end
-
-    if emoteName == "roar" and isSelfOrGroup then
-        local voiceKey = GetSenderVoiceKey(sender, guid)
-        if IsSkyborneVoiceKey(voiceKey) then
-            return false
-        end
     end
 
     return true

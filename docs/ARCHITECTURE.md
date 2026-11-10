@@ -2,9 +2,11 @@
 
 **Author:** Babuni.dev
 
-## Current local revision — 2026-11-06
+## Current local revision — 2026-11-11
 
-Babuni requested reliable group playback, low memory use, and a local-only commit before live testing, permitting removal of distance handling. The implemented simplification removes COMM and the delayed fallback altogether: chat receipt is the only remote playback trigger. Old peer packets are ignored. Custom announcement settings now also determine whether remote users receive a restoration trigger; native client audio remains outside addon control.
+**0.6.7-beta** restores `/roar` for every race, including Skyborne, for the local player, party and raid members, and nearby players. Chat receipt remains the only remote playback trigger. Inside a battleground the addon does nothing. The player package is `RoarForever.toc`, `Locales.lua`, `RoarForever.lua`, and `Options.lua`.
+
+The 2026-11-06 simplification still stands: COMM and the delayed fallback are gone. Old peer packets are ignored. Custom announcement settings determine whether remote users receive a restoration trigger for `/train` and the faction cries. Native client audio remains outside addon control.
 
 Speaker GUID (or available plain sender name) keys one store containing the sound handle, last activity, and per-emote cooldowns. The store has a hard limit of 128 speakers, evicts the oldest at capacity, and removes entries idle for 60 seconds on a five-second cleanup interval. Eviction stops the handle. Faction slash handling explicitly suppresses its nested DoEmote hook, while direct macros still use that hook. Congratulations matching no longer excludes names containing “ding.”
 

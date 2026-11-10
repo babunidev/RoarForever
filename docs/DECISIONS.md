@@ -127,3 +127,21 @@ Roar Forever is the **WoW Forever voice-restoration project**, creatively relate
 
 **Verification boundary:** Forever 1.60.1 documents `IsInInstance()` with `"pvp"` for battlegrounds. The implementation and mocked regression are present in 0.6.6-beta development; the updated automated suite and a live enter/leave battleground test remain pending.
 
+## 11 November 2026 — restore Skyborne roar for everyone
+
+**Report:** Sky Elf players on Zephyrus Isle could not hear each other's `/roar`. Babuni directed that everyone should hear everyone, and no longer assumes the client still plays a native Skyborne roar.
+
+**Decision:** remove the 0.5.2 exception that skipped Skyborne `/roar` for the local player and for party or raid members. Skyborne roar now follows the same rule as every other race: self, group, and nearby text emotes are restored. Other emotes stay left to the client for yourself and your group.
+
+**Reasoning:** the exception existed only to avoid doubling a client roar. A later live check already showed Forever does not play group roar, and the new report is silence between Sky Elves rather than a double. Keeping the skip makes those players hear nothing.
+
+**Verification boundary:** the mocked regression now expects a Skyborne self roar, a grouped Skyborne roar, and a nearby Skyborne roar each to play once. A live listen with two Sky Elf characters is still pending. This does not claim the client removed the sound on a particular date.
+
+## 11 November 2026 — publish 0.6.7-beta with a runtime-only install
+
+**Decision:** tag `v0.6.7-beta` and publish the GitHub release from the player-facing 0.6.7 changelog notes. Installers get `RoarForever.toc`, `Locales.lua`, `RoarForever.lua`, and `Options.lua` only. Development documents stay in the Git repository and out of the addon folder.
+
+**Reasoning:** `v0.6.6-beta` already exists on commit `01d0059485dc62e81e8600de740631e65edd7188`, but the GitHub release list still offered 0.5.1 as the latest download and the README still called 0.6.6 a release candidate. Players who copy the repository into AddOns also receive documentation and tests the game does not load.
+
+**Verification boundary:** `.pkgmeta` continues to ignore those development files for CurseForge. The GitHub asset is a separate zip built from the same four files. CurseForge processing of this tag remains a later check.
+

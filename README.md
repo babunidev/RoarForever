@@ -2,22 +2,26 @@
 
 Roar Forever restores missing character voice sounds when players use emotes in **World of Warcraft Forever**. It uses voice files already present in the game client—no additional voice pack is required.
 
-**Creative direction:** Babuni · **Target:** Forever 1.60.1, Interface `16001` · **Settings:** account-wide `RoarForeverDB`
+**Creative direction:** Babuni · **Current release:** 0.6.7-beta · **Target:** Forever 1.60.1, Interface `16001` · **Settings:** account-wide `RoarForeverDB`
 
 ## What you hear
 
 The addon listens for supported emotes and plays the corresponding character voice when Forever does not reliably play it. It covers `/roar`, `/cheer`, `/laugh`, `/joke`, `/train`, the faction cries and a range of other familiar calls.
 
+`/roar` is restored for every race, including Sky Elves, whether the roar is yours, a party or raid member's, or a nearby player's. Most other standard emotes play for nearby players who are not in your group. Your own ordinary emotes, and those of your group, stay with the game.
+
 Most standard emotes work when another player uses them, even if that player does not have Roar Forever installed. Custom train and faction cries rely on a recognizable optional chat announcement for other addon users to hear them.
 
-The audio is **local**. It does not send addon packets, and the current chat-driven design lets the game determine which nearby emotes reach your client. It does not promise simulated distance-based volume fading or sound from players whose chat event is unavailable.
+The audio is **local**. It does not send addon packets, and the current chat-driven design lets the game determine which nearby emotes reach your client. It does not promise simulated distance-based volume fading or sound from players whose chat event is unavailable. Inside a battleground the addon stays off and resumes after you leave.
 
 See the [complete emote list and behavior](docs/EMOTE_REFERENCE.md).
 
 ## Install
 
-1. Extract the available `RoarForever.zip` into `World of Warcraft/_forever_/Interface/AddOns/`.
-2. Make sure the `RoarForever` directory contains `RoarForever.toc`, `Locales.lua`, `RoarForever.lua` and `Options.lua`.
+Download `RoarForever.zip` from CurseForge or from the assets on the GitHub release. Do not install the GitHub source archive; that download is the development repository.
+
+1. Extract `RoarForever.zip` into `World of Warcraft/_forever_/Interface/AddOns/`.
+2. Make sure the `RoarForever` directory contains only `RoarForever.toc`, `Locales.lua`, `RoarForever.lua` and `Options.lua`.
 3. Restart the game and enable the addon.
 
 No external library, account-specific folder link or separate language download is required.
@@ -39,15 +43,15 @@ Type `/rf` or `/rf config` to open the movable options window. From there, enabl
 
 ## Version and verification
 
-The existing documentation describes multiple beta milestones through a **0.6.6-beta release candidate**, including the shift from addon COMM messages to received chat events as remote triggers. Individual tags, client tests and CurseForge publication did not all happen together.
+**0.6.7-beta** is the current release. It restores Sky Elf `/roar` for you and for other players. **0.6.6-beta** is the tagged battleground release on commit `01d0059485dc62e81e8600de740631e65edd7188`.
 
-A battleground safeguard was tested live: Roar Forever disables itself in battleground instances to avoid protected-action failures and resumes outside them. This result does not mean that every sound, race, language or instance has been fully tested.
+A battleground safeguard was tested live: Roar Forever disables itself in battleground instances to avoid protected-action failures and resumes outside them. This result does not mean that every sound, race, language or instance has been fully tested. A live listen with two Sky Elf characters is still pending.
 
-For authoritative historical dates and versions, consult [CHANGELOG.md](CHANGELOG.md), [the technical reference](docs/EMOTE_REFERENCE.md) and the [development journal](docs/DEVLOG.md). Do not treat a prepared candidate or Git tag as proof of a CurseForge release.
+For authoritative historical dates and versions, consult [CHANGELOG.md](CHANGELOG.md), [the technical reference](docs/EMOTE_REFERENCE.md) and the [development journal](docs/DEVLOG.md). A Git tag is not by itself proof that CurseForge has finished publishing the file.
 
 ## Development and documentation
 
-Run `python tests/test_addon.py` with the `lupa` package available to execute the Lua-mock checks. These are simulated WoW API tests, not confirmation of actual in-game audio or settings persistence.
+Run `python tests/test_addon.py` with the `lupa` package available to execute the Lua-mock checks. These are simulated WoW API tests, not confirmation of actual in-game audio or settings persistence. Tests and these documents are excluded from the install archive.
 
 | Topic | Read |
 | --- | --- |
