@@ -2,6 +2,10 @@
 
 Release notes for the standalone player voice-emote sound addon.
 
+## 2026-11-10 — Documentation readability
+
+- Reorganized the README around installation, voice restoration and commands; preserved full emote behavior and compatibility detail in `docs/EMOTE_REFERENCE.md`. No game-client code or sound mapping changed.
+
 ## 0.6.6-beta — 2026-11-07
 
 > **Release status:** approved by Babuni for public beta publication. Create the annotated tag only after the updated automated suite passes on the exact release commit.
