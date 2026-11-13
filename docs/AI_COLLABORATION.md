@@ -1,5 +1,7 @@
 # RoarForever — Human–AI Collaboration and Provenance
 
+Follow [the documentation standard](DOCUMENTATION.md) for first-person author voice throughout project documentation, factual changelogs, and naming the AI tool and verified model for each contribution.
+
 **Human creative and direction:** Babuni
 
 ## Project direction
