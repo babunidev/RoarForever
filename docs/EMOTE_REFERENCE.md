@@ -4,7 +4,7 @@ This reference keeps the full emote command list, detection behavior, language s
 
 ## Options and previews
 
-Open `/rf` or `/rf config` for a movable Warcraft-style menu. Toggle individual emote categories, enable or disable the addon, and choose whether restored emotes send their extra chat messages (`/train`, `/forthehorde`, `/forthealliance`). Aliases such as `/flee` and `/retreat` share one switch.
+Open `/rf` or `/rf config` for a movable Warcraft-style menu. Toggle individual emote categories, enable or disable the addon, and choose whether restored emotes send their extra chat messages (`/train`, `/forthehorde`, `/forthealliance`, and a form `/roar`). Aliases such as `/flee` and `/retreat` share one switch. Hello, bye, bear roar, cat roar, spirit wolf, aquatic form, moonkin, and cheetah are ordinary rows.
 
 Each speaker button plays one randomly selected sound for that emote from all mapped races and genders. It does not use only your character's voice. Previews work even if that emote or the addon is switched off, never send chat, and stop the previous preview when you choose another.
 
@@ -19,6 +19,8 @@ These switches control which built-in game voice-emote sounds Roar Forever resto
 - `/moo` — restores the dedicated Tauren male/female moo for other players. Other races have no dedicated player-character moo voice file.
 - `/flee` / `/retreat` — restores the flee voice for other players. Retreat uses the same voice as flee.
 - `/welcome` — restores the race/sex-specific welcome for other players.
+- `/hello` / `/hi` — restores the hearty-hello voice for nearby players who are not in your group. You and your group stay with the game.
+- `/bye` / `/goodbye` / `/farewell` — restores the farewell voice for nearby players who are not in your group. `/greet` and `/wave` have no voice files in this client.
 - `/yes` / `/no` — restores the race/sex-specific yes and no voices for other players.
 - `/healme` — restores the race/sex-specific call for healing for other players.
 - `/rasp` — restores the raspberry voice for other players. `/rude` uses the same line.
@@ -30,6 +32,7 @@ These switches control which built-in game voice-emote sounds Roar Forever resto
 - `/congrats` / `/congratulate` — restores a random congratulations line for other players.
 - `/followme` — restores the follow-me voice for other players.
 - `/whistle` — restores the whistle for other players.
+- `/roar` in bear form (`5487`), dire bear form (`9634`), cat form (`768`), ghost wolf (`2645`), aquatic form (`1066`), moonkin form (`24858`), or travel form (`783`) — a typed `/roar` does not send the normal roar sentence. It sends one English line in every client language: `roars like a bear.`, `roars like a cat.`, `howls like a spirit wolf.`, `gurgles like a murloc.`, `hoots like a moonkin.`, or `roars like a cheetah.` The creature sounds are bear aggro `544959`, cat aggro `545949`, wolf aggro `564222`, the classic murloc aggro `556000`, the Darkshore moonkin aggro `549235`, and the tiger aggro `562387` for the cheetah. Other Roar Forever users match that exact line and play the creature sound, including party and raid members. Your own returning line is ignored so it does not play twice. With announcements off, you still hear your own form sound and other players have no line to recognize. Turning the form row off, or turning the addon off, falls back to a normal `/roar`. A macro or emote button that calls `DoEmote("ROAR")` directly still sends the normal roar sentence. Inside a battleground, `/roar` stays a normal roar and sends no form line.
 - `/train` — Roar Forever takes over `/train`, plays the normal choo-choo, and can announce "blows a train whistle. Choo choo!" Other Roar Forever users restore train when they receive its chat announcement and the game does not already play it. In a party or raid, group-member train stays with the native client sound (no addon double).
 - `/forthehorde` / `/fth` — Horde-only. Plays the race/sex “For the Horde!” voice and optional announce line. Other Roar Forever users hear it when they receive its chat announcement, including in a party or raid.
 - `/forthealliance` / `/fta` — Alliance-only. Same behavior with the “For the Alliance!” voices. Forever does not currently wire either native faction-emote token, so the cheer animation may be missing until Blizzard adds it. Using the wrong faction’s command prints a short refusal. No Skyborne faction-cry recording was found in the client.
@@ -38,11 +41,11 @@ These switches control which built-in game voice-emote sounds Roar Forever resto
 
 Received `CHAT_MSG_TEXT_EMOTE` and recognized custom `CHAT_MSG_EMOTE` lines are the sole remote sound triggers. The game controls delivery range; Roar Forever adds no distance calculation or attenuation. It neither sends nor receives addon packets, so old peers' SAY/PARTY/RAID copies cannot cause another sound. Hiding an emote in your chat-window settings is not an addon mute: receipt of the event is what matters.
 
-Keep announcements enabled if you want nearby addon users to restore your train or faction cry. With announcements off, the local voice still works, but this addon supplies no remote restoration signal. Standard emotes do not require the sender to have this addon. Voice identity must be available through the event GUID or an accessible unit; inaccessible identities are skipped.
+Keep announcements enabled if you want nearby addon users to restore your train, faction cry, or form roar. With announcements off, the local voice still works, but this addon supplies no remote restoration signal. Standard emotes do not require the sender to have this addon. Voice identity must be available through the event GUID or an accessible unit; inaccessible identities are skipped. A form roar plays its one creature file even when the sender's race or sex cannot be resolved. Restored playback, the options preview, and `/rf id` use `PlaySoundFile` on the Dialog channel, so they follow the dialog volume slider and dialog mute. That playback stays flat: there is no distance fade.
 
 One tracked sound per speaker replaces that speaker's previous restored voice. Different speakers can overlap. State is capped at 128 speakers; the least recently active speaker is evicted at capacity. Every five seconds, records idle for at least 60 seconds are removed and their handles stopped. There is no network-event cache. Preview pools are finite and independent.
 
-Roar Forever does not replay your own normal voiced emotes, because the client already plays those. `/roar` is restored for your own character, your group, and nearby players of every race, including Skyborne. In a party or raid, most ordinary group voices are left to the client. Faction cries remain addon-driven because Forever does not natively wire them. Nearby players who are not in your group still get the restored set.
+Roar Forever does not replay your own normal voiced emotes, because the client already plays those. `/roar` is restored for your own character, your group, and nearby players of every race, including Skyborne. In a party or raid, most ordinary group voices are left to the client. Faction cries and form roars remain addon-driven for the group, because Forever does not play those creature sounds or the faction cries for them. Nearby players who are not in your group still get the restored set.
 
 Someone who is not using Roar Forever can still `/train` without sending a line, so there is nothing for the addon to hear unless they use a distinctive announce. The same is true for faction cries without the distinctive chat line.
 
@@ -77,7 +80,7 @@ Playback is local: another player does not need Roar Forever installed for you t
 - Includes male and female voice mappings for Dwarf, Gnome, Human, Night Elf, Orc, Tauren, Troll, Undead, and Skyborne characters.
 - Bundled languages: English, German, French, Spanish, and Russian. The menu and standard emote detection follow your client language. `enGB` uses English and `esMX` uses the Spanish pack; unsupported client languages fall back to English labels/templates.
 - Translated full-message templates were sourced from [Forever 1.60.1.70009 EmotesTextData](https://wago.tools/db2/EmotesTextData?build=1.60.1.70009). No separate CurseForge language downloads are needed. French grammatical prefixes and Russian declined names are accounted for; client updates can change wording, so release builds should be spot-checked in game.
-- Custom `/train` and faction-cry announcements remain the same English lines in every locale so different-language addon users can recognize them.
+- Custom `/train`, faction-cry, and form-roar announcements remain the same English lines in every locale so different-language addon users can recognize them.
 - On restricted maps such as dungeons and raids, Forever can make non-group unit identity values secret. Development main checks `issecretvalue` before using unit names/GUIDs/race/sex and skips inaccessible identities instead of comparing them.
 - Sound mappings use Blizzard FileDataIDs from the current wowdev community listfile.
 - Gnome female `/roar` playback has been confirmed in-game. The new restored emotes should be treated as beta until they have been checked in the Forever client.
@@ -101,7 +104,7 @@ The journal distinguishes source-based reconstruction, author direction, AI assi
 
 ## Documentation audit #33 — 27 October 2026
 
-This audit is historical. The current release is **0.6.7-beta** (Interface 16001). The audit records the evolution from local missing-voice restoration to configured emote categories, multiplayer COMM, text fallback and distance-based suppression. These are separate from *verified volume attenuation*, which depends on verified SoundKitID mappings. The existing client audio is not authored by the addon.
+This audit is historical. The current release is **0.6.8-beta** (Interface 16001). The audit records the evolution from local missing-voice restoration to configured emote categories, multiplayer COMM, text fallback and distance-based suppression. These are separate from *verified volume attenuation*, which depends on verified SoundKitID mappings. The existing client audio is not authored by the addon.
 
 Expanded portfolio documentation: [interaction design](docs/DESIGN.md), [content/audio provenance](docs/CONTENT.md), [architecture](docs/ARCHITECTURE.md), [decisions](docs/DECISIONS.md), [development history](docs/DEVLOG.md) and [human–AI collaboration](docs/AI_COLLABORATION.md). This audit is documentation-only; no client tests were run.
 

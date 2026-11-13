@@ -479,6 +479,76 @@ for _, race in ipairs({ "Dwarf", "Gnome", "Human", "NightElf", "Orc", "Tauren", 
     voiceSounds.whistle[race .. "Male"] = whistleSounds
 end
 
+-- Hello and bye kits from EmotesTextSound on Forever build 1.60.1.70888.
+-- Sex 0 in that table is male and sex 1 is female, confirmed against the
+-- Skyborne roar kits already mapped above.
+voiceSounds.hello = {
+    DwarfFemale = { 539988, 540021, 540020 },
+    DwarfMale = { 540077, 540082, 540072, 540073 },
+    GnomeFemale = { 540421, 540428, 540436 },
+    GnomeMale = { 540490, 540505, 540469, 540485 },
+    HumanFemale = { 540629, 540608, 540657 },
+    HumanMale = { 540674, 540664, 540681, 540665 },
+    NightElfFemale = { 541030, 541032, 541041, 541070 },
+    NightElfMale = { 541089, 541097, 541090 },
+    OrcFemale = { 541370, 541375, 541329 },
+    OrcMale = { 541408, 541425, 541418 },
+    TaurenFemale = { 542982, 542978, 542998 },
+    TaurenMale = { 543074, 543035, 543029 },
+    TrollFemale = { 543263, 543235, 543227 },
+    TrollMale = { 543332, 543282, 543309 },
+    UndeadFemale = { 542699, 542678, 542722 },
+    UndeadMale = { 542761, 542764, 542752 },
+    SkyborneFemale = { 7744899, 7744900, 7744901, 7744902 },
+    SkyborneMale = { 7744496, 7744495, 7744494, 7744493 },
+}
+voiceSounds.bye = {
+    DwarfFemale = { 539975, 539966, 539984 },
+    DwarfMale = { 540033, 540090, 540071 },
+    GnomeFemale = { 540460, 540416, 540414, 540407 },
+    GnomeMale = { 540510, 540482, 540516, 540511 },
+    HumanFemale = { 540606, 540611, 540636 },
+    HumanMale = { 540685, 540721, 540720 },
+    NightElfFemale = { 541073, 541062, 541052 },
+    NightElfMale = { 541127, 541100, 541113 },
+    OrcFemale = { 541325, 541374, 541333 },
+    OrcMale = { 541376, 541393, 541406 },
+    TaurenFemale = { 543009, 543015, 542970 },
+    TaurenMale = { 543068, 543061, 543034 },
+    TrollFemale = { 543229, 543279, 543270 },
+    TrollMale = { 543305, 543289, 543322 },
+    UndeadFemale = { 542710, 542730, 542685 },
+    UndeadMale = { 542768, 542769, 542736 },
+    SkyborneFemale = { 7744894, 7744895, 7744896 },
+    SkyborneMale = { 7744490, 7744489, 7744488 },
+}
+
+-- One creature sound for every race, so previews and /rf test can play it.
+-- Bear aggro 544959, cat aggro 545949, and wolf aggro 564222 are in the
+-- Forever 1.60.1.70888 sound kits. There is no separate spirit-wolf howl.
+-- Aquatic form is the sea lion. Its restored sound is the classic murloc
+-- aggro this client actually references (556000). The newer murloc aggro
+-- files are not in its sound kits.
+-- Travel form is the cheetah. There is no separate lion aggro; the lion
+-- model uses the tiger aggro (562387), which is in the Forever sound kits.
+-- Moonkin uses the Darkshore owlkin aggro (549235), the cry those
+-- moonkins play when they attack. The small owl hoot is a different creature.
+local formRoarFile = {
+    bearroar = 544959,
+    catroar = 545949,
+    wolfroar = 564222,
+    aquaticroar = 556000,
+    moonkinroar = 549235,
+    travelroar = 562387,
+}
+for formName, fileDataID in pairs(formRoarFile) do
+    voiceSounds[formName] = {}
+    for _, race in ipairs({ "Dwarf", "Gnome", "Human", "NightElf", "Orc", "Tauren", "Troll", "Undead", "Skyborne" }) do
+        voiceSounds[formName][race .. "Female"] = { fileDataID }
+        voiceSounds[formName][race .. "Male"] = { fileDataID }
+    end
+end
+
 local function IsSecretValue(value)
     return issecretvalue and issecretvalue(value) or false
 end
@@ -634,7 +704,7 @@ local function PlaySoundFileForSpeaker(speakerKey, fileDataID, source)
         return false
     end
     StopSpeakerSound(speakerKey)
-    local willPlay, handle = PlaySoundFile(fileDataID, "Master")
+    local willPlay, handle = PlaySoundFile(fileDataID, "Dialog")
     if willPlay then
         SpeakerState(speakerKey).handle = handle
     end
@@ -694,6 +764,26 @@ end
 
 local TRAIN_LINE = "blows a train whistle. Choo choo!"
 
+-- English on every client, like /train, so other Roar Forever users can tell
+-- the shapeshift from the emote line alone.
+local formRoarLines = {
+    bearroar = "roars like a bear.",
+    catroar = "roars like a cat.",
+    wolfroar = "howls like a spirit wolf.",
+    aquaticroar = "gurgles like a murloc.",
+    moonkinroar = "hoots like a moonkin.",
+    travelroar = "roars like a cheetah.",
+}
+local formSpellToRoar = {
+    [5487] = "bearroar",
+    [9634] = "bearroar",
+    [768] = "catroar",
+    [2645] = "wolfroar",
+    [1066] = "aquaticroar",
+    [24858] = "moonkinroar",
+    [783] = "travelroar",
+}
+
 -- Faction cries share slash/announce/detection logic. Sound tables stay separate.
 local factionEmotes = {
     forthehorde = {
@@ -737,6 +827,11 @@ local function DetectEmote(text, event, sender)
         -- Custom emotes are arbitrary prose. Accept only exact addon messages.
         if MatchesCustomEmoteLine(text, sender, TRAIN_LINE) then
             return "train"
+        end
+        for emoteName, line in pairs(formRoarLines) do
+            if MatchesCustomEmoteLine(text, sender, line) then
+                return emoteName
+            end
         end
         for emoteName, info in pairs(factionEmotes) do
             if MatchesCustomEmoteLine(text, sender, info.line) then
@@ -887,7 +982,7 @@ function RF.Preview(emote)
         StopSound(previewSoundHandle)
         previewSoundHandle = nil
     end
-    local ok, handle = PlaySoundFile(pool[math.random(#pool)], "Master")
+    local ok, handle = PlaySoundFile(pool[math.random(#pool)], "Dialog")
     if ok then
         previewSoundHandle = handle
     end
@@ -936,8 +1031,9 @@ local function ShouldRestoreFromText(emoteName, sender, guid)
     local isSelf = IsLocalPlayer(sender, guid)
     local isSelfOrGroup = isSelf or IsGroupedSender(sender, guid)
     local isFactionCry = factionEmotes[emoteName] ~= nil
+    local isFormRoar = formRoarLines[emoteName] ~= nil
 
-    if isFactionCry then
+    if isFactionCry or isFormRoar then
         if isSelf then
             return false
         end
@@ -956,6 +1052,11 @@ local function PlayTextEmote(emoteName, sender, guid)
         return
     end
     if not CanPlayForSender(sender, guid, emoteName) then
+        return
+    end
+    local formFile = formRoarFile[emoteName]
+    if formFile then
+        PlaySoundFileForSpeaker(SpeakerKey(sender, guid), formFile, "TEXT")
         return
     end
     local voiceKey = GetSenderVoiceKey(sender, guid)
@@ -1069,7 +1170,7 @@ SlashCmdList.ROARFOREVER = function(msg)
 
         if not voiceSounds[testEmote] then
             print("Roar Forever: unknown test emote '" .. testEmote .. "'.")
-            print("Roar Forever: test options are roar, cheer, laugh, joke, moo, flee, retreat, welcome, yes, no, healme, rasp, flirt, oom, sigh, charge, cry, congrats, congratulate, followme, train, whistle, forthehorde, forthealliance.")
+            print("Roar Forever: test options are roar, cheer, laugh, joke, moo, flee, retreat, welcome, hello, bye, yes, no, healme, rasp, flirt, oom, sigh, charge, cry, congrats, congratulate, followme, train, whistle, forthehorde, forthealliance, bearroar, catroar, wolfroar, aquaticroar, moonkinroar, travelroar.")
             return
         end
 
@@ -1112,7 +1213,7 @@ SlashCmdList.ROARFOREVER = function(msg)
     local rawID = lower:match("^id%s+(%d+)$")
     if rawID then
         local fileDataID = tonumber(rawID)
-        local ok, handle = PlaySoundFile(fileDataID, "Master")
+        local ok, handle = PlaySoundFile(fileDataID, "Dialog")
         print("Roar Forever: FileDataID " .. fileDataID .. " ->", ok, handle)
         return
     end
@@ -1208,6 +1309,88 @@ local function HandleFactionCry(emoteName, fromDoEmote)
         PlayLocalFactionCry(emoteName)
     end
     AnnounceCustomLineFromInput(emoteName, info.line)
+end
+
+-- Returns spellId, finished. finished is true when the aura index is past the end.
+local function ReadHelpfulSpellId(unit, index)
+    if C_UnitAuras and C_UnitAuras.GetAuraDataByIndex then
+        local ok, aura = pcall(C_UnitAuras.GetAuraDataByIndex, unit, index, "HELPFUL")
+        if not ok or type(aura) ~= "table" then
+            return nil, true
+        end
+        local spellId = aura.spellId
+        if IsSecretValue(spellId) then
+            return nil, false
+        end
+        return spellId, false
+    end
+
+    local reader = UnitAura or UnitBuff
+    if not reader then
+        return nil, true
+    end
+    local ok, name, _, _, _, _, _, _, _, _, spellId = pcall(reader, unit, index, "HELPFUL")
+    if not ok then
+        return nil, true
+    end
+    if IsSecretValue(name) or IsSecretValue(spellId) then
+        return nil, false
+    end
+    if not name and not spellId then
+        return nil, true
+    end
+    return spellId, false
+end
+
+local function GetPlayerFormRoar()
+    for index = 1, 40 do
+        local spellId, finished = ReadHelpfulSpellId("player", index)
+        if finished then
+            return nil
+        end
+        local form = spellId and formSpellToRoar[spellId]
+        if form then
+            return form
+        end
+    end
+    return nil
+end
+
+local function PlayLocalFormRoar(emoteName)
+    local fileDataID = formRoarFile[emoteName]
+    if not fileDataID then
+        return false
+    end
+    local sender = SafeUnitName("player") or "player"
+    local guid = SafeUnitGUID("player")
+    if not CanPlayForSender(sender, guid, emoteName) then
+        return false
+    end
+    return PlaySoundFileForSpeaker(SpeakerKey(sender, guid), fileDataID, "LOCAL_FORM")
+end
+
+-- Slash commands are checked before built-in emote tokens, so this replaces
+-- /roar. In bear, cat, spirit wolf, aquatic, or moonkin form the normal roar sentence is not
+-- sent. The form line is the only signal other Roar Forever users get.
+SLASH_ROARFOREVERROAR1 = "/roar"
+SlashCmdList.ROARFOREVERROAR = function()
+    if IsBattlegroundContext() then
+        if DoEmote then
+            pcall(DoEmote, "ROAR")
+        end
+        return
+    end
+
+    local form = GetPlayerFormRoar()
+    if not form or not AddonOperational() or not EmoteEnabled(form) then
+        if DoEmote then
+            DoEmote("ROAR")
+        end
+        return
+    end
+
+    PlayLocalFormRoar(form)
+    AnnounceCustomLineFromInput(form, formRoarLines[form])
 end
 
 -- Slash commands are checked before built-in emote tokens, so this replaces

@@ -2,6 +2,15 @@
 
 Release notes for the standalone player voice-emote sound addon.
 
+## 0.6.8-beta — 2026-11-13
+
+- `/hello`, `/hi`, `/bye`, `/goodbye`, and `/farewell` are restored for nearby players who are not in your group. `/greet` and `/wave` stay silent because this client has no voice for them.
+- In bear form, dire bear form, cat form, ghost wolf, aquatic form, moonkin form, or travel form, a typed `/roar` sends one form line and plays that creature sound. Other Roar Forever users hear it, including your party and raid.
+- Aquatic form plays the classic murloc gurgle (`gurgles like a murloc.`). Moonkin form plays the Darkshore moonkin aggro (`hoots like a moonkin.`).
+- Restored sounds, previews, and `/rf id` follow the dialog volume slider.
+- The options list adds Hello, Bye, Bear roar, Cat roar, Spirit wolf, Aquatic form, Moonkin, and Cheetah. Each has a checkbox and a preview. Travel form uses the lion roar from this client.
+- Removed the options note that said the switches only restore sounds the game does not play.
+
 ## 0.6.7-beta — 2026-11-11
 
 - Sky Elf `/roar` plays again for you, your party, and your raid. The addon no longer assumes the game already plays that roar.

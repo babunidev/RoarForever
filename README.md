@@ -2,15 +2,17 @@
 
 Roar Forever restores missing character voice sounds when players use emotes in **World of Warcraft Forever**. It uses voice files already present in the game client—no additional voice pack is required.
 
-**Creative direction:** Babuni · **Current release:** 0.6.7-beta · **Target:** Forever 1.60.1, Interface `16001` · **Settings:** account-wide `RoarForeverDB`
+**Creative direction:** Babuni · **Current release:** 0.6.8-beta · **Target:** Forever 1.60.1, Interface `16001` · **Settings:** account-wide `RoarForeverDB`
 
 ## What you hear
 
-The addon listens for supported emotes and plays the corresponding character voice when Forever does not reliably play it. It covers `/roar`, `/cheer`, `/laugh`, `/joke`, `/train`, the faction cries and a range of other familiar calls.
+The addon listens for supported emotes and plays the corresponding character voice when Forever does not reliably play it. It covers `/roar`, `/hello`, `/bye`, `/cheer`, `/laugh`, `/joke`, `/train`, the faction cries and a range of other familiar calls.
 
-`/roar` is restored for every race, including Sky Elves, whether the roar is yours, a party or raid member's, or a nearby player's. Most other standard emotes play for nearby players who are not in your group. Your own ordinary emotes, and those of your group, stay with the game.
+`/roar` is restored for every race, including Sky Elves, whether the roar is yours, a party or raid member's, or a nearby player's. In bear form, dire bear form, cat form, ghost wolf, aquatic form, moonkin form, or travel form, a typed `/roar` sends one form line instead (`roars like a bear.`, `roars like a cat.`, `howls like a spirit wolf.`, `gurgles like a murloc.`, `hoots like a moonkin.`, or `roars like a cheetah.`) and plays that creature sound. Other Roar Forever users hear that sound from the line, including party and raid members. A macro or emote button that calls the roar emote directly still sends the normal roar sentence.
 
-Most standard emotes work when another player uses them, even if that player does not have Roar Forever installed. Custom train and faction cries rely on a recognizable optional chat announcement for other addon users to hear them.
+`/hello`, `/hi`, `/bye`, `/goodbye`, and `/farewell` play for nearby players who are not in your group. `/greet` and `/wave` have no voice files in this client, so they stay silent. Most other standard emotes follow that same nearby-player rule. Your own ordinary emotes, and those of your group, stay with the game.
+
+Most standard emotes work when another player uses them, even if that player does not have Roar Forever installed. Custom train, faction cries, and form roars rely on a recognizable optional chat announcement for other addon users to hear them. Restored sounds, previews, and `/rf id` follow the dialog volume slider.
 
 The audio is **local**. It does not send addon packets, and the current chat-driven design lets the game determine which nearby emotes reach your client. It does not promise simulated distance-based volume fading or sound from players whose chat event is unavailable. Inside a battleground the addon stays off and resumes after you leave.
 
@@ -28,7 +30,7 @@ No external library, account-specific folder link or separate language download 
 
 ## Controls
 
-Type `/rf` or `/rf config` to open the movable options window. From there, enable or disable categories, preview their voices, and choose whether train and faction cries include an announcement.
+Type `/rf` or `/rf config` to open the movable options window. From there, enable or disable categories, preview their voices, and choose whether train, faction cries, and form roars include an announcement. Hello, bye, bear roar, cat roar, spirit wolf, aquatic form, moonkin, and cheetah are ordinary rows in that list.
 
 | Command | Use |
 | --- | --- |
@@ -43,7 +45,7 @@ Type `/rf` or `/rf config` to open the movable options window. From there, enabl
 
 ## Version and verification
 
-**0.6.7-beta** is the current release. It restores Sky Elf `/roar` for you and for other players. **0.6.6-beta** is the tagged battleground release on commit `01d0059485dc62e81e8600de740631e65edd7188`.
+**0.6.8-beta** is the current release. It adds hello and bye, form roars, and dialog-slider volume. **0.6.7-beta** restores Sky Elf `/roar` for you and for other players. **0.6.6-beta** is the tagged battleground release on commit `01d0059485dc62e81e8600de740631e65edd7188`.
 
 A battleground safeguard was tested live: Roar Forever disables itself in battleground instances to avoid protected-action failures and resumes outside them. This result does not mean that every sound, race, language or instance has been fully tested. A live listen with two Sky Elf characters is still pending.
 

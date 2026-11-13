@@ -77,7 +77,21 @@ def boot(locale='enUS', saved=None):
         function UnitInParty(u) return u:match('^party')~=nil end
         function GetTime() return now end
         function UnitPosition() return playerPos.x, playerPos.y, 0, playerPos.instanceID end
-        function PlaySoundFile(id) sounds[#sounds+1]=id; return true,#sounds end
+        soundChannels={}
+        playerAuras={}
+        function PlaySoundFile(id, channel)
+            sounds[#sounds+1]=id
+            soundChannels[#soundChannels+1]=channel
+            return true,#sounds
+        end
+        C_UnitAuras={
+            GetAuraDataByIndex=function(unit, index)
+                local list=playerAuras[unit]
+                local spellId=list and list[index]
+                if not spellId then return nil end
+                return {spellId=spellId}
+            end,
+        }
         function StopSound(id) stopped[#stopped+1]=id end
         C_Sound={PlaySound=function(id,_,_,_,_,volume)
             soundKits[#soundKits+1]={id=id, volume=volume or 1}
@@ -150,7 +164,7 @@ for locale in ('enUS','deDE','frFR','esES','ruRU','enGB','esMX'):
         count+=1
     ns.OpenOptions()
     assert len(lua.globals().RoarForeverOptions.rows)==0  # keyed table, checked below
-    assert sum(1 for _ in lua.globals().RoarForeverOptions.rows.items())==22
+    assert sum(1 for _ in lua.globals().RoarForeverOptions.rows.items())==30
 
 lua,ns=boot()
 lua.execute('''
@@ -391,6 +405,101 @@ event('PLAYER_ENTERING_WORLD')
 event('CHAT_MSG_TEXT_EMOTE','Friend Surname roars with bestial vigor. So fierce!','Friend Surname','Player-friend')
 assert(#sounds==bgSounds+1)
 
+-- Hello and bye follow the normal non-roar rule.
+now=157.1
+local helloBefore=#sounds
+event('CHAT_MSG_TEXT_EMOTE','You greet Alice with a hearty hello!','Tester','Player-self')
+event('CHAT_MSG_TEXT_EMOTE','Friend greets everyone with a hearty hello!','Friend','Player-friend')
+assert(#sounds==helloBefore)
+grouped=false
+now=157.2
+event('CHAT_MSG_TEXT_EMOTE','Other waves goodbye to everyone.  Farewell!','Other','Player-other')
+assert(#sounds==helloBefore+1)
+grouped=true
+
+-- /roar outside a form stays the native emote.
+playerAuras.player=nil
+now=157.3
+local roarSent=#sent
+local roarDo=#doEmoteCalls
+SlashCmdList.ROARFOREVERROAR()
+assert(#doEmoteCalls==roarDo+1 and doEmoteCalls[#doEmoteCalls]=='ROAR' and #sent==roarSent)
+
+-- Bear, cat, and spirit wolf replace the roar sentence with one form line.
+playerAuras.player={5487}
+now=157.4
+roarSent=#sent; roarDo=#doEmoteCalls; local roarSounds=#sounds
+SlashCmdList.ROARFOREVERROAR()
+assert(#doEmoteCalls==roarDo and #sent==roarSent+1 and sent[#sent].text=='roars like a bear.' and sent[#sent].kind=='C_EMOTE')
+assert(#sounds==roarSounds+1 and sounds[#sounds]==544959)
+now=157.5
+event('CHAT_MSG_EMOTE','roars like a bear.','Tester','Player-self'); assert(#sounds==roarSounds+1)
+event('CHAT_MSG_EMOTE','Friend roars like a bear.','Friend','Player-friend'); assert(#sounds==roarSounds+2)
+units.target={name='Stranger',realm='Away',guid='Player-stranger'}
+event('CHAT_MSG_EMOTE','Stranger roars like a bear.','Stranger','Player-stranger'); assert(#sounds==roarSounds+3 and sounds[#sounds]==544959)
+
+playerAuras.player={768}
+now=157.6
+roarSent=#sent; roarSounds=#sounds
+SlashCmdList.ROARFOREVERROAR()
+assert(sent[#sent].text=='roars like a cat.' and sounds[#sounds]==545949 and #sounds==roarSounds+1)
+
+playerAuras.player={2645}
+now=157.7
+roarSent=#sent; roarSounds=#sounds
+SlashCmdList.ROARFOREVERROAR()
+assert(sent[#sent].text=='howls like a spirit wolf.' and sounds[#sounds]==564222 and #sounds==roarSounds+1)
+
+playerAuras.player={1066}
+now=159
+roarSent=#sent; roarSounds=#sounds
+SlashCmdList.ROARFOREVERROAR()
+assert(sent[#sent].text=='gurgles like a murloc.' and sounds[#sounds]==556000 and #sounds==roarSounds+1)
+
+playerAuras.player={24858}
+now=159.2
+roarSent=#sent; roarSounds=#sounds
+SlashCmdList.ROARFOREVERROAR()
+assert(sent[#sent].text=='hoots like a moonkin.' and sounds[#sounds]==549235 and #sounds==roarSounds+1)
+
+-- Travel form, the cheetah, uses the lion/tiger aggro.
+playerAuras.player={783}
+now=159.4
+roarSent=#sent; roarSounds=#sounds
+SlashCmdList.ROARFOREVERROAR()
+assert(sent[#sent].text=='roars like a cheetah.' and sounds[#sounds]==562387 and #sounds==roarSounds+1)
+
+-- A disabled form roar falls back to the normal roar sentence.
+RF.SettingsDB().emotes.bearroar=false
+playerAuras.player={9634}
+now=157.8
+roarSent=#sent; roarDo=#doEmoteCalls
+SlashCmdList.ROARFOREVERROAR()
+assert(#doEmoteCalls==roarDo+1 and doEmoteCalls[#doEmoteCalls]=='ROAR' and #sent==roarSent)
+RF.SettingsDB().emotes.bearroar=true
+
+-- Announcements off keep the local form sound and send no line.
+RF.SettingsDB().announceTrain=false
+playerAuras.player={5487}
+now=157.9
+roarSent=#sent; roarSounds=#sounds
+SlashCmdList.ROARFOREVERROAR()
+assert(#sent==roarSent and #sounds==roarSounds+1 and sounds[#sounds]==544959)
+RF.SettingsDB().announceTrain=true
+playerAuras.player=nil
+
+-- Battleground /roar stays a normal roar and sends no form line.
+instanceType='pvp'
+playerAuras.player={5487}
+now=157.95
+roarSent=#sent; roarDo=#doEmoteCalls; roarSounds=#sounds
+SlashCmdList.ROARFOREVERROAR()
+assert(#doEmoteCalls==roarDo+1 and doEmoteCalls[#doEmoteCalls]=='ROAR' and #sent==roarSent and #sounds==roarSounds)
+instanceType='none'
+playerAuras.player=nil
+
+for i=1,#soundChannels do assert(soundChannels[i]=='Dialog') end
+
 -- All per-speaker state has a hard cap, then expires while idle.
 local speakerState=upvalue(CanPlayForSender,'SpeakerState')
 local states=upvalue(speakerState,'speakerStates')
@@ -423,7 +532,7 @@ local before=#sounds
 for _,f in ipairs(frames) do
     if f.kind=='Button' and f.scripts.OnEnter then f.scripts.OnClick(f) end
 end
-assert(#sounds==before+22 and #sent==0)
+assert(#sounds==before+30 and #sent==0)
 RoarForeverDB=true
 assert(RF.AddonEnabled() and RF.EmoteEnabled('joke'))
 ''')
