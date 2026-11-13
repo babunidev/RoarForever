@@ -64,3 +64,7 @@ Run `python tests/test_addon.py` with the `lupa` package available to execute th
 | Contributor instructions | [AGENTS.md](AGENTS.md) · [Documentation standard](docs/DOCUMENTATION.md) |
 
 Roar Forever concerns voice restoration; it is not the ability-triggered expression addon **Flourish Forever**. Their shared creative history does not make their mechanics interchangeable.
+
+## License
+
+Original addon software is licensed under [MIT](LICENSE). Voices and audio are provided by the game client and are not redistributed or relicensed here.
