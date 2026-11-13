@@ -148,3 +148,6 @@ The GitHub page had fallen behind the tags. It still described 0.6.6-beta as wai
 
 The install rule stays the one set for 0.6.2-beta: CurseForge excludes the documentation and tests, and the GitHub release file is the same four runtime files. My AI assistant corrected the release notes, checked the package list, and prepared the annotated tag. CurseForge's own generated archive still needs a look after it finishes processing.
 
+## 2026-11-13 — Giving the repository clear permissions
+
+Public source alone did not explain what others could reuse, so I approved MIT for original addon code, without licensing Blizzard/client audio. AI assistance added the license and brought the project notes into agreement, without changing how the application runs. Other people's content retains its own terms.
