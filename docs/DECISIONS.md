@@ -145,3 +145,6 @@ Roar Forever is the **WoW Forever voice-restoration project**, creatively relate
 
 **Verification boundary:** `.pkgmeta` continues to ignore those development files for CurseForge. The GitHub asset is a separate zip built from the same four files. CurseForge processing of this tag remains a later check.
 
+## 2026-11-13 — Licensing decision
+
+To make the reuse terms explicit, I approved MIT for original addon code, excluding game-client voice assets. This applies only to material for which the relevant rights can be granted; third-party contributors keep their own credits and licenses. AI assistance committed the license notice and updated project-facing documentation. This was a legal/documentation change, not a runtime feature or test.
