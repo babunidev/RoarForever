@@ -210,3 +210,8 @@ Earlier combined-addon development is outside the scope of this standalone chang
 
 - Documented Roar Forever as a client-voice restoration branch, separate from the trigger-based Flourish Forever addon.
 - Linked [the verified family timeline](docs/EMOTE_FAMILY_HISTORY.md); no runtime changes or in-game tests.
+
+## 2026-11-13 — License and rights
+
+- Established MIT for original addon code, excluding client voice assets and updated repository documentation to explain the permission boundary.
+- Preserved third-party authorship and external assets' separate terms. No gameplay or runtime verification is claimed.
