@@ -1,137 +1,27 @@
-# RoarForever — Human–AI Collaboration and Provenance
+# Human–AI collaboration
 
-Follow [the documentation standard](DOCUMENTATION.md) for first-person author voice throughout project documentation, factual changelogs, and naming the AI tool and verified model for each contribution.
+## How I work with AI
 
-## Bringing voices back
+Every project here begins with something I want to see in a game, on a screen or in a story. The ideas, the direction and the decisions are mine, and so are the playtests and the checks on my own devices. AI helps me get there. In my early projects that meant asking ChatGPT for Lua in a conversation, copying the changes into local files and trying them in the game. Today coding agents work directly in the repositories: they research, write code and documentation and run tests, while I decide what to build, try it out and say what works and what doesn't.
 
-With RoarForever, I wanted character voices to give the world more life using the sounds already in the client. That direction grew from roar and train to battle cries, multilingual triggers, per-player handling and distance-aware playback among addon users.
+Two rules hold this record together. Work is credited to whoever did it: the story is told in my voice, but when AI wrote code or a document, the record says so and names the tool and, where it is known, the model. And a plan is not a result: proposed, accepted, built, tested and published stay separate, and an automated test by an AI is not the same as my own check in the game or on my phone.
 
-## Engineering and iteration
+## Who did what
 
-The release record shows a transition from simple detection and client playback to addon-to-addon communications for 0.6.0-beta. The assistant's technical contributions and implementation should be attributed as such where the recorded source and conversations support them. Neither an AI-generated alternative nor a partial implementation becomes an approved creative decision merely because code exists.
+| Who | Role | Model as recorded |
+| --- | --- | --- |
+| **Babuni** | Creative: ideas, direction, decisions, corrections, playtesting and device checks | — |
+| **Codex** | Coding agent in the repository: research, code, documentation and tests | GPT-6 |
+| **Claude Code** | Coding agent in the repository: research, code, documentation and tests | Claude Opus 5.5 |
+| **Earlier AI help** | Work that older entries describe only as “AI” | Tool and model not recorded |
 
-The two-part first-name/surname identity model in Forever should be preserved in discussion of per-speaker deduplication and cooldowns. Treat names as the game's player identity model, not as cross-realm identifiers.
+The journal and the changelog name the tool for each piece of AI work. A model that was not recorded stays unrecorded rather than guessed.
 
-## Audit #33 — 27 October 2026
+## Where the details are
 
-**User direction:** Continue the numbered GitHub documentation consolidation with RoarForever, without changing addon code. **AI contribution:** Review the 0.6.0-beta TOC, runtime, options, localization and release notes; fill missing design/content/collaboration documents and make implementation boundaries explicit. **Historical iteration:** COMM-first/text-first deduplication, group train suppression, unavailable verified SoundKitIDs and fallback sound behavior. **Verification:** Repository source review and documentation commits only; no live group test, client playback or sound-distance trial.
+- [Development journal](DEVLOG.md): the story of the project in my voice, including what I asked for and what AI did.
+- [Decision record](DECISIONS.md): what was decided, by whom and why.
+- [Changelog](../CHANGELOG.md): what changed and how it was checked.
+- [Documentation standard](DOCUMENTATION.md) and [AGENTS.md](../AGENTS.md): the writing and working rules for everyone who contributes, human or AI.
 
-## Related development history
-
-Roar Forever is the **WoW Forever voice-restoration project**, creatively related to Roar Sound Effects. It restores client-native voice playback for a growing set of recognized emotes and explores addon communication and distance-sensitive audio. It does **not** implement an action-slot or successful-spellcast emote generator; that latter behavior belongs to Flourish Forever. Its own mapping and voice-preview choices must not be confused with the Roar Guild editable emote registry. See [the source-backed comparison](EMOTE_FAMILY_HISTORY.md) for the distinct mechanisms and shared creative direction.
-
-## 0.6.1-beta release collaboration — 4 November 2026
-
-For 0.6.1-beta, I approved live-client release preparation, accepted publishing before in-game testing was possible and authorized the public tag.
-
-**AI contribution:** reviewed current Forever release information and repository compatibility, implemented outgoing COMM result diagnostics, updated release-facing documentation, extended regression coverage, audited documentation against repository rules, and prepared the release state for tagging.
-
-**Verification boundary:** the automated Lua suite passed. The annotated tag was pushed on the approved commit and CurseForge detected it as a Beta for Forever 1.60.1, but live-client gameplay/audio testing remained unavailable and CurseForge approval was not yet confirmed at the time of this record.
-
-## 0.6.2-beta packaging release — 4 November 2026
-
-For 0.6.2-beta, I wanted installs to carry runtime files only. After approving the version, I created and pushed the annotated public tag locally.
-
-**AI contribution:** audited the existing `.pkgmeta`, identified that only `tests/` was excluded, changed package exclusions so only the four runtime files remain in the install archive, updated release documentation, and compared the three Lua runtime files against `v0.6.1-beta` to confirm they were unchanged.
-
-**Verification boundary:** GitHub confirms `v0.6.2-beta` points to commit `028af0ce4980ef232bb9af8177e5ca1444c19f40`. Runtime Lua equality was verified from repository blobs. CurseForge processing/public availability and the actual generated ZIP contents require separate confirmation; no new live-client gameplay test was performed for this packaging-only release.
-
-## Secret-identity dungeon fix — 5 November 2026
-
-After the first live dungeon error, I supplied the report and approved addressing the underlying Forever compatibility problem.
-
-**AI contribution:** traced the stack to name-based sender matching, checked current Forever secret-value behavior for unit names/GUIDs/race/sex, implemented guarded identity helpers, narrowed self/group classification to accessible unit tokens, added simulated regression coverage, and updated repository documentation.
-
-**Verification boundary:** the reported error itself is live-client evidence. The fix is implemented in development main, and `python tests/test_addon.py` passed on 5 November 2026 with the new secret-identity guard coverage. A live dungeon retest remains pending because the simulator cannot reproduce Blizzard-tagged secret values; no public follow-up version has been authorized or tagged.
-
-## Group roar deduplication investigation — 5 November 2026
-
-When /roar sounded doubled in a group, I reported it and asked for an investigation of the existing deduplication.
-
-**AI contribution:** audited the COMM, text fallback and native-group suppression paths; verified the documented event payload difference between `CHAT_MSG_ADDON` and `CHAT_MSG_TEXT_EMOTE`; identified the name-versus-GUID correlation mismatch; implemented name-based short-window correlation; corrected the simulator to remove the invented addon-message GUID; and updated repository documentation.
-
-**Verification boundary:** the source-level duplicate path is confirmed and fixed in development main. The updated automated regression suite and a live grouped-roar retest remain pending. Native group-roar overlap remains a separate unverified possibility and was not silently changed.
-
-## 0.6.3-beta release preparation — 5 November 2026
-
-For 0.6.3-beta, I approved releasing the secret-identity and roar-deduplication fixes together once the exact release commit passed the updated suite.
-
-**AI contribution:** prepared version metadata and release notes, preserved the runtime-only packaging policy, documented the release gate and verification boundaries, and audited the release scope against `v0.6.2-beta`.
-
-**Verification boundary:** the secret-identity regression suite passed before release preparation. The final updated suite including COMM/text sender correlation still has to pass on the exact release commit before the tag is pushed. Live dungeon/group behavior remains separate beta verification.
-
-## Group-roar second-pass investigation — 5 November 2026
-
-With RoarForever disabled, I confirmed that Forever produced no group roar sound. Restoring it remained part of the addon’s purpose.
-
-**AI contribution:** reverted the mistaken group suppression, traced the failing automated assertion to the expected group-restoration behavior, unified the playback cooldown identity with COMM/text correlation, added `/rf debugplay` for source-labelled sound-call tracing, restored the corresponding regression expectations, and corrected the repository history.
-
-**Verification boundary:** the native-overlap explanation is rejected by live evidence. The corrected 0.6.4 automated suite passed on 5 November 2026, including group roar restoration, COMM/text sender correlation, logical-sender playback dedupe and secret-identity guards. A live `/rf debugplay` trace remains required before the remaining audible double can be attributed to a specific addon path or audio behavior.
-
-## Delayed group-channel duplicate fix — 5 November 2026
-
-Because the audible duplicate appeared only in groups, I asked whether group roar restoration itself was running twice.
-
-**AI contribution:** audited the group-only transport difference, identified that one logical roar is broadcast on multiple addon channels while grouped, traced the early event-ID dedupe return that failed to refresh COMM/text suppression, moved fallback correlation ahead of event-ID dedupe, and added a delayed SAY/PARTY/text regression reproducing the timing window.
-
-**Verification boundary:** the source-level timing flaw is fixed in 0.6.4 development. The updated automated suite passed on 5 November 2026, including delayed group-channel dedupe. A live group retest remains required before the audible duplicate is considered resolved in-game.
-
-## Local group COMM self-echo fix — 5 November 2026
-
-In my group tests, both my own /roar and /fta played twice. The request was to stop the extra playback while preserving the intended roar.
-
-**AI contribution:** compared the two local playback paths, isolated grouped COMM as their common second path, identified sender-name mismatch as a way an echoed local packet could bypass self suppression, implemented exact recent-outbound-payload rejection with bounded expiry, and added grouped roar/faction-cry self-echo regressions using mismatched sender display text.
-
-**Verification boundary:** implementation and regression coverage are present in 0.6.4 development. The updated automated suite and live grouped playback still need verification.
-
-## 0.6.4-beta publication — 5 November 2026
-
-In the live client, I confirmed the grouped self-echo fix, ran the final regression suite and approved and pushed the v0.6.4-beta public tag.
-
-**AI contribution:** traced the local group COMM self-echo path, implemented exact recent-payload suppression and bounded expiry, added regression coverage for self `/roar` and faction cries, maintained release documentation, and verified the published GitHub tag points to the tested commit.
-
-**Verification boundary:** GitHub confirms annotated tag `v0.6.4-beta` targets commit `8c98e630f09bbe68cf6abeaebd7f2118a44f6274`. CurseForge publication and generated ZIP contents remain separately unconfirmed.
-
-## Battleground protected faction-slash fix — 6 November 2026
-
-From the live battleground, I supplied the ADDON_ACTION_BLOCKED stack showing /fta reach protected PerformEmote().
-
-**AI contribution:** matched the stack to the current 0.6.5 faction slash handler, verified the Forever restricted-action model, removed addon-initiated faction `DoEmote` calls while preserving local voice/announcement and direct-call observation, and added regression coverage proving faction slashes leave `DoEmote` untouched.
-
-**Version and verification boundary:** `v0.6.5-beta` was already published on commit `aa2c73445838460f58af53d0f07239e213d0d828`, so this source fix belongs to 0.6.6-beta development. The live failure is confirmed evidence for the diagnosis; updated automated and live battleground verification are pending.
-
-## Battleground hard-disable — 6 November 2026
-
-After another live battleground warning, I decided to disable RoarForever in battlegrounds.
-
-**AI contribution:** verified the Forever 1.60.1 `IsInInstance()` battleground classification, implemented a central `"pvp"` runtime gate across restoration, previews, tests, custom slash behavior, announcements and emote hooks, stopped active restored sounds on battleground entry, preserved the saved user setting, and added an enter/leave battleground regression.
-
-**Verification boundary:** live battleground testing after the hard-disable produced no addon errors, confirming the runtime boundary in the target client. Source regression coverage is present. Annotated tag `v0.6.6-beta` was later published on commit `01d0059485dc62e81e8600de740631e65edd7188`.
-
-## 0.6.6-beta release approval — 7 November 2026
-
-In the live client, I confirmed battleground suppression produced no addon errors and normal behavior returned on leaving. Then I approved 0.6.6-beta for public beta publication.
-
-**AI contribution:** synchronized release metadata and verification records, preserved the immutable `v0.6.5-beta` boundary, and prepared the exact-commit automated test gate for the `v0.6.6-beta` tag.
-
-**Verification boundary:** battleground suppression and post-battleground resume are live-client verified. The final automated suite still must pass on the exact release commit before the public tag is created and pushed. CurseForge publication remains separate verification after the tag.
-
-## Skyborne roar restoration — 11 November 2026
-
-When Sky Elves could not hear one another, I reported it and challenged the assumption of a native Skyborne roar. The intended behavior was for everyone to hear everyone.
-
-**AI contribution:** removed the self and group Skyborne `/roar` skip from `ShouldRestoreFromText`, updated the regression to expect those roars to play, and recorded the 0.6.7-beta behavior change.
-
-**Verification boundary:** mocked Lua coverage expects one playback each for a Skyborne self roar, a grouped Skyborne roar, and a nearby Skyborne roar. Live two-character listening remains pending. No claim is made that a client patch on this date removed the native file.
-
-## 0.6.7-beta publication — 11 November 2026
-
-For the public beta, I requested the tag and required installs to contain only the files WoW loads.
-
-**AI contribution:** corrected the GitHub-facing release status, kept the CurseForge `.pkgmeta` ignore list limited to development files, and prepared a release archive of `RoarForever.toc`, `Locales.lua`, `RoarForever.lua`, and `Options.lua`.
-
-**Verification boundary:** the archive listing is the packaging check. CurseForge's generated download still has to be inspected after the tag is processed. Live Sky Elf listening remains pending.
-
-## 18 November 2026 — Collaboration record review
-
-At my request, Codex (GPT-6) revised this record for first-person voice and checked the attribution against the available repository documentation. Where an earlier AI tool or model is missing from the record, its identity remains unconfirmed.
+The earlier, longer version of this record, as it stood on 18 November 2026, is kept in the [Git history](https://github.com/babunidev/RoarForever/blob/ef5e08d5742d26ef8fcf47864abba10efeaf9ebb/docs/AI_COLLABORATION.md).
