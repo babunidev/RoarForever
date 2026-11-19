@@ -9,14 +9,14 @@ Across these experiments, my interest has been in giving characters a little mor
 
 | First visible milestone | Current repository (earlier name) | What changed |
 | --- | --- | --- |
-| **18 Aug 2025** | [Action Emotes #1](https://github.com/babunidev/ActionEmotes-1) (BuxbrewCharge) | First addon: one watched action slot and randomly selected native emotes; current pool 10, fixed 21-second cooldown. |
-| **Aug 2025** | [Stealth Emotes](https://github.com/babunidev/StealthEmotes) (Amazin) | Rogue Stealth-button experiment made for my younger brother: 12 built-in emotes, adjustable chance and cooldown; the source monitors the slot, not Stealth itself. |
-| **12 Sep 2025** | [Action Emotes #2](https://github.com/babunidev/ActionEmotes-2) (Buxbrew / MadAxeBuxbrew) | A different expressive branch: 215 authored text emotes sent through chat instead of game-native emote tokens. |
-| **22 Nov 2025** | [Battle Emotes Legacy](https://github.com/babunidev/BattleEmotesLegacy) (roar / ROAR) | BuxbrewCharge-derived single-slot system with five fixed native battle emotes and adjustable chance/cooldown. |
-| **23 Nov 2025** | [Battle Emotes](https://github.com/babunidev/BattleEmotes) (roarr / ROARR) | Nearly identical gameplay implementation to Legacy; the second repository's tutorial expands to seven steps. |
-| **14 Dec 2025** | [Multi Action Emotes](https://github.com/babunidev/MultiActionEmotes) (ROARRunlimited) | Multiple numbered action-slot configurations, each with its own chance/cooldown; four fixed native emote tokens in current code. |
-| **10 Jan 2026** | [Roar Guild Addon](https://github.com/babunidev/RoarGuildAddon) (RoarGuild) | Multiple triggers plus a player-extensible native-emote registry, per-character profiles and guild identity; later gained manual recruiting messages and Roarboard (Aug 2026). |
-| **27 Apr 2026** | [Roar Guild Addon Wrath](https://github.com/babunidev/RoarGuildAddonWrath) (ROARemoteTrigger → EmoteTrigger; installed as ROARTrigger) | Wrath 3.3.5 port of the guild-addon emote features, including editable emote registry and manual recruiting text; excludes the later Roarboard. |
+| **18 Aug 2025** | [Action Emotes #1](https://github.com/babunidev/ClassicWoWAddons/tree/main/ActionEmotes-1) (BuxbrewCharge) | First addon: one watched action slot and randomly selected native emotes; current pool 10, fixed 21-second cooldown. |
+| **Aug 2025** | [Stealth Emotes](https://github.com/babunidev/ClassicWoWAddons/tree/main/StealthEmotes) (Amazin) | Rogue Stealth-button experiment made for my younger brother: 12 built-in emotes, adjustable chance and cooldown; the source monitors the slot, not Stealth itself. |
+| **12 Sep 2025** | [Action Emotes #2](https://github.com/babunidev/ClassicWoWAddons/tree/main/ActionEmotes-2) (Buxbrew / MadAxeBuxbrew) | A different expressive branch: 215 authored text emotes sent through chat instead of game-native emote tokens. |
+| **22 Nov 2025** | [Battle Emotes Legacy](https://github.com/babunidev/ClassicWoWAddons/tree/main/BattleEmotesLegacy) (roar / ROAR) | BuxbrewCharge-derived single-slot system with five fixed native battle emotes and adjustable chance/cooldown. |
+| **23 Nov 2025** | [Battle Emotes](https://github.com/babunidev/ClassicWoWAddons/tree/main/BattleEmotes) (roarr / ROARR) | Nearly identical gameplay implementation to Legacy; the second repository's tutorial expands to seven steps. |
+| **14 Dec 2025** | [Multi Action Emotes](https://github.com/babunidev/ClassicWoWAddons/tree/main/MultiActionEmotes) (ROARRunlimited) | Multiple numbered action-slot configurations, each with its own chance/cooldown; four fixed native emote tokens in current code. |
+| **10 Jan 2026** | [Roar Guild Addon](https://github.com/babunidev/ClassicWoWAddons/tree/main/RoarGuildAddon) (RoarGuild) | Multiple triggers plus a player-extensible native-emote registry, per-character profiles and guild identity; later gained manual recruiting messages and Roarboard (Aug 2026). |
+| **27 Apr 2026** | [Roar Guild Addon Wrath](https://github.com/babunidev/ClassicWoWAddons/tree/main/RoarGuildAddonWrath) (ROARemoteTrigger → EmoteTrigger; installed as ROARTrigger) | Wrath 3.3.5 port of the guild-addon emote features, including editable emote registry and manual recruiting text; excludes the later Roarboard. |
 | **22 Oct 2026** | [Flourish Forever](https://github.com/babunidev/FlourishForever) | WoW Forever addon with a graphical spellbook selector, per-ability native-emote choices and successful-spellcast event triggers rather than action-slot presses. |
 
 These dates are documented **commits or first visible source milestones**, not proof of when every idea was first imagined. The two Battle Emotes repositories are closely related snapshots, not evidence of two separate gameplay engines.
@@ -35,7 +35,7 @@ These dates are documented **commits or first visible source milestones**, not p
 
 Two other repositories share the goal of expressive character presence, **but are not action-triggered emote generators**:
 
-- [Roar Sound Effects](https://github.com/babunidev/RoarSoundEffects) (originally ROARSounds; source from **19 Apr 2026**) responds to observed text emotes and restores native voice assets, beginning with /roar.
+- [Roar Sound Effects](https://github.com/babunidev/ClassicWoWAddons/tree/main/RoarSoundEffects) (originally ROARSounds; source from **19 Apr 2026**) responds to observed text emotes and restores native voice assets, beginning with /roar.
 - [Roar Forever](https://github.com/babunidev/RoarForever) (WoW Forever) expands the restoration idea into more voiced emotes, client-specific detection, options, language handling and experimental addon communication/distance behavior.
 
 The distinction matters: an action-emote addon *initiates an emote*; a sound-restoration addon *tries to play an appropriate existing voice for an emote*. Their goals complement one another, but neither guarantees integration with the other.
