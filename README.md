@@ -57,9 +57,9 @@ Run `python tests/test_addon.py` with the `lupa` package available to execute th
 
 | Topic | Read |
 | --- | --- |
-| Scope and design | [Concept](CONCEPT.md) · [Design](docs/DESIGN.md) |
+| Scope and design | [Concept](docs/CONCEPT.md) · [Design](docs/DESIGN.md) |
 | Behavior and compatibility | [Emote reference](docs/EMOTE_REFERENCE.md) · [Architecture](docs/ARCHITECTURE.md) |
-| Progress and decisions | [Roadmap](ROADMAP.md) · [Changelog](CHANGELOG.md) · [Decisions](docs/DECISIONS.md) |
+| Progress and decisions | [Roadmap](docs/ROADMAP.md) · [Changelog](CHANGELOG.md) · [Decisions](docs/DECISIONS.md) |
 | Origins and creative lineage | [Development journal](docs/DEVLOG.md) · [Emote project history](docs/EMOTE_FAMILY_HISTORY.md) |
 | Contributor instructions | [AGENTS.md](AGENTS.md) · [Documentation standard](docs/DOCUMENTATION.md) |
 

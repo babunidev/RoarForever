@@ -2,6 +2,10 @@
 
 Release notes for the standalone player voice-emote sound addon.
 
+## 2026-11-19 — documentation moved into `docs/`
+
+- Moved `CONCEPT.md` and `ROADMAP.md` into `docs/`. The root keeps only `README.md`, `AGENTS.md`, `LICENSE` and `CHANGELOG.md`; links to the moved files and the documentation rules in `AGENTS.md` were updated. No code changed. Claude Code (Claude Opus 5.5).
+
 ## 0.6.8-beta — 2026-11-13
 
 - `/hello`, `/hi`, `/bye`, `/goodbye`, and `/farewell` are restored for nearby players who are not in your group. `/greet` and `/wave` stay silent because this client has no voice for them.

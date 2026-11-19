@@ -5,8 +5,6 @@ manual-changelog:
 ignore:
   - AGENTS.md
   - CHANGELOG.md
-  - CONCEPT.md
   - README.md
-  - ROADMAP.md
   - docs
   - tests
