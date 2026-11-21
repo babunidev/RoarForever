@@ -4,7 +4,9 @@
 
 ## Current state
 
-Published tag **v0.6.6-beta** points to `01d0059485dc62e81e8600de740631e65edd7188` and disables RoarForever inside battlegrounds. **0.6.7-beta** restores Skyborne `/roar` for your own character, party and raid members, and nearby players. The install package remains the four runtime files only. A live Sky Elf listen is still pending.
+**0.6.10-beta** is the current release. Shapeshifted voiced emotes speak as the animal. Skyborne bear, cat, and travel use the ursera, prideclaw, and galestrider cries, and those three rows can be switched off. The install package remains the four runtime files only.
+
+Published tag **v0.6.6-beta** points to `01d0059485dc62e81e8600de740631e65edd7188` and disables RoarForever inside battlegrounds. **0.6.7-beta** restores Skyborne `/roar` for your own character, party and raid members, and nearby players. A live Sky Elf listen is still pending.
 
 ## Planned
 

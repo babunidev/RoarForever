@@ -47,7 +47,7 @@ Type `/rf` or `/rf config` to open the movable options window. From there, enabl
 
 ## Version and verification
 
-**0.6.10-beta** is the build in these files. Shapeshifted voice emotes speak as the animal, and Skyborne form lines name the ursera, prideclaw, and galestrider. It is not tagged yet. **0.6.9-beta** leaves emotes to the game in dungeons, battlegrounds, and arenas. **0.6.8-beta** is the latest tagged release. **0.6.7-beta** restores Sky Elf `/roar` for you and for other players. **0.6.6-beta** is the tagged battleground release on commit `01d0059485dc62e81e8600de740631e65edd7188`.
+**0.6.10-beta** is the current release. Shapeshifted voice emotes speak as the animal, and Skyborne form lines name the ursera, prideclaw, and galestrider. **0.6.9-beta** leaves emotes to the game in dungeons, battlegrounds, and arenas. **0.6.8-beta** adds hello, bye, and form roars. **0.6.7-beta** restores Sky Elf `/roar` for you and for other players. **0.6.6-beta** is the tagged battleground release on commit `01d0059485dc62e81e8600de740631e65edd7188`.
 
 A battleground safeguard was tested live: Roar Forever disables itself in battleground instances to avoid protected-action failures and resumes outside them. This result does not mean that every sound, race, language or instance has been fully tested. A live listen with two Sky Elf characters is still pending.
 
