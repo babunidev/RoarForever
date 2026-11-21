@@ -539,11 +539,13 @@ voiceSounds.bye = {
 -- model uses the tiger aggro (562387), which is in the Forever sound kits.
 -- Moonkin uses the Darkshore owlkin aggro (549235), the cry those
 -- moonkins play when they attack. The small owl hoot is a different creature.
--- Skyborne bear, cat, and travel are an ursera, a prideclaw, and a galestrider.
--- Their aggro FileDataIDs are not named in the public listfile, and Creature
--- plus CreatureModelData on Forever 1.60.1.71037 do not include those NPCs,
--- so the overrides stay empty until /rf id confirms a file. Until then a
--- Skyborne form uses the shared file below.
+-- Skyborne bear, cat, and travel use the form models
+-- druidbearskyborne_c60, druidcatskyborne_c60, and druidtravelskyborne_c60
+-- (CreatureSoundData 10728, 10729, and 10727 on Forever 1.60.1.71037).
+-- The galestrider aggro is the eagle cry. The ursera and prideclaw models
+-- have no aggro of their own: the ursera aggro slot is still the shared bear,
+-- and the prideclaw aggro slot is empty. Their own voices are the attack
+-- files on those models.
 local formRoarFile = {
     bearroar = 544959,
     catroar = 545949,
@@ -552,7 +554,11 @@ local formRoarFile = {
     moonkinroar = 549235,
     travelroar = 562387,
 }
-local formRoarRaceFile = {}
+local formRoarRaceFile = {
+    bearroar = { Skyborne = 8207931 },
+    catroar = { Skyborne = 8207961 },
+    travelroar = { Skyborne = 1266218 },
+}
 local FORM_RACES = { "Dwarf", "Gnome", "Human", "NightElf", "Orc", "Tauren", "Troll", "Undead", "Skyborne" }
 for formName, fileDataID in pairs(formRoarFile) do
     voiceSounds[formName] = {}

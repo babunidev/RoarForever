@@ -12,7 +12,7 @@ Published tag **v0.6.6-beta** points to `01d0059485dc62e81e8600de740631e65edd718
 
 0.6.10-beta plays form sounds through the sender's race and gives Skyborne its own lines. A Skyborne bear is an ursera, a Skyborne cat is a prideclaw, and Skyborne travel is a galestrider. Dire bear uses the ursera. Aquatic form stays the sea lion, and moonkin stays the Darkshore owlkin.
 
-The ursera, prideclaw, and galestrider aggro FileDataIDs are not in the public listfile. Creature and CreatureModelData on Forever 1.60.1.71037 do not include those NPCs, and the files have not been confirmed with `/rf id`. Until a confirmed file is written into `formRoarRaceFile`, those three Skyborne forms keep bear aggro `544959`, cat aggro `545949`, and tiger aggro `562387`. Do not invent an ID. Spell `783` cannot tell a galestrider from a cheetah barbershop choice, so Skyborne travel uses the galestrider line either way.
+On Forever 1.60.1.71037 those voices come from the Skyborne form models. The galestrider aggro is eagle cry `1266218`. The ursera and prideclaw models have no separate aggro: the ursera aggro slot is still bear `544959`, and the prideclaw aggro slot is empty. Their own voices are attack files `8207931` and `8207961`. Spell `783` cannot tell a galestrider from a cheetah barbershop choice, so Skyborne travel uses the galestrider cry either way.
 
 ### Animal language while shapeshifted
 

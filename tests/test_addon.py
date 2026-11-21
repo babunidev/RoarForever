@@ -498,27 +498,27 @@ roarSent=#sent; roarDo=#doEmoteCalls; roarSounds=#sounds
 SlashCmdList.ROARFOREVERROAR()
 assert(#doEmoteCalls==roarDo and sent[#sent].text=='roars like a bear.' and sounds[#sounds]==544959)
 
--- Skyborne bear, cat, and travel name the Zephras animal. The isle aggro
--- files are not confirmed, so the sound stays the shared form file.
+-- Skyborne bear and cat use their own attack voices. Skyborne travel uses
+-- the galestrider eagle aggro.
 guidRace['Player-self']='Skyborne'
 now=172
 roarSent=#sent; roarSounds=#sounds
 SlashCmdList.ROARFOREVERROAR()
-assert(sent[#sent].text=='roars like an ursera.' and sounds[#sounds]==544959 and #sounds==roarSounds+1)
+assert(sent[#sent].text=='roars like an ursera.' and sounds[#sounds]==8207931 and #sounds==roarSounds+1)
 playerAuras.player={768}
 now=174
 roarSent=#sent; roarSounds=#sounds
 SlashCmdList.ROARFOREVERROAR()
-assert(sent[#sent].text=='roars like a prideclaw.' and sounds[#sounds]==545949)
+assert(sent[#sent].text=='roars like a prideclaw.' and sounds[#sounds]==8207961)
 playerAuras.player={783}
 now=176
 roarSent=#sent; roarSounds=#sounds
 SlashCmdList.ROARFOREVERROAR()
-assert(sent[#sent].text=='cries like a galestrider.' and sounds[#sounds]==562387)
+assert(sent[#sent].text=='cries like a galestrider.' and sounds[#sounds]==1266218)
 now=178
 event('CHAT_MSG_EMOTE','roars like an ursera.','Tester','Player-self'); assert(#sounds==roarSounds+1)
 event('CHAT_MSG_EMOTE','Friend roars like an ursera.','Friend','Player-friend')
-assert(#sounds==roarSounds+2 and sounds[#sounds]==544959)
+assert(#sounds==roarSounds+2 and sounds[#sounds]==8207931)
 
 -- A voiced emote in form is animal speech. Out of form it stays the native token.
 playerAuras.player={5487}
@@ -527,11 +527,11 @@ roarSent=#sent; roarDo=#doEmoteCalls; roarSounds=#sounds
 SlashCmdList.ROARFOREVERJOKE()
 assert(#doEmoteCalls==roarDo and #sent==roarSent+1)
 assert(sent[#sent].text=='tells a joke like an ursera, but nobody understands a word.')
-assert(#sounds==roarSounds+1 and sounds[#sounds]==544959)
+assert(#sounds==roarSounds+1 and sounds[#sounds]==8207931)
 now=181
 event('CHAT_MSG_EMOTE', sent[#sent].text, 'Tester', 'Player-self'); assert(#sounds==roarSounds+1)
 event('CHAT_MSG_EMOTE', 'Friend '..sent[#sent].text, 'Friend', 'Player-friend')
-assert(#sounds==roarSounds+2 and sounds[#sounds]==544959)
+assert(#sounds==roarSounds+2 and sounds[#sounds]==8207931)
 
 guidRace['Player-self']='Gnome'
 playerAuras.player=nil
