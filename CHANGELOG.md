@@ -2,6 +2,14 @@
 
 Release notes for the standalone player voice-emote sound addon.
 
+## 0.6.10-beta — 2026-11-21
+
+- In bear, cat, travel, aquatic, moonkin, or ghost wolf form, a typed voiced emote speaks as that animal. A joke in bear form says `tells a joke like a bear, but nobody understands a word.` and plays the bear cry. `/train` stays a train whistle.
+- A Skyborne bear says `roars like an ursera.`, a Skyborne cat says `roars like a prideclaw.`, and Skyborne travel says `cries like a galestrider.` Those three still use the shared bear, cat, and cheetah cries until the isle animals' own cries are confirmed in game.
+- Out of form, those emotes stay with the game. An emote button or macro that calls the emote directly still uses the normal voice.
+- In a dungeon, battleground, or arena, those emote commands go back to the game.
+- The `/rf` list ends with Skyborne ursera, prideclaw, and galestrider. Each has a speaker button that plays that form's Skyborne cry.
+
 ## 2026-11-19 — human–AI collaboration record
 
 - Added a rule to `AGENTS.md` and `docs/DOCUMENTATION.md`: `docs/AI_COLLABORATION.md` takes no dated entries; contributions are recorded in the journal and changelog. Claude Code (Claude Opus 5.5).
@@ -10,6 +18,10 @@ Release notes for the standalone player voice-emote sound addon.
 ## 2026-11-19 — documentation moved into `docs/`
 
 - Moved `CONCEPT.md` and `ROADMAP.md` into `docs/`. The root keeps only `README.md`, `AGENTS.md`, `LICENSE` and `CHANGELOG.md`; links to the moved files and the documentation rules in `AGENTS.md` were updated. No code changed. Claude Code (Claude Opus 5.5).
+
+## 0.6.9-beta — 2026-11-18
+
+- In dungeons, battlegrounds, and arenas, Roar Forever stays quiet. `/roar`, `/train`, and the faction cries stay with the game.
 
 ## 0.6.8-beta — 2026-11-13
 

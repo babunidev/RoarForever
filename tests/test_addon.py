@@ -9,7 +9,7 @@ def boot(locale='enUS', saved=None):
     lua = LuaRuntime(unpack_returned_tuples=True)
     lua.globals().testLocale = locale
     lua.execute('''
-        frames={}; sounds={}; soundKits={}; sent={}; stopped={}; timers={}; addonSent={}; SlashCmdList={}; UISpecialFrames={}
+        frames={}; sounds={}; soundKits={}; sent={}; stopped={}; timers={}; addonSent={}; SlashCmdList={}; hash_SlashCmdList={}; UISpecialFrames={}
         now=100; grouped=false; playerPos={x=0,y=0,instanceID=0}; addonSendResult=0; instanceType='none'
         secretValues={}; secretChecks={}
         function issecretvalue(v)
@@ -397,6 +397,7 @@ SlashCmdList.ROARFOREVER('id 539992'); assert(#sounds==bgSounds)
 SlashCmdList.ROARFOREVERTRAIN(); assert(#sounds==bgSounds and #sent==bgSent and #doEmoteCalls==bgDoEmote)
 SlashCmdList.ROARFOREVERFTA(); assert(#sounds==bgSounds and #sent==bgSent and #doEmoteCalls==bgDoEmote)
 SlashCmdList.ROARFOREVERFTH(); assert(#sounds==bgSounds and #sent==bgSent and #doEmoteCalls==bgDoEmote)
+assert(hash_SlashCmdList['/ROAR']==nil and hash_SlashCmdList['/TRAIN']==nil and hash_SlashCmdList['/FORTHEALLIANCE']==nil)
 DoEmote('FORTHEALLIANCE'); assert(#sounds==bgSounds and #sent==bgSent and #doEmoteCalls==bgDoEmote+1)
 
 -- Leaving the battleground automatically restores the prior enabled state.
@@ -404,6 +405,7 @@ instanceType='none'; now=158
 event('PLAYER_ENTERING_WORLD')
 event('CHAT_MSG_TEXT_EMOTE','Friend Surname roars with bestial vigor. So fierce!','Friend Surname','Player-friend')
 assert(#sounds==bgSounds+1)
+assert(hash_SlashCmdList['/ROAR']=='ROARFOREVERROAR' and hash_SlashCmdList['/TRAIN']=='ROARFOREVERTRAIN')
 
 -- Hello and bye follow the normal non-roar rule.
 now=157.1
@@ -488,15 +490,97 @@ assert(#sent==roarSent and #sounds==roarSounds+1 and sounds[#sounds]==544959)
 RF.SettingsDB().announceTrain=true
 playerAuras.player=nil
 
--- Battleground /roar stays a normal roar and sends no form line.
-instanceType='pvp'
+-- Night Elf bear keeps the shared bear file and the bear sentence.
+guidRace['Player-self']='NightElf'
 playerAuras.player={5487}
-now=157.95
+now=170
 roarSent=#sent; roarDo=#doEmoteCalls; roarSounds=#sounds
 SlashCmdList.ROARFOREVERROAR()
-assert(#doEmoteCalls==roarDo+1 and doEmoteCalls[#doEmoteCalls]=='ROAR' and #sent==roarSent and #sounds==roarSounds)
-instanceType='none'
+assert(#doEmoteCalls==roarDo and sent[#sent].text=='roars like a bear.' and sounds[#sounds]==544959)
+
+-- Skyborne bear, cat, and travel name the Zephras animal. The isle aggro
+-- files are not confirmed, so the sound stays the shared form file.
+guidRace['Player-self']='Skyborne'
+now=172
+roarSent=#sent; roarSounds=#sounds
+SlashCmdList.ROARFOREVERROAR()
+assert(sent[#sent].text=='roars like an ursera.' and sounds[#sounds]==544959 and #sounds==roarSounds+1)
+playerAuras.player={768}
+now=174
+roarSent=#sent; roarSounds=#sounds
+SlashCmdList.ROARFOREVERROAR()
+assert(sent[#sent].text=='roars like a prideclaw.' and sounds[#sounds]==545949)
+playerAuras.player={783}
+now=176
+roarSent=#sent; roarSounds=#sounds
+SlashCmdList.ROARFOREVERROAR()
+assert(sent[#sent].text=='cries like a galestrider.' and sounds[#sounds]==562387)
+now=178
+event('CHAT_MSG_EMOTE','roars like an ursera.','Tester','Player-self'); assert(#sounds==roarSounds+1)
+event('CHAT_MSG_EMOTE','Friend roars like an ursera.','Friend','Player-friend')
+assert(#sounds==roarSounds+2 and sounds[#sounds]==544959)
+
+-- A voiced emote in form is animal speech. Out of form it stays the native token.
+playerAuras.player={5487}
+now=180
+roarSent=#sent; roarDo=#doEmoteCalls; roarSounds=#sounds
+SlashCmdList.ROARFOREVERJOKE()
+assert(#doEmoteCalls==roarDo and #sent==roarSent+1)
+assert(sent[#sent].text=='tells a joke like an ursera, but nobody understands a word.')
+assert(#sounds==roarSounds+1 and sounds[#sounds]==544959)
+now=181
+event('CHAT_MSG_EMOTE', sent[#sent].text, 'Tester', 'Player-self'); assert(#sounds==roarSounds+1)
+event('CHAT_MSG_EMOTE', 'Friend '..sent[#sent].text, 'Friend', 'Player-friend')
+assert(#sounds==roarSounds+2 and sounds[#sounds]==544959)
+
+guidRace['Player-self']='Gnome'
 playerAuras.player=nil
+now=182
+roarSent=#sent; roarDo=#doEmoteCalls; roarSounds=#sounds
+SlashCmdList.ROARFOREVERJOKE()
+assert(#doEmoteCalls==roarDo+1 and doEmoteCalls[#doEmoteCalls]=='JOKE' and #sent==roarSent and #sounds==roarSounds)
+
+-- A disabled form row, or a disabled joke row, leaves the joke with the game.
+playerAuras.player={5487}
+RF.SettingsDB().emotes.bearroar=false
+now=183
+roarDo=#doEmoteCalls; roarSent=#sent
+SlashCmdList.ROARFOREVERJOKE()
+assert(#doEmoteCalls==roarDo+1 and doEmoteCalls[#doEmoteCalls]=='JOKE' and #sent==roarSent)
+RF.SettingsDB().emotes.bearroar=true
+RF.SettingsDB().emotes.joke=false
+now=184
+roarDo=#doEmoteCalls; roarSent=#sent
+SlashCmdList.ROARFOREVERJOKE()
+assert(#doEmoteCalls==roarDo+1 and doEmoteCalls[#doEmoteCalls]=='JOKE' and #sent==roarSent)
+RF.SettingsDB().emotes.joke=true
+
+-- An unresolved race still plays the shared form file.
+local savedInfo=GetPlayerInfoByGUID
+GetPlayerInfoByGUID=function() return end
+now=185
+roarSounds=#sounds
+event('CHAT_MSG_EMOTE','Nobody roars like a bear.','Nobody','Player-unknown')
+assert(#sounds==roarSounds+1 and sounds[#sounds]==544959)
+GetPlayerInfoByGUID=savedInfo
+playerAuras.player=nil
+
+-- Dungeons and battlegrounds leave the emote with the game. No form line, no restored sound.
+for _, kind in ipairs({'party','pvp','arena'}) do
+    instanceType=kind
+    playerAuras.player={5487}
+    now=now+0.2
+    event('PLAYER_ENTERING_WORLD')
+    roarSent=#sent; roarDo=#doEmoteCalls; roarSounds=#sounds
+    SlashCmdList.ROARFOREVERROAR()
+    SlashCmdList.ROARFOREVERJOKE()
+    assert(#doEmoteCalls==roarDo and #sent==roarSent and #sounds==roarSounds)
+    assert(hash_SlashCmdList['/ROAR']==nil and hash_SlashCmdList['/TRAIN']==nil and hash_SlashCmdList['/JOKE']==nil)
+end
+instanceType='none'
+event('PLAYER_ENTERING_WORLD')
+playerAuras.player=nil
+assert(hash_SlashCmdList['/ROAR']=='ROARFOREVERROAR' and hash_SlashCmdList['/JOKE']=='ROARFOREVERJOKE')
 
 for i=1,#soundChannels do assert(soundChannels[i]=='Dialog') end
 
@@ -510,7 +594,7 @@ for i=1,2000 do
     assert(stateCount()<=128)
 end
 assert(stateCount()==128)
-now=230
+now=400
 for _,f in ipairs(frames) do if f.scripts.OnUpdate then f.scripts.OnUpdate(f,5) end end
 assert(stateCount()==0)
 -- Duplicate chat callbacks within the cooldown remain suppressed.
@@ -532,7 +616,7 @@ local before=#sounds
 for _,f in ipairs(frames) do
     if f.kind=='Button' and f.scripts.OnEnter then f.scripts.OnClick(f) end
 end
-assert(#sounds==before+30 and #sent==0)
+assert(#sounds==before+33 and #sent==0)
 RoarForeverDB=true
 assert(RF.AddonEnabled() and RF.EmoteEnabled('joke'))
 ''')

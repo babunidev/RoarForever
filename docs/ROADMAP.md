@@ -6,6 +6,18 @@
 
 Published tag **v0.6.6-beta** points to `01d0059485dc62e81e8600de740631e65edd7188` and disables RoarForever inside battlegrounds. **0.6.7-beta** restores Skyborne `/roar` for your own character, party and raid members, and nearby players. The install package remains the four runtime files only. A live Sky Elf listen is still pending.
 
+## Planned
+
+### Race-specific shapeshift sounds
+
+0.6.10-beta plays form sounds through the sender's race and gives Skyborne its own lines. A Skyborne bear is an ursera, a Skyborne cat is a prideclaw, and Skyborne travel is a galestrider. Dire bear uses the ursera. Aquatic form stays the sea lion, and moonkin stays the Darkshore owlkin.
+
+The ursera, prideclaw, and galestrider aggro FileDataIDs are not in the public listfile. Creature and CreatureModelData on Forever 1.60.1.71037 do not include those NPCs, and the files have not been confirmed with `/rf id`. Until a confirmed file is written into `formRoarRaceFile`, those three Skyborne forms keep bear aggro `544959`, cat aggro `545949`, and tiger aggro `562387`. Do not invent an ID. Spell `783` cannot tell a galestrider from a cheetah barbershop choice, so Skyborne travel uses the galestrider line either way.
+
+### Animal language while shapeshifted
+
+0.6.10-beta takes over the voiced emote slashes while a known form aura is active. The slash does not call `DoEmote`. It plays that form's creature sound and sends one English line, such as `tells a joke like a bear, but nobody understands a word.` A Skyborne joke in bear form says `tells a joke like an ursera, but nobody understands a word.` `/roar` keeps the shorter form lines. `/train` stays a train whistle. Out of form, and when the form row or the emote row is off, the slash calls the normal token. Faction slashes still never call `DoEmote`. An emote button or macro that calls `DoEmote` directly still performs the normal voiced emote. Dungeons, battlegrounds, and arenas give the new slashes back to the game.
+
 ## Live acceptance checklist
 
 - [ ] Solo, party and raid: self roar and another member's roar play once, including Skyborne.

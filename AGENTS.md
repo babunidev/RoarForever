@@ -22,6 +22,10 @@ Follow [the documentation standard](docs/DOCUMENTATION.md) for first-person auth
 
 `docs/AI_COLLABORATION.md` is the short record of how Babuni works with AI and who did what, with the same text in all of Babuni's repositories. Do not add dated entries, session notes or per-change attribution to it. Record each contribution in `docs/DEVLOG.md` (what Babuni asked for and what the AI did, naming the tool and model) and in `CHANGELOG.md`. Change `docs/AI_COLLABORATION.md` only to add a row to its "Who did what" table when a new AI tool or model starts contributing to this project, or when Babuni revises the shared text.
 
+## Where the files live
+
+Edit this repository only, at `~/Projects/RoarForever`, on branch `main`. After every change, commit it on `main` and copy the four runtime files (`RoarForever.toc`, `Locales.lua`, `RoarForever.lua`, `Options.lua`) into `World of Warcraft/_forever_/Interface/AddOns/RoarForever` so the game has the same build. That game folder is the install, not a second repository. Do not create a checkout beside it. A commit is not a release: do not tag, push, or publish to CurseForge or GitHub unless Babuni asks.
+
 ## Repository layout
 
 The repository root holds only `README.md`, `AGENTS.md`, `LICENSE` and `CHANGELOG.md` (plus any additional license files). All other documentation lives in `docs/`; put new documents there.

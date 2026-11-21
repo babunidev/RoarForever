@@ -43,7 +43,12 @@ local function BuildPanel()
     scroll:SetPoint("TOPLEFT", 18, -122)
     scroll:SetPoint("BOTTOMRIGHT", -40, 20)
     local content = CreateFrame("Frame", nil, scroll)
-    content:SetSize(476, #RF.order * 31)
+    local skyborneListen = {
+        { key = "ursera", emote = "bearroar" },
+        { key = "prideclaw", emote = "catroar" },
+        { key = "galestrider", emote = "travelroar" },
+    }
+    content:SetSize(476, (#RF.order + #skyborneListen) * 31)
     scroll:SetScrollChild(content)
     panel.rows = {}
     for index, emote in ipairs(RF.order) do
@@ -61,6 +66,29 @@ local function BuildPanel()
         icon:SetTexture("Interface\\Common\\VoiceChat-Speaker")
         speaker:SetScript("OnClick", function()
             if not RF.Preview(key) then print("Roar Forever: " .. L.failed) end
+        end)
+        speaker:SetScript("OnEnter", function(self)
+            GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+            GameTooltip:SetText(L.preview, 1, 1, 1, 1, true)
+            GameTooltip:Show()
+        end)
+        speaker:SetScript("OnLeave", function() GameTooltip:Hide() end)
+    end
+    for index, entry in ipairs(skyborneListen) do
+        local y = -(#RF.order + index - 1) * 31
+        local label = content:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+        label:SetPoint("TOPLEFT", 30, y - 6)
+        label:SetText(RF.locale.labels[entry.key])
+        local speaker = CreateFrame("Button", nil, content, "UIPanelButtonTemplate")
+        speaker:SetSize(32, 25)
+        speaker:SetPoint("TOPRIGHT", -4, y)
+        local icon = speaker:CreateTexture(nil, "ARTWORK")
+        icon:SetSize(18, 18)
+        icon:SetPoint("CENTER")
+        icon:SetTexture("Interface\\Common\\VoiceChat-Speaker")
+        local formEmote = entry.emote
+        speaker:SetScript("OnClick", function()
+            if not RF.Preview(formEmote, "SkyborneFemale") then print("Roar Forever: " .. L.failed) end
         end)
         speaker:SetScript("OnEnter", function(self)
             GameTooltip:SetOwner(self, "ANCHOR_RIGHT")

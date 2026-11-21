@@ -151,3 +151,9 @@ The install rule stays the one set for 0.6.2-beta: CurseForge excludes the docum
 ## 2026-11-13 — Giving the repository clear permissions
 
 Public source alone did not explain what others could reuse, so I approved MIT for original addon code, without licensing Blizzard/client audio. AI assistance added the license and brought the project notes into agreement, without changing how the application runs. Other people's content retains its own terms.
+
+## 21 November 2026 — one working folder
+
+Shapeshifted voice emotes now speak as the animal, and the Skyborne lines name the ursera, prideclaw, and galestrider. Those three still use the shared cries until the isle files are confirmed in game. The `/rf` list ends with speaker buttons for those three Skyborne cries.
+
+The unfinished work had landed in a second checkout beside the installed addon. That checkout was behind this repository. The code and notes now live here, on `main`, in `~/Projects/RoarForever`. Each change is committed locally and the four runtime files are copied into the game AddOns folder. That is not a CurseForge release. Cursor (Grok 4.7) moved the files and updated the notes. No live listen was done in this pass.

@@ -3,15 +3,21 @@ local frame = CreateFrame("Frame")
 
 local EMOTE_COOLDOWN = 0.07
 
--- Forever uses the modern instance API. Battlegrounds report instance type
--- "pvp". RoarForever is intentionally inert there because restricted-action
--- rules can block addon-driven chat/emote behavior.
-local function IsBattlegroundContext()
+-- Dungeons ("party"), battlegrounds ("pvp"), and arenas ("arena") restrict
+-- addon-driven emotes. The addon stays quiet there. The game's own emotes
+-- keep working because the slash commands are given back to the client.
+local SUPPRESSED_INSTANCE = {
+    party = true,
+    pvp = true,
+    arena = true,
+}
+
+local function IsAddonSuppressed()
     if not IsInInstance then
         return false
     end
     local ok, inInstance, instanceType = pcall(IsInInstance)
-    return ok and inInstance and instanceType == "pvp"
+    return ok and inInstance and SUPPRESSED_INSTANCE[instanceType] == true
 end
 
 -- Bounded session state; no network-event history is retained.
@@ -533,6 +539,11 @@ voiceSounds.bye = {
 -- model uses the tiger aggro (562387), which is in the Forever sound kits.
 -- Moonkin uses the Darkshore owlkin aggro (549235), the cry those
 -- moonkins play when they attack. The small owl hoot is a different creature.
+-- Skyborne bear, cat, and travel are an ursera, a prideclaw, and a galestrider.
+-- Their aggro FileDataIDs are not named in the public listfile, and Creature
+-- plus CreatureModelData on Forever 1.60.1.71037 do not include those NPCs,
+-- so the overrides stay empty until /rf id confirms a file. Until then a
+-- Skyborne form uses the shared file below.
 local formRoarFile = {
     bearroar = 544959,
     catroar = 545949,
@@ -541,12 +552,32 @@ local formRoarFile = {
     moonkinroar = 549235,
     travelroar = 562387,
 }
+local formRoarRaceFile = {}
+local FORM_RACES = { "Dwarf", "Gnome", "Human", "NightElf", "Orc", "Tauren", "Troll", "Undead", "Skyborne" }
 for formName, fileDataID in pairs(formRoarFile) do
     voiceSounds[formName] = {}
-    for _, race in ipairs({ "Dwarf", "Gnome", "Human", "NightElf", "Orc", "Tauren", "Troll", "Undead", "Skyborne" }) do
-        voiceSounds[formName][race .. "Female"] = { fileDataID }
-        voiceSounds[formName][race .. "Male"] = { fileDataID }
+    local overrides = formRoarRaceFile[formName]
+    for _, race in ipairs(FORM_RACES) do
+        local id = (overrides and overrides[race]) or fileDataID
+        voiceSounds[formName][race .. "Female"] = { id }
+        voiceSounds[formName][race .. "Male"] = { id }
     end
+end
+
+local function RaceFromVoiceKey(voiceKey)
+    if type(voiceKey) ~= "string" then
+        return nil
+    end
+    return (voiceKey:match("^(.-)Male$") or voiceKey:match("^(.-)Female$"))
+end
+
+local function FormFileFor(emoteName, voiceKey)
+    local sounds = voiceSounds[emoteName]
+    sounds = sounds and voiceKey and sounds[voiceKey]
+    if sounds and sounds[1] then
+        return sounds[1]
+    end
+    return formRoarFile[emoteName]
 end
 
 local function IsSecretValue(value)
@@ -700,7 +731,7 @@ local function StopSpeakerSound(speakerKey)
 end
 
 local function PlaySoundFileForSpeaker(speakerKey, fileDataID, source)
-    if IsBattlegroundContext() then
+    if IsAddonSuppressed() then
         return false
     end
     StopSpeakerSound(speakerKey)
@@ -765,15 +796,77 @@ end
 local TRAIN_LINE = "blows a train whistle. Choo choo!"
 
 -- English on every client, like /train, so other Roar Forever users can tell
--- the shapeshift from the emote line alone.
-local formRoarLines = {
-    bearroar = "roars like a bear.",
-    catroar = "roars like a cat.",
-    wolfroar = "howls like a spirit wolf.",
-    aquaticroar = "gurgles like a murloc.",
-    moonkinroar = "hoots like a moonkin.",
-    travelroar = "roars like a cheetah.",
+-- the shapeshift from the emote line alone. Skyborne lines name the Zephras
+-- Isle animal. Spell 783 cannot tell a galestrider from a cheetah barbershop
+-- choice, and this client does not expose the shapeshifted display ID, so a
+-- Skyborne in travel form uses the galestrider line.
+local formCreature = {
+    bearroar = { default = "a bear", Skyborne = "an ursera" },
+    catroar = { default = "a cat", Skyborne = "a prideclaw" },
+    wolfroar = { default = "a spirit wolf" },
+    aquaticroar = { default = "a murloc" },
+    moonkinroar = { default = "a moonkin" },
+    travelroar = { default = "a cheetah", Skyborne = "a galestrider" },
 }
+local formRoarVerb = {
+    bearroar = { default = "roars like" },
+    catroar = { default = "roars like" },
+    wolfroar = { default = "howls like" },
+    aquaticroar = { default = "gurgles like" },
+    moonkinroar = { default = "hoots like" },
+    travelroar = { default = "roars like", Skyborne = "cries like" },
+}
+local animalActions = {
+    cheer = "cheers",
+    laugh = "laughs",
+    joke = "tells a joke",
+    moo = "moos",
+    flee = "flees",
+    welcome = "welcomes you",
+    hello = "says hello",
+    bye = "says goodbye",
+    yes = "agrees",
+    no = "disagrees",
+    healme = "calls for healing",
+    rasp = "blows a raspberry",
+    flirt = "flirts",
+    oom = "gasps for mana",
+    sigh = "sighs",
+    charge = "charges",
+    cry = "cries",
+    congrats = "offers congratulations",
+    followme = "asks you to follow",
+    whistle = "whistles",
+    forthehorde = "cheers for the Horde",
+    forthealliance = "cheers for the Alliance",
+}
+
+local function FormSpeechLine(formName, race)
+    local verbs = formRoarVerb[formName]
+    local creatures = formCreature[formName]
+    if not verbs or not creatures then
+        return nil
+    end
+    local verb = (race and verbs[race]) or verbs.default
+    local creature = (race and creatures[race]) or creatures.default
+    return verb .. " " .. creature .. "."
+end
+
+local function AnimalLine(emoteName, formName, voiceKey)
+    local action = animalActions[emoteName]
+    local creatures = formCreature[formName]
+    if not action or not creatures then
+        return nil
+    end
+    local race = RaceFromVoiceKey(voiceKey)
+    local creature = (race and creatures[race]) or creatures.default
+    return action .. " like " .. creature .. ", but nobody understands a word."
+end
+
+local formRoarLines = {}
+for formName in pairs(formRoarFile) do
+    formRoarLines[formName] = FormSpeechLine(formName)
+end
 local formSpellToRoar = {
     [5487] = "bearroar",
     [9634] = "bearroar",
@@ -819,23 +912,48 @@ local function MatchesCustomEmoteLine(text, sender, line)
         or (normalizedSender and text == normalizedSender .. " " .. line)
 end
 
+-- Exact English lines. A racial line forces that race's creature file even
+-- when the sender's race cannot be resolved.
+local customLines = {}
+local function AddCustomLine(line, emote, race)
+    if line then
+        customLines[line] = { emote = emote, race = race }
+    end
+end
+
+AddCustomLine(TRAIN_LINE, "train", nil)
+for formName, line in pairs(formRoarLines) do
+    AddCustomLine(line, formName, nil)
+    local creatures = formCreature[formName]
+    for race in pairs(creatures) do
+        if race ~= "default" then
+            AddCustomLine(FormSpeechLine(formName, race), formName, race)
+        end
+    end
+end
+for emoteName in pairs(animalActions) do
+    for formName in pairs(formCreature) do
+        AddCustomLine(AnimalLine(emoteName, formName, nil), formName, nil)
+        for race in pairs(formCreature[formName]) do
+            if race ~= "default" then
+                AddCustomLine(AnimalLine(emoteName, formName, race .. "Male"), formName, race)
+            end
+        end
+    end
+end
+for emoteName, info in pairs(factionEmotes) do
+    AddCustomLine(info.line, emoteName, nil)
+end
+
 local function DetectEmote(text, event, sender)
     text = PlainString(text)
     if not text then return nil end
     text = NormalizeText(text)
     if event == "CHAT_MSG_EMOTE" then
         -- Custom emotes are arbitrary prose. Accept only exact addon messages.
-        if MatchesCustomEmoteLine(text, sender, TRAIN_LINE) then
-            return "train"
-        end
-        for emoteName, line in pairs(formRoarLines) do
+        for line, info in pairs(customLines) do
             if MatchesCustomEmoteLine(text, sender, line) then
-                return emoteName
-            end
-        end
-        for emoteName, info in pairs(factionEmotes) do
-            if MatchesCustomEmoteLine(text, sender, info.line) then
-                return emoteName
+                return info.emote, info.race
             end
         end
         return nil
@@ -945,7 +1063,7 @@ local function AddonEnabled()
 end
 
 local function AddonOperational()
-    return AddonEnabled() and not IsBattlegroundContext()
+    return AddonEnabled() and not IsAddonSuppressed()
 end
 
 local function SetAddonEnabled(enabled)
@@ -962,9 +1080,24 @@ RF.SetAddonEnabled = SetAddonEnabled
 RF.EmoteEnabled = EmoteEnabled
 
 local previewPools = {}
-function RF.Preview(emote)
-    if IsBattlegroundContext() then
+function RF.Preview(emote, voiceKey)
+    if IsAddonSuppressed() then
         return false
+    end
+    if formRoarFile[emote] then
+        local fileDataID = FormFileFor(emote, voiceKey or GetVoiceKeyForUnit("player"))
+        if not fileDataID then
+            return false
+        end
+        if previewSoundHandle and StopSound then
+            StopSound(previewSoundHandle)
+            previewSoundHandle = nil
+        end
+        local ok, handle = PlaySoundFile(fileDataID, "Dialog")
+        if ok then
+            previewSoundHandle = handle
+        end
+        return ok and true or false, handle
     end
     local pool = previewPools[emote]
     if not pool then
@@ -1044,7 +1177,7 @@ local function ShouldRestoreFromText(emoteName, sender, guid)
     return true
 end
 
-local function PlayTextEmote(emoteName, sender, guid)
+local function PlayTextEmote(emoteName, sender, guid, raceHint)
     if not AddonOperational() or not EmoteEnabled(emoteName) then
         return
     end
@@ -1054,9 +1187,15 @@ local function PlayTextEmote(emoteName, sender, guid)
     if not CanPlayForSender(sender, guid, emoteName) then
         return
     end
-    local formFile = formRoarFile[emoteName]
-    if formFile then
-        PlaySoundFileForSpeaker(SpeakerKey(sender, guid), formFile, "TEXT")
+    if formRoarFile[emoteName] then
+        local voiceKey = GetSenderVoiceKey(sender, guid)
+        if raceHint and RaceFromVoiceKey(voiceKey) ~= raceHint then
+            voiceKey = raceHint .. "Male"
+        end
+        local formFile = FormFileFor(emoteName, voiceKey)
+        if formFile then
+            PlaySoundFileForSpeaker(SpeakerKey(sender, guid), formFile, "TEXT")
+        end
         return
     end
     local voiceKey = GetSenderVoiceKey(sender, guid)
@@ -1077,12 +1216,12 @@ local function HandleChatEmote(event, text, sender, guid)
         return
     end
 
-    local emoteName = DetectEmote(text, event, sender)
+    local emoteName, raceHint = DetectEmote(text, event, sender)
     if not emoteName or not EmoteEnabled(emoteName) then
         return
     end
 
-    PlayTextEmote(emoteName, sender, guid)
+    PlayTextEmote(emoteName, sender, guid, raceHint)
 end
 
 local function StopAllRestoredSounds()
@@ -1098,9 +1237,67 @@ local function StopAllRestoredSounds()
     end
 end
 
+local OWNED_SLASH_KEYS = { "ROARFOREVERROAR", "ROARFOREVERTRAIN", "ROARFOREVERFTH", "ROARFOREVERFTA" }
+local rememberedSlash
+local slashesReleased = false
+
+local function EachOwnedSlash()
+    local list = {}
+    for _, key in ipairs(OWNED_SLASH_KEYS) do
+        local index = 1
+        while true do
+            local command = _G["SLASH_" .. key .. index]
+            if not command then
+                break
+            end
+            list[#list + 1] = { key = key, command = string.upper(command) }
+            index = index + 1
+        end
+    end
+    return list
+end
+
+local function RememberOwnedSlashes()
+    if rememberedSlash then
+        return
+    end
+    if not hash_SlashCmdList then
+        hash_SlashCmdList = {}
+    end
+    local sampleType
+    for _, value in pairs(hash_SlashCmdList) do
+        sampleType = type(value)
+        break
+    end
+    rememberedSlash = {}
+    for _, entry in ipairs(EachOwnedSlash()) do
+        local current = hash_SlashCmdList[entry.command]
+        if current ~= nil then
+            rememberedSlash[entry.command] = current
+        elseif sampleType == "function" then
+            rememberedSlash[entry.command] = SlashCmdList[entry.key]
+        else
+            rememberedSlash[entry.command] = entry.key
+        end
+    end
+end
+
+local function SetOwnedSlashesReleased(released)
+    RememberOwnedSlashes()
+    slashesReleased = released and true or false
+    for command, value in pairs(rememberedSlash) do
+        if slashesReleased then
+            hash_SlashCmdList[command] = nil
+        else
+            hash_SlashCmdList[command] = value
+        end
+    end
+end
+
 frame:SetScript("OnEvent", function(self, event, ...)
     if event == "PLAYER_ENTERING_WORLD" then
-        if IsBattlegroundContext() then
+        SetOwnedSlashesReleased(IsAddonSuppressed())
+        if IsAddonSuppressed() then
             StopAllRestoredSounds()
         end
         return
@@ -1143,12 +1340,12 @@ SlashCmdList.ROARFOREVER = function(msg)
         return
     end
 
-    if IsBattlegroundContext() then
+    if IsAddonSuppressed() then
         if lower == "status" then
-            print("Roar Forever is disabled while inside battlegrounds.")
+            print("Roar Forever leaves emotes to the game in dungeons and battlegrounds.")
         elseif lower ~= "off" and lower ~= "disable" and lower ~= "on" and lower ~= "enable"
             and lower ~= "" and lower ~= "config" and lower ~= "ui" then
-            print("Roar Forever is disabled while inside battlegrounds.")
+            print("Roar Forever leaves emotes to the game in dungeons and battlegrounds.")
         end
         if lower ~= "off" and lower ~= "disable" and lower ~= "on" and lower ~= "enable"
             and lower ~= "" and lower ~= "config" and lower ~= "ui" then
@@ -1203,8 +1400,8 @@ SlashCmdList.ROARFOREVER = function(msg)
 
         table.sort(mapped)
             local state = AddonEnabled() and "on" or "off"
-        if IsBattlegroundContext() then
-            state = state .. " (suppressed in battleground)"
+        if IsAddonSuppressed() then
+            state = state .. " (emotes left to the game)"
         end
         print("Roar Forever is " .. state .. ". Detected " .. voiceKey .. "; mapped emotes: " .. (#mapped > 0 and table.concat(mapped, ", ") or "none"))
         return
@@ -1240,18 +1437,19 @@ local function CustomAnnounceEnabled()
     return SettingsDB().announceTrain ~= false
 end
 
-local function AnnounceCustomLine(emoteName, line)
+local function AnnounceCustomLine(emoteName, line, cooldownKey)
     if not AddonOperational() or not EmoteEnabled(emoteName) or not CustomAnnounceEnabled() then
         return
     end
 
+    local key = cooldownKey or emoteName
     local now = GetTime()
-    local last = lastCustomAnnounce[emoteName] or 0
+    local last = lastCustomAnnounce[key] or 0
     if now - last < 1 then
         return
     end
 
-    lastCustomAnnounce[emoteName] = now
+    lastCustomAnnounce[key] = now
     SendEmoteLine(line)
 end
 
@@ -1357,7 +1555,7 @@ local function GetPlayerFormRoar()
 end
 
 local function PlayLocalFormRoar(emoteName)
-    local fileDataID = formRoarFile[emoteName]
+    local fileDataID = FormFileFor(emoteName, GetVoiceKeyForUnit("player"))
     if not fileDataID then
         return false
     end
@@ -1369,15 +1567,30 @@ local function PlayLocalFormRoar(emoteName)
     return PlaySoundFileForSpeaker(SpeakerKey(sender, guid), fileDataID, "LOCAL_FORM")
 end
 
+-- While a known form is active, a voiced slash speaks as that animal instead
+-- of calling DoEmote. A disabled form row or emote row leaves the emote alone.
+local function SpeakInForm(emoteName)
+    local form = GetPlayerFormRoar()
+    if not form or not AddonOperational() or not EmoteEnabled(form) or not EmoteEnabled(emoteName) then
+        return false
+    end
+    local voiceKey = GetVoiceKeyForUnit("player")
+    local line = AnimalLine(emoteName, form, voiceKey)
+    if not line then
+        return false
+    end
+    PlayLocalFormRoar(form)
+    AnnounceCustomLine(form, line, form .. ":" .. emoteName)
+    return true
+end
+
 -- Slash commands are checked before built-in emote tokens, so this replaces
--- /roar. In bear, cat, spirit wolf, aquatic, or moonkin form the normal roar sentence is not
--- sent. The form line is the only signal other Roar Forever users get.
+-- /roar. In bear, cat, spirit wolf, aquatic, moonkin, or travel form the normal
+-- roar sentence is not sent. The form line is the only signal other users get.
 SLASH_ROARFOREVERROAR1 = "/roar"
 SlashCmdList.ROARFOREVERROAR = function()
-    if IsBattlegroundContext() then
-        if DoEmote then
-            pcall(DoEmote, "ROAR")
-        end
+    if IsAddonSuppressed() then
+        SetOwnedSlashesReleased(true)
         return
     end
 
@@ -1390,14 +1603,15 @@ SlashCmdList.ROARFOREVERROAR = function()
     end
 
     PlayLocalFormRoar(form)
-    AnnounceCustomLineFromInput(form, formRoarLines[form])
+    AnnounceCustomLineFromInput(form, FormSpeechLine(form, RaceFromVoiceKey(GetVoiceKeyForUnit("player"))))
 end
 
 -- Slash commands are checked before built-in emote tokens, so this replaces
 -- the silent game /train and still plays the choo-choo through DoEmote.
 SLASH_ROARFOREVERTRAIN1 = "/train"
 SlashCmdList.ROARFOREVERTRAIN = function()
-    if IsBattlegroundContext() then
+    if IsAddonSuppressed() then
+        SetOwnedSlashesReleased(true)
         return
     end
     if DoEmote then
@@ -1412,7 +1626,11 @@ if not SlashCmdList.FTH then
     SLASH_ROARFOREVERFTH2 = "/fth"
 end
 SlashCmdList.ROARFOREVERFTH = function()
-    if IsBattlegroundContext() then
+    if IsAddonSuppressed() then
+        SetOwnedSlashesReleased(true)
+        return
+    end
+    if SpeakInForm("forthehorde") then
         return
     end
     HandleFactionCry("forthehorde", false)
@@ -1423,15 +1641,67 @@ if not SlashCmdList.FTA then
     SLASH_ROARFOREVERFTA2 = "/fta"
 end
 SlashCmdList.ROARFOREVERFTA = function()
-    if IsBattlegroundContext() then
+    if IsAddonSuppressed() then
+        SetOwnedSlashesReleased(true)
+        return
+    end
+    if SpeakInForm("forthealliance") then
         return
     end
     HandleFactionCry("forthealliance", false)
 end
 
+-- Out of form these call the native token. In a dungeon, battleground, or
+-- arena they are given back to the game with the other owned slashes.
+local animalSlashes = {
+    { emote = "cheer", token = "CHEER", commands = { "/cheer" } },
+    { emote = "laugh", token = "LAUGH", commands = { "/laugh", "/lol" } },
+    { emote = "joke", token = "JOKE", commands = { "/joke" } },
+    { emote = "moo", token = "MOO", commands = { "/moo" } },
+    { emote = "flee", token = "FLEE", commands = { "/flee" } },
+    { emote = "flee", token = "RETREAT", commands = { "/retreat" } },
+    { emote = "welcome", token = "WELCOME", commands = { "/welcome" } },
+    { emote = "hello", token = "HELLO", commands = { "/hello", "/hi" } },
+    { emote = "bye", token = "BYE", commands = { "/bye", "/goodbye", "/farewell" } },
+    { emote = "yes", token = "NOD", commands = { "/yes", "/nod" } },
+    { emote = "no", token = "NO", commands = { "/no" } },
+    { emote = "healme", token = "HEALME", commands = { "/healme" } },
+    { emote = "rasp", token = "RASP", commands = { "/rasp" } },
+    { emote = "rasp", token = "RUDE", commands = { "/rude" } },
+    { emote = "flirt", token = "FLIRT", commands = { "/flirt" } },
+    { emote = "oom", token = "OOM", commands = { "/oom" } },
+    { emote = "sigh", token = "SIGH", commands = { "/sigh" } },
+    { emote = "charge", token = "CHARGE", commands = { "/charge" } },
+    { emote = "cry", token = "CRY", commands = { "/cry" } },
+    { emote = "congrats", token = "CONGRATULATE", commands = { "/congrats", "/congratulate", "/grats" } },
+    { emote = "followme", token = "FOLLOW", commands = { "/follow", "/followme" } },
+    { emote = "whistle", token = "WHISTLE", commands = { "/whistle" } },
+}
+for _, entry in ipairs(animalSlashes) do
+    local emoteName = entry.emote
+    local token = entry.token
+    local key = "ROARFOREVER" .. token
+    OWNED_SLASH_KEYS[#OWNED_SLASH_KEYS + 1] = key
+    for commandIndex, command in ipairs(entry.commands) do
+        _G["SLASH_" .. key .. commandIndex] = command
+    end
+    SlashCmdList[key] = function()
+        if IsAddonSuppressed() then
+            SetOwnedSlashesReleased(true)
+            return
+        end
+        if SpeakInForm(emoteName) then
+            return
+        end
+        if DoEmote then
+            DoEmote(token)
+        end
+    end
+end
+
 if hooksecurefunc and DoEmote then
     hooksecurefunc("DoEmote", function(emote)
-        if IsBattlegroundContext() then
+        if IsAddonSuppressed() then
             return
         end
         if IsTrainToken(emote) then
@@ -1443,3 +1713,5 @@ if hooksecurefunc and DoEmote then
         if emoteName then HandleFactionCry(emoteName, true) end
     end)
 end
+
+SetOwnedSlashesReleased(IsAddonSuppressed())
