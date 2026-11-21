@@ -164,7 +164,7 @@ for locale in ('enUS','deDE','frFR','esES','ruRU','enGB','esMX'):
         count+=1
     ns.OpenOptions()
     assert len(lua.globals().RoarForeverOptions.rows)==0  # keyed table, checked below
-    assert sum(1 for _ in lua.globals().RoarForeverOptions.rows.items())==30
+    assert sum(1 for _ in lua.globals().RoarForeverOptions.rows.items())==33
 
 lua,ns=boot()
 lua.execute('''
@@ -505,6 +505,12 @@ now=172
 roarSent=#sent; roarSounds=#sounds
 SlashCmdList.ROARFOREVERROAR()
 assert(sent[#sent].text=='roars like an ursera.' and sounds[#sounds]==8207931 and #sounds==roarSounds+1)
+RF.SettingsDB().emotes.ursera=false
+now=173
+roarSounds=#sounds
+SlashCmdList.ROARFOREVERROAR()
+assert(sounds[#sounds]==544959 and #sounds==roarSounds+1)
+RF.SettingsDB().emotes.ursera=true
 playerAuras.player={768}
 now=174
 roarSent=#sent; roarSounds=#sounds

@@ -8,7 +8,7 @@ Release notes for the standalone player voice-emote sound addon.
 - A Skyborne bear says `roars like an ursera.` and plays the ursera's own voice. A Skyborne cat says `roars like a prideclaw.` and plays the prideclaw's own voice. Skyborne travel says `cries like a galestrider.` and plays the strider cry those isle birds use. Other races keep the shared bear, cat, and cheetah cries.
 - Out of form, those emotes stay with the game. An emote button or macro that calls the emote directly still uses the normal voice.
 - In a dungeon, battleground, or arena, those emote commands go back to the game.
-- The `/rf` list ends with Skyborne ursera, prideclaw, and galestrider. Each has a speaker button that plays that form's Skyborne cry.
+- The `/rf` list ends with Skyborne ursera, prideclaw, and galestrider. Each has a checkbox and a speaker button. Turning a row off keeps the form and uses the shared bear, cat, or cheetah cry instead.
 
 ## 2026-11-19 — human–AI collaboration record
 

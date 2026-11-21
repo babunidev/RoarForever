@@ -76,9 +76,11 @@ local function BuildPanel()
     end
     for index, entry in ipairs(skyborneListen) do
         local y = -(#RF.order + index - 1) * 31
-        local label = content:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-        label:SetPoint("TOPLEFT", 30, y - 6)
-        label:SetText(RF.locale.labels[entry.key])
+        local key = entry.key
+        local check = Checkbox(content, RF.locale.labels[key], 0, y, function(enabled)
+            RF.SettingsDB().emotes[key] = enabled
+        end)
+        panel.rows[key] = check
         local speaker = CreateFrame("Button", nil, content, "UIPanelButtonTemplate")
         speaker:SetSize(32, 25)
         speaker:SetPoint("TOPRIGHT", -4, y)

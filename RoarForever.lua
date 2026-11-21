@@ -1082,6 +1082,20 @@ local function EmoteEnabled(emote)
     return SettingsDB().emotes[emote] ~= false
 end
 
+local skyborneSoundToggle = {
+    bearroar = "ursera",
+    catroar = "prideclaw",
+    travelroar = "galestrider",
+}
+
+local function FormFileForPlayback(emoteName, voiceKey)
+    local toggle = skyborneSoundToggle[emoteName]
+    if toggle and RaceFromVoiceKey(voiceKey) == "Skyborne" and not EmoteEnabled(toggle) then
+        return formRoarFile[emoteName]
+    end
+    return FormFileFor(emoteName, voiceKey)
+end
+
 RF.SettingsDB = SettingsDB
 RF.AddonEnabled = AddonEnabled
 RF.SetAddonEnabled = SetAddonEnabled
@@ -1200,7 +1214,7 @@ local function PlayTextEmote(emoteName, sender, guid, raceHint)
         if raceHint and RaceFromVoiceKey(voiceKey) ~= raceHint then
             voiceKey = raceHint .. "Male"
         end
-        local formFile = FormFileFor(emoteName, voiceKey)
+        local formFile = FormFileForPlayback(emoteName, voiceKey)
         if formFile then
             PlaySoundFileForSpeaker(SpeakerKey(sender, guid), formFile, "TEXT")
         end
@@ -1563,7 +1577,7 @@ local function GetPlayerFormRoar()
 end
 
 local function PlayLocalFormRoar(emoteName)
-    local fileDataID = FormFileFor(emoteName, GetVoiceKeyForUnit("player"))
+    local fileDataID = FormFileForPlayback(emoteName, GetVoiceKeyForUnit("player"))
     if not fileDataID then
         return false
     end
