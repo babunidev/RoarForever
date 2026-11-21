@@ -542,7 +542,9 @@ voiceSounds.bye = {
 -- Skyborne bear, cat, and travel use the form models
 -- druidbearskyborne_c60, druidcatskyborne_c60, and druidtravelskyborne_c60
 -- (CreatureSoundData 10728, 10729, and 10727 on Forever 1.60.1.71037).
--- The galestrider aggro is the eagle cry. The ursera and prideclaw models
+-- The travel-form model itself uses an eagle cry. The galestrider mounts
+-- on Zephras (craneskybornemount_c60, CreatureSoundData 10699) use the
+-- tallstrider aggro, so Skyborne travel plays that strider cry. The ursera and prideclaw models
 -- have no aggro of their own: the ursera aggro slot is still the shared bear,
 -- and the prideclaw aggro slot is empty. Their own voices are the attack
 -- files on those models.
@@ -557,7 +559,7 @@ local formRoarFile = {
 local formRoarRaceFile = {
     bearroar = { Skyborne = 8207931 },
     catroar = { Skyborne = 8207961 },
-    travelroar = { Skyborne = 1266218 },
+    travelroar = { Skyborne = 561390 },
 }
 local FORM_RACES = { "Dwarf", "Gnome", "Human", "NightElf", "Orc", "Tauren", "Troll", "Undead", "Skyborne" }
 for formName, fileDataID in pairs(formRoarFile) do

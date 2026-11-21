@@ -499,7 +499,7 @@ SlashCmdList.ROARFOREVERROAR()
 assert(#doEmoteCalls==roarDo and sent[#sent].text=='roars like a bear.' and sounds[#sounds]==544959)
 
 -- Skyborne bear and cat use their own attack voices. Skyborne travel uses
--- the galestrider eagle aggro.
+-- the galestrider tallstrider aggro.
 guidRace['Player-self']='Skyborne'
 now=172
 roarSent=#sent; roarSounds=#sounds
@@ -514,7 +514,7 @@ playerAuras.player={783}
 now=176
 roarSent=#sent; roarSounds=#sounds
 SlashCmdList.ROARFOREVERROAR()
-assert(sent[#sent].text=='cries like a galestrider.' and sounds[#sounds]==1266218)
+assert(sent[#sent].text=='cries like a galestrider.' and sounds[#sounds]==561390)
 now=178
 event('CHAT_MSG_EMOTE','roars like an ursera.','Tester','Player-self'); assert(#sounds==roarSounds+1)
 event('CHAT_MSG_EMOTE','Friend roars like an ursera.','Friend','Player-friend')
